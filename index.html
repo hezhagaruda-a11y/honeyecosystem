@@ -284,7 +284,7 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
         .ido-card .pool-name {
             font-weight: 700;
@@ -319,7 +319,8 @@
             color: var(--text-secondary);
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 2px;
+            margin-top: 4px;
         }
         .ido-card .card-details .row {
             display: flex;
@@ -330,7 +331,7 @@
             height: 4px;
             background: var(--glass-bg);
             border-radius: 40px;
-            margin-top: 10px;
+            margin-top: 8px;
             overflow: hidden;
         }
         .ido-card .card-progress .fill {
@@ -339,6 +340,13 @@
             background: linear-gradient(90deg, var(--accent-purple), var(--accent-blue));
             border-radius: 40px;
             transition: width 0.5s ease;
+        }
+        .ido-card .card-countdown {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--accent-blue);
+            margin-top: 6px;
+            font-variant-numeric: tabular-nums;
         }
         .btn {
             background: var(--accent-purple);
@@ -845,6 +853,7 @@
         let startTime = 0;
         let endTime = 0;
         let poolDataMap = {};
+        let countdownInterval = null;
 
         // DOM refs
         const connectBtn = document.getElementById('connect');
@@ -931,6 +940,15 @@
         function shortenAddress(addr) {
             if (!addr) return '--';
             return addr.slice(0, 6) + '...' + addr.slice(-4);
+        }
+
+        // Countdown formatter
+        function formatCountdown(seconds) {
+            if (seconds <= 0) return '0d 0h 0m';
+            const d = Math.floor(seconds / 86400);
+            const h = Math.floor((seconds % 86400) / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            return `${d}d ${h}h ${m}m`;
         }
 
         // ================================================================
@@ -1203,7 +1221,7 @@
         mintGoldBtn.onclick = () => mintNFT(3);
 
         // ================================================================
-        // TAB 3: IDO (CARDS)
+        // TAB 3: IDO (CARDS) with Countdown
         // ================================================================
 
         // Fetch details for a single pool
@@ -1259,11 +1277,12 @@
                 if (pools.length === 0) {
                     idoPoolCards.innerHTML =
                         `<div style="color:var(--text-secondary); grid-column: span 3; text-align:center; padding: 20px;">No IDO pools deployed yet.</div>`;
-                    // Hide detail view and show placeholder
                     idoDetailView.classList.remove('visible');
                     idoPlaceholder.style.display = 'block';
                     selectedPoolAddress = null;
                     idoContract = null;
+                    if (countdownInterval) { clearInterval(countdownInterval);
+                        countdownInterval = null; }
                     return;
                 }
 
@@ -1277,6 +1296,7 @@
                     const statusClass = details.status;
                     const statusLabel = details.status.charAt(0).toUpperCase() + details.status.slice(1);
                     const activeClass = (selectedPoolAddress === addr) ? 'active' : '';
+                    const countdownId = `countdown-${addr}`;
 
                     html += `
                         <div class="ido-card ${activeClass}" data-addr="${addr}" onclick="selectPool('${addr}')">
@@ -1292,20 +1312,26 @@
                             <div class="card-progress">
                                 <div class="fill" style="width: ${Math.min(details.percentSold, 100)}%;"></div>
                             </div>
+                            <div class="card-countdown" id="${countdownId}">
+                                ${getCountdownText(details)}
+                            </div>
                         </div>
                     `;
                 }
 
                 idoPoolCards.innerHTML = html;
 
-                // If no pool selected, select the first one automatically
+                // Start countdown interval if not already running
+                if (!countdownInterval) {
+                    countdownInterval = setInterval(updateAllCountdowns, 1000);
+                }
+
+                // If no pool selected, select the first one
                 if (!selectedPoolAddress && pools.length > 0) {
                     await selectPool(pools[0]);
                 } else if (selectedPoolAddress && pools.includes(selectedPoolAddress)) {
-                    // Re-select the active one to refresh UI
                     await selectPool(selectedPoolAddress);
                 } else if (selectedPoolAddress && !pools.includes(selectedPoolAddress)) {
-                    // Active pool was removed
                     selectedPoolAddress = null;
                     idoContract = null;
                     idoDetailView.classList.remove('visible');
@@ -1319,22 +1345,54 @@
             }
         }
 
+        // Helper to generate countdown text based on pool status
+        function getCountdownText(details) {
+            const now = Math.floor(Date.now() / 1000);
+            if (details.status === 'ended') return '⏳ Closed';
+            if (details.status === 'paused') return '⏸️ Paused';
+            if (details.status === 'live') {
+                const remaining = details.endTime - now;
+                if (remaining <= 0) return '⏳ Closed';
+                return `⏳ ${formatCountdown(remaining)} remaining`;
+            }
+            if (details.status === 'upcoming') {
+                const startsIn = details.startTime - now;
+                if (startsIn <= 0) {
+                    // Should have become live, but just in case
+                    return '⏳ Starting soon';
+                }
+                return `⏳ Opens in ${formatCountdown(startsIn)}`;
+            }
+            return '';
+        }
+
+        // Update all countdown elements on the cards
+        function updateAllCountdowns() {
+            const cards = document.querySelectorAll('.ido-card');
+            cards.forEach(card => {
+                const addr = card.dataset.addr;
+                const details = poolDataMap[addr];
+                if (!details) return;
+                const countdownEl = document.getElementById(`countdown-${addr}`);
+                if (countdownEl) {
+                    countdownEl.textContent = getCountdownText(details);
+                }
+            });
+        }
+
         // Select a specific pool
         window.selectPool = async function(addr) {
             if (!addr) return;
             selectedPoolAddress = addr;
             idoContract = new ethers.Contract(addr, IDO_ABI, signer);
 
-            // Update card active state
             document.querySelectorAll('.ido-card').forEach(el => {
                 el.classList.toggle('active', el.dataset.addr === addr);
             });
 
-            // Show detail view, hide placeholder
             idoDetailView.classList.add('visible');
             idoPlaceholder.style.display = 'none';
 
-            // Refresh data for this pool
             await refreshIDODetails();
         };
 
@@ -1351,18 +1409,15 @@
                 saleTokenSymbol = details.symbol;
                 quoteSymbol.textContent = saleTokenSymbol;
 
-                // Update status summary
                 const statusLabel = details.status.charAt(0).toUpperCase() + details.status.slice(1);
                 poolStatusBadge.textContent = `Status: ${statusLabel}`;
                 poolSaleTokenLabel.textContent = `Token: ${saleTokenSymbol}`;
                 poolTreasuryLabel.textContent = `Treasury: ${shortenAddress(details.treasury)}`;
 
-                // Update timers
                 startTime = details.startTime;
                 endTime = details.endTime;
                 const now = Math.floor(Date.now() / 1000);
 
-                // Countdown
                 countdownContainer.style.display = "block";
                 if (now < startTime) {
                     const diff = startTime - now;
@@ -1385,7 +1440,6 @@
                 const remainingNum = totalNum - soldNum;
                 const percent = totalNum > 0 ? (soldNum / totalNum) * 100 : 0;
 
-                // POL Raised estimate (if price available)
                 if (userTier > 0) {
                     discountedPolPrice = await idoContract.getDiscountedPriceForTier(userTier);
                     const polPriceFormatted = parseFloat(ethers.formatUnits(discountedPolPrice, 18));
@@ -1412,7 +1466,6 @@
                 const userPurchased = await idoContract.purchased(userAddress);
                 userContributionEl.textContent = `${formatNumber(parseFloat(ethers.formatUnits(userPurchased, 18)))} ${saleTokenSymbol}`;
 
-                // Enable/disable input based on sale state and NFT
                 const isActive = (now >= startTime && now <= endTime && userTier > 0 && !details.paused);
                 polInput.disabled = !isActive || !isConnected;
                 maxBtn.disabled = !isActive || !isConnected;
@@ -1428,9 +1481,7 @@
         // Refresh the entire IDO tab
         async function refreshIDOTab() {
             if (!isConnected) return;
-            // Fetch fresh pool list and re-render
             await renderPoolCards();
-            // If we have a selected pool, refresh details
             if (selectedPoolAddress && idoContract) {
                 await refreshIDODetails();
             }
