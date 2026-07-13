@@ -416,6 +416,36 @@
         .input-flex input::placeholder {
             color: #4a5568;
         }
+        .slippage-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin: 6px 0;
+        }
+        .slippage-control input[type="range"] {
+            flex: 1;
+            background: var(--glass-bg);
+            height: 4px;
+            border-radius: 40px;
+            appearance: none;
+            outline: none;
+        }
+        .slippage-control input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--accent-purple);
+            cursor: pointer;
+        }
+        .slippage-control .slippage-value {
+            font-weight: 600;
+            color: var(--text-primary);
+            min-width: 50px;
+            text-align: center;
+        }
         .quote-box {
             background: var(--glass-bg);
             padding: 10px 16px;
@@ -428,6 +458,10 @@
         .quote-box strong {
             color: var(--text-primary);
             font-size: 18px;
+        }
+        .quote-box .min-label {
+            font-size: 12px;
+            color: var(--text-secondary);
         }
         .price-display {
             font-size: 13px;
@@ -613,10 +647,19 @@
                     <button id="swapBtn" class="btn">Swap</button>
                 </div>
             </div>
+
+            <!-- Slippage Control -->
+            <div class="slippage-control">
+                <span>⚠️ Slippage</span>
+                <input type="range" id="slippageRange" min="0.1" max="5" step="0.1" value="0.5">
+                <span class="slippage-value" id="slippageDisplay">0.5%</span>
+            </div>
+
             <div class="quote-box" id="swapQuote">
                 You receive: <strong id="swapReceive">0.00</strong> <span id="swapReceiveSymbol">HONEY</span>
+                <br><span class="min-label">Minimum (after slippage): <span id="swapMinReceive">0.00</span></span>
             </div>
-            <div style="font-size:12px; color:var(--text-secondary); text-align:center;">⚠️ 0.3% fee applied. Slippage protection: 1%.</div>
+            <div style="font-size:12px; color:var(--text-secondary); text-align:center;">⚠️ 0.3% fee applied.</div>
         </div>
 
         <!-- ======================== TAB 2: MINT NFT ======================== -->
@@ -713,6 +756,13 @@
 
                 <div class="price-display" id="idoPriceDisplay">⏳ Select a pool to see discounted price.</div>
 
+                <!-- Slippage Control for IDO -->
+                <div class="slippage-control">
+                    <span>⚠️ Slippage</span>
+                    <input type="range" id="idoSlippageRange" min="0.1" max="5" step="0.1" value="0.5">
+                    <span class="slippage-value" id="idoSlippageDisplay">0.5%</span>
+                </div>
+
                 <div class="input-flex">
                     <input type="number" id="polInput" placeholder="0.0 POL" step="0.01" min="0" disabled>
                     <button id="maxBtn" class="btn btn-outline" style="padding:10px 16px;" disabled>MAX</button>
@@ -721,6 +771,7 @@
 
                 <div class="quote-box" id="quoteBox">
                     You receive: <strong id="quoteAmount">0.00</strong> <span id="quoteSymbol">SALE</span>
+                    <br><span class="min-label">Minimum (after slippage): <span id="idoMinReceive">0.00</span></span>
                 </div>
             </div>
         </div>
@@ -778,16 +829,18 @@
 
     <script>
         // ================================================================
-        // DEPLOYED ADDRESSES (SEPOLIA - FROM YOUR DEPLOYMENT)
+        // DEPLOYED ADDRESSES (SEPOLIA - UPDATE AFTER NEW DEPLOYMENT)
         // ================================================================
-        const HONEY_ADDRESS = "0xF55983362BDc0911b625fF6FDb0b385eaC766E9D";
-        const USDC_ADDRESS = "0x31e88Be30A10e7E869A3f342A461fF0f9fA0494e";
-        const SPARK_POOL_ADDRESS = "0x74B75d480d56f8c9649BC70ca780EDe66Dd07048";
-        const NFT_ADDRESS = "0x71A4Ea6987fE2c8EA909058816908ECafa384089";
-        const FACTORY_ADDRESS = "0x0943eadD6757534949B3066993f79b297F14F65E";
+        // THESE WILL BE PRINTED BY THE DEPLOYMENT SCRIPT.
+        // COPY THEM HERE AFTER RUNNING THE DEPLOYMENT.
+        const HONEY_ADDRESS = "0x62090D4d4b4F06639A9E020b4b6A904c82e46bc3"; // UPDATED
+        const USDC_ADDRESS = "0xe18433b318bE3E726EBE9bfdB17D6f4c266508E1"; // UPDATED
+        const SPARK_POOL_ADDRESS = "0x9be8B668D609d54CA584dA375A84698E53b425D8"; // UPDATED
+        const NFT_ADDRESS = "0x28334Da567c8Ad0D8259bc4Ab594644F9fD22359"; // UPDATED
+        const FACTORY_ADDRESS = "0x0aBd7A8C0FDe01b48C586Eb0BbFd3349D65E4f3D"; // UPDATED
 
         // ================================================================
-        // ABIs
+        // ABIs (UPDATED)
         // ================================================================
         const ERC20_ABI = [
             "function balanceOf(address) view returns (uint256)",
@@ -799,7 +852,7 @@
 
         const SPARK_POOL_ABI = [
             "function getReserves() view returns (uint256, uint256)",
-            "function swap(uint256,uint256,address) returns (uint256)",
+            "function swap(uint256,uint256,address) returns (uint256)", // amountIn, amountOutMin, tokenIn
             "function seedLiquidity(uint256,uint256)"
         ];
 
@@ -812,7 +865,7 @@
         ];
 
         const IDO_ABI = [
-            "function buy() external payable",
+            "function buy(uint256) external payable", // minTokensOut
             "function purchased(address) view returns (uint256)",
             "function maxPerWallet() view returns (uint256)",
             "function getDiscountedPriceForTier(uint256) view returns (uint256)",
@@ -871,6 +924,16 @@
         const swapBtn = document.getElementById('swapBtn');
         const swapReceive = document.getElementById('swapReceive');
         const swapReceiveSymbol = document.getElementById('swapReceiveSymbol');
+        const swapMinReceive = document.getElementById('swapMinReceive');
+
+        // Slippage refs (DEX)
+        const slippageRange = document.getElementById('slippageRange');
+        const slippageDisplay = document.getElementById('slippageDisplay');
+
+        // IDO Slippage refs
+        const idoSlippageRange = document.getElementById('idoSlippageRange');
+        const idoSlippageDisplay = document.getElementById('idoSlippageDisplay');
+        const idoMinReceive = document.getElementById('idoMinReceive');
 
         // NFT refs
         const bronzePrice = document.getElementById('bronzePrice');
@@ -942,7 +1005,6 @@
             return addr.slice(0, 6) + '...' + addr.slice(-4);
         }
 
-        // Countdown formatter
         function formatCountdown(seconds) {
             if (seconds <= 0) return '0d 0h 0m';
             const d = Math.floor(seconds / 86400);
@@ -950,6 +1012,25 @@
             const m = Math.floor((seconds % 3600) / 60);
             return `${d}d ${h}h ${m}m`;
         }
+
+        // Get slippage value as decimal (e.g., 0.5 -> 0.005)
+        function getSlippagePercent() {
+            return parseFloat(slippageRange.value) / 100;
+        }
+
+        function getIdoSlippagePercent() {
+            return parseFloat(idoSlippageRange.value) / 100;
+        }
+
+        // Update slippage display
+        slippageRange.oninput = () => {
+            slippageDisplay.textContent = slippageRange.value + '%';
+            updateSwapQuote();
+        };
+        idoSlippageRange.oninput = () => {
+            idoSlippageDisplay.textContent = idoSlippageRange.value + '%';
+            updateIDOQuote();
+        };
 
         // ================================================================
         // THEME TOGGLE
@@ -1088,7 +1169,7 @@
         }
 
         // ================================================================
-        // TAB 1: DEX
+        // TAB 1: DEX (UPDATED with Slippage)
         // ================================================================
         async function refreshDEX() {
             try {
@@ -1109,6 +1190,7 @@
             const val = swapAmount.value.trim();
             if (!val || parseFloat(val) <= 0) {
                 swapReceive.textContent = "0.00";
+                swapMinReceive.textContent = "0.00";
                 return;
             }
             try {
@@ -1117,13 +1199,23 @@
                 const isUSDC = swapFromToken.value === "USDC";
                 const reserveIn = isUSDC ? reserve1 : reserve0;
                 const reserveOut = isUSDC ? reserve0 : reserve1;
-                const amountOutWithFee = (reserveOut * amountIn) / (reserveIn + amountIn);
-                const amountOut = amountOutWithFee - (amountOutWithFee * 3n / 1000n);
+                const fee = 30; // 0.3%
+                const amountInWithFee = amountIn * (10000n - BigInt(fee)) / 10000n;
+                const numerator = reserveOut * amountInWithFee;
+                const denominator = reserveIn + amountInWithFee;
+                const amountOut = numerator / denominator;
                 const outNum = parseFloat(ethers.formatUnits(amountOut, 18));
+
+                // Calculate minimum with slippage
+                const slippage = getSlippagePercent();
+                const minOutNum = outNum * (1 - slippage);
+
                 swapReceive.textContent = formatNumber(outNum);
                 swapReceiveSymbol.textContent = isUSDC ? "HONEY" : "USDC";
+                swapMinReceive.textContent = formatNumber(minOutNum);
             } catch (e) {
                 swapReceive.textContent = "Error";
+                swapMinReceive.textContent = "Error";
                 console.error("Quote error:", e);
             }
         }
@@ -1136,10 +1228,21 @@
             if (!sparkPoolContract) return alert("Contract not loaded.");
             const val = swapAmount.value.trim();
             if (!val || parseFloat(val) <= 0) return alert("Enter amount");
+
             const amountIn = ethers.parseUnits(val, 18);
             const isUSDC = swapFromToken.value === "USDC";
             const tokenIn = isUSDC ? USDC_ADDRESS : HONEY_ADDRESS;
             const tokenContract = isUSDC ? usdcContract : honeyContract;
+
+            // Calculate amountOutMin
+            const [reserve0, reserve1] = await sparkPoolContract.getReserves();
+            const reserveIn = isUSDC ? reserve1 : reserve0;
+            const reserveOut = isUSDC ? reserve0 : reserve1;
+            const fee = 30;
+            const amountInWithFee = amountIn * (10000n - BigInt(fee)) / 10000n;
+            const amountOut = (reserveOut * amountInWithFee) / (reserveIn + amountInWithFee);
+            const slippage = getSlippagePercent();
+            const amountOutMin = amountOut * BigInt(Math.floor((1 - slippage) * 10000)) / 10000n;
 
             try {
                 swapBtn.disabled = true;
@@ -1149,8 +1252,7 @@
                     const approveTx = await tokenContract.approve(SPARK_POOL_ADDRESS, amountIn);
                     await approveTx.wait();
                 }
-                const minOut = 0n;
-                const tx = await sparkPoolContract.swap(amountIn, minOut, tokenIn);
+                const tx = await sparkPoolContract.swap(amountIn, amountOutMin, tokenIn);
                 await tx.wait();
                 alert("✅ Swap successful!");
                 swapAmount.value = "";
@@ -1159,7 +1261,7 @@
                 console.error(e);
                 let msg = e.reason || e.message || "Transaction failed";
                 if (msg.includes("insufficient")) msg = "Insufficient balance or allowance.";
-                if (msg.includes("Slippage")) msg = "Slippage exceeded. Try a smaller amount.";
+                if (msg.includes("Slippage")) msg = "Slippage exceeded. Try increasing tolerance or a smaller amount.";
                 alert("❌ Swap failed: " + msg);
             } finally {
                 swapBtn.disabled = false;
@@ -1168,7 +1270,7 @@
         };
 
         // ================================================================
-        // TAB 2: NFT
+        // TAB 2: NFT (Unchanged)
         // ================================================================
         async function refreshNFT() {
             try {
@@ -1221,53 +1323,8 @@
         mintGoldBtn.onclick = () => mintNFT(3);
 
         // ================================================================
-        // TAB 3: IDO (CARDS) with Countdown
+        // TAB 3: IDO (UPDATED with Slippage)
         // ================================================================
-
-        // Fetch details for a single pool
-        async function fetchPoolDetails(addr) {
-            try {
-                const poolContract = new ethers.Contract(addr, IDO_ABI, signer);
-                const saleTokenAddr = await poolContract.saleToken();
-                const tokenContract = new ethers.Contract(saleTokenAddr, ERC20_ABI, provider);
-                const symbol = await tokenContract.symbol().catch(() => 'TOK');
-                const treasury = await poolContract.treasury();
-                const start = Number(await poolContract.startTime());
-                const end = Number(await poolContract.endTime());
-                const totalSold = await poolContract.totalSold();
-                const totalSupply = await poolContract.totalSupplyForSale();
-                const paused = await poolContract.paused();
-
-                const soldNum = parseFloat(ethers.formatUnits(totalSold, 18));
-                const totalNum = parseFloat(ethers.formatUnits(totalSupply, 18));
-                const percent = totalNum > 0 ? (soldNum / totalNum) * 100 : 0;
-
-                const now = Math.floor(Date.now() / 1000);
-                let status = 'upcoming';
-                if (paused) status = 'paused';
-                else if (now >= start && now <= end) status = 'live';
-                else if (now > end) status = 'ended';
-
-                return {
-                    address: addr,
-                    symbol: symbol,
-                    treasury: treasury,
-                    startTime: start,
-                    endTime: end,
-                    totalSold: soldNum,
-                    totalSupply: totalNum,
-                    percentSold: percent,
-                    status: status,
-                    paused: paused,
-                    saleTokenAddr: saleTokenAddr
-                };
-            } catch (e) {
-                console.error(`Error fetching details for ${addr}:`, e);
-                return null;
-            }
-        }
-
-        // Render the pool cards
         async function renderPoolCards() {
             if (!isConnected || !factoryContract) return;
             try {
@@ -1321,12 +1378,10 @@
 
                 idoPoolCards.innerHTML = html;
 
-                // Start countdown interval if not already running
                 if (!countdownInterval) {
                     countdownInterval = setInterval(updateAllCountdowns, 1000);
                 }
 
-                // If no pool selected, select the first one
                 if (!selectedPoolAddress && pools.length > 0) {
                     await selectPool(pools[0]);
                 } else if (selectedPoolAddress && pools.includes(selectedPoolAddress)) {
@@ -1345,7 +1400,6 @@
             }
         }
 
-        // Helper to generate countdown text based on pool status
         function getCountdownText(details) {
             const now = Math.floor(Date.now() / 1000);
             if (details.status === 'ended') return '⏳ Closed';
@@ -1357,16 +1411,12 @@
             }
             if (details.status === 'upcoming') {
                 const startsIn = details.startTime - now;
-                if (startsIn <= 0) {
-                    // Should have become live, but just in case
-                    return '⏳ Starting soon';
-                }
+                if (startsIn <= 0) return '⏳ Starting soon';
                 return `⏳ Opens in ${formatCountdown(startsIn)}`;
             }
             return '';
         }
 
-        // Update all countdown elements on the cards
         function updateAllCountdowns() {
             const cards = document.querySelectorAll('.ido-card');
             cards.forEach(card => {
@@ -1380,7 +1430,48 @@
             });
         }
 
-        // Select a specific pool
+        async function fetchPoolDetails(addr) {
+            try {
+                const poolContract = new ethers.Contract(addr, IDO_ABI, signer);
+                const saleTokenAddr = await poolContract.saleToken();
+                const tokenContract = new ethers.Contract(saleTokenAddr, ERC20_ABI, provider);
+                const symbol = await tokenContract.symbol().catch(() => 'TOK');
+                const treasury = await poolContract.treasury();
+                const start = Number(await poolContract.startTime());
+                const end = Number(await poolContract.endTime());
+                const totalSold = await poolContract.totalSold();
+                const totalSupply = await poolContract.totalSupplyForSale();
+                const paused = await poolContract.paused();
+
+                const soldNum = parseFloat(ethers.formatUnits(totalSold, 18));
+                const totalNum = parseFloat(ethers.formatUnits(totalSupply, 18));
+                const percent = totalNum > 0 ? (soldNum / totalNum) * 100 : 0;
+
+                const now = Math.floor(Date.now() / 1000);
+                let status = 'upcoming';
+                if (paused) status = 'paused';
+                else if (now >= start && now <= end) status = 'live';
+                else if (now > end) status = 'ended';
+
+                return {
+                    address: addr,
+                    symbol: symbol,
+                    treasury: treasury,
+                    startTime: start,
+                    endTime: end,
+                    totalSold: soldNum,
+                    totalSupply: totalNum,
+                    percentSold: percent,
+                    status: status,
+                    paused: paused,
+                    saleTokenAddr: saleTokenAddr
+                };
+            } catch (e) {
+                console.error(`Error fetching details for ${addr}:`, e);
+                return null;
+            }
+        }
+
         window.selectPool = async function(addr) {
             if (!addr) return;
             selectedPoolAddress = addr;
@@ -1396,7 +1487,6 @@
             await refreshIDODetails();
         };
 
-        // Refresh the detailed view for the selected pool
         async function refreshIDODetails() {
             if (!isConnected || !idoContract || !selectedPoolAddress) {
                 return;
@@ -1432,7 +1522,6 @@
                     bigCountdown.innerHTML = `<span style="color:#ef4444;">⏳ Sale Ended</span>`;
                 }
 
-                // Update stats from live contract data
                 const totalSold = await idoContract.totalSold();
                 const totalSupply = await idoContract.totalSupplyForSale();
                 const soldNum = parseFloat(ethers.formatUnits(totalSold, 18));
@@ -1478,7 +1567,6 @@
             }
         }
 
-        // Refresh the entire IDO tab
         async function refreshIDOTab() {
             if (!isConnected) return;
             await renderPoolCards();
@@ -1487,29 +1575,37 @@
             }
         }
 
-        // Quote update
+        // UPDATED with slippage
         async function updateIDOQuote() {
             if (!isConnected || userTier === 0 || discountedPolPrice === 0n || !idoContract) {
                 quoteAmount.textContent = "0.00";
+                idoMinReceive.textContent = "0.00";
                 return;
             }
             const val = polInput.value.trim();
             if (!val || parseFloat(val) <= 0) {
                 quoteAmount.textContent = "0.00";
+                idoMinReceive.textContent = "0.00";
                 return;
             }
             try {
                 const polAmount = ethers.parseUnits(val, 18);
                 const tokenAmount = (polAmount * 1e18) / discountedPolPrice;
-                quoteAmount.textContent = formatNumber(parseFloat(ethers.formatUnits(tokenAmount, 18)));
+                const tokensNum = parseFloat(ethers.formatUnits(tokenAmount, 18));
+
+                const slippage = getIdoSlippagePercent();
+                const minTokensNum = tokensNum * (1 - slippage);
+
+                quoteAmount.textContent = formatNumber(tokensNum);
+                idoMinReceive.textContent = formatNumber(minTokensNum);
             } catch (e) {
                 quoteAmount.textContent = "Error";
+                idoMinReceive.textContent = "Error";
             }
         }
 
         polInput.oninput = updateIDOQuote;
 
-        // Refresh Button
         idoRefreshBtn.onclick = async () => {
             idoRefreshBtn.textContent = "⟳";
             await renderPoolCards();
@@ -1535,18 +1631,25 @@
             } catch (e) { console.error(e); }
         };
 
-        // BUY button
+        // BUY button (UPDATED with minTokensOut)
         buyBtn.onclick = async () => {
             if (!isConnected) return alert("Connect wallet");
             if (userTier === 0) return alert("You need an Investor NFT");
             if (!idoContract) return alert("Select a pool first");
             const val = polInput.value.trim();
             if (!val || parseFloat(val) <= 0) return alert("Enter POL amount");
+
             const polAmount = ethers.parseUnits(val, 18);
+
+            // Calculate minTokensOut based on current quote and slippage
+            const tokenAmount = (polAmount * 1e18) / discountedPolPrice;
+            const slippage = getIdoSlippagePercent();
+            const minTokensOut = tokenAmount * BigInt(Math.floor((1 - slippage) * 10000)) / 10000n;
+
             try {
                 buyBtn.disabled = true;
                 buyBtn.textContent = "Buying...";
-                const tx = await idoContract.buy({ value: polAmount });
+                const tx = await idoContract.buy(minTokensOut, { value: polAmount });
                 await tx.wait();
                 alert("🎉 Purchase successful!");
                 polInput.value = "";
@@ -1555,6 +1658,7 @@
                 console.error(e);
                 let msg = e.reason || e.message || "Transaction failed";
                 if (msg.includes("Wallet cap")) msg = "You reached your allocation limit";
+                if (msg.includes("Slippage")) msg = "Slippage exceeded. Try increasing tolerance or a smaller amount.";
                 alert("❌ " + msg);
             } finally {
                 buyBtn.disabled = false;
@@ -1563,7 +1667,7 @@
         };
 
         // ================================================================
-        // TAB 4: ADMIN
+        // TAB 4: ADMIN (Unchanged)
         // ================================================================
         async function refreshAdmin() {
             if (!isConnected) return;
