@@ -7,8 +7,7 @@
     <script src="https://cdn.jsdelivr.net/npm/ethers@6.7.0/dist/ethers.umd.min.js">
     </script>
     <style>
-        /* ----- same as before (unchanged for brevity) ----- */
-        /* [Full CSS from the previous dashboard – kept identical] */
+        /* ----- GLOBAL RESET & SOFTENED THEME ----- */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --bg-primary: #161b22;
@@ -764,12 +763,11 @@
             "function mintGold() external"
         ];
 
-        // Updated ABI for IDOLaunch – note that getDiscountedPriceForTier is not view
         const IDO_ABI = [
             "function buy(uint256) external payable",
             "function purchased(address) view returns (uint256)",
             "function maxPerWallet() view returns (uint256)",
-            "function getDiscountedPriceForTier(uint256) returns (uint256)", // not view
+            "function getDiscountedPriceForTier(uint256) returns (uint256)",
             "function totalSold() view returns (uint256)",
             "function totalSupplyForSale() view returns (uint256)",
             "function startTime() view returns (uint256)",
@@ -809,7 +807,7 @@
         let poolDataMap = {};
         let countdownInterval = null;
 
-        // DOM refs (same as before)
+        // DOM refs
         const connectBtn = document.getElementById('connect');
         const walletDisplay = document.getElementById('walletDisplay');
         const balanceDisplay = document.getElementById('balanceDisplay');
@@ -881,18 +879,28 @@
         // ================================================================
         function formatNumber(num, decimals = 2) {
             if (num === undefined || num === null || isNaN(num)) return '0.00';
+            // If it's a BigInt, convert to Number (may lose precision for huge numbers, but fine for display)
+            if (typeof num === 'bigint') {
+                num = Number(num) / 1e18; // convert to decimal
+            }
             return Number(num).toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
         }
+
         function formatPrice(price) {
             if (price === undefined || price === null || isNaN(price)) return '--';
+            if (typeof price === 'bigint') {
+                price = Number(price) / 1e18; // convert to decimal
+            }
             let s = price.toFixed(8);
             s = s.replace(/\.?0+$/, '');
             return s;
         }
+
         function shortenAddress(addr) {
             if (!addr) return '--';
             return addr.slice(0, 6) + '...' + addr.slice(-4);
         }
+
         function formatCountdown(seconds) {
             if (seconds <= 0) return '0d 0h 0m';
             const d = Math.floor(seconds / 86400);
@@ -900,6 +908,7 @@
             const m = Math.floor((seconds % 3600) / 60);
             return `${d}d ${h}h ${m}m`;
         }
+
         function getSlippagePercent() { return parseFloat(slippageRange.value) / 100; }
         function getIdoSlippagePercent() { return parseFloat(idoSlippageRange.value) / 100; }
 
@@ -946,7 +955,7 @@
         });
 
         // ================================================================
-        // CONNECT WALLET (unchanged)
+        // CONNECT WALLET
         // ================================================================
         connectBtn.onclick = async () => {
             try {
@@ -1049,7 +1058,7 @@
         }
 
         // ================================================================
-        // TAB 1: DEX (unchanged)
+        // TAB 1: DEX
         // ================================================================
         async function refreshDEX() {
             try {
@@ -1148,7 +1157,7 @@
         };
 
         // ================================================================
-        // TAB 2: NFT (unchanged)
+        // TAB 2: NFT
         // ================================================================
         async function refreshNFT() {
             try {
@@ -1201,7 +1210,7 @@
         mintGoldBtn.onclick = () => mintNFT(3);
 
         // ================================================================
-        // TAB 3: IDO (CARDS) – FIXED WITH staticCall
+        // TAB 3: IDO (CARDS)
         // ================================================================
         async function renderPoolCards() {
             if (!isConnected || !factoryContract) return;
@@ -1486,8 +1495,17 @@
             }
         }
 
+        // ================================================================
+        // UPDATED QUOTE FUNCTION – FIXED WITH BIGINT
+        // ================================================================
         async function updateIDOQuote() {
-            if (!isConnected || userTier === 0 || discountedPolPrice === 0n || !idoContract) {
+            if (!isConnected || userTier === 0 || !idoContract) {
+                quoteAmount.textContent = "0.00";
+                idoMinReceive.textContent = "0.00";
+                return;
+            }
+            // If discountedPolPrice is zero or undefined, show zero
+            if (!discountedPolPrice || discountedPolPrice === 0n) {
                 quoteAmount.textContent = "0.00";
                 idoMinReceive.textContent = "0.00";
                 return;
@@ -1500,13 +1518,17 @@
             }
             try {
                 const polAmount = ethers.parseUnits(val, 18);
-                const tokenAmount = (polAmount * 1e18) / discountedPolPrice;
-                const tokensNum = parseFloat(ethers.formatUnits(tokenAmount, 18));
+                // Use BigInt arithmetic: tokenAmount = (polAmount * 1e18) / discountedPolPrice
+                const tokenAmount = (polAmount * 10n ** 18n) / discountedPolPrice;
+                // Convert to decimal for display
+                const tokensNum = Number(tokenAmount) / 1e18;
                 const slippage = getIdoSlippagePercent();
                 const minTokensNum = tokensNum * (1 - slippage);
+
                 quoteAmount.textContent = formatNumber(tokensNum);
                 idoMinReceive.textContent = formatNumber(minTokensNum);
             } catch (e) {
+                console.error("Quote error:", e);
                 quoteAmount.textContent = "Error";
                 idoMinReceive.textContent = "Error";
             }
@@ -1523,14 +1545,16 @@
             idoRefreshBtn.textContent = "⟳";
         };
 
+        // --- MAX BUTTON (also uses BigInt) ---
         maxBtn.onclick = async () => {
             if (!isConnected || userTier === 0 || !idoContract) return alert("Connect wallet & hold NFT");
-            if (discountedPolPrice === 0n) return alert("Price not loaded");
+            if (!discountedPolPrice || discountedPolPrice === 0n) return alert("Price not loaded");
             try {
                 const cap = await idoContract.maxPerWallet();
                 const purchased = await idoContract.purchased(userAddress);
                 const remainingTokens = cap - purchased;
-                const polNeeded = (remainingTokens * discountedPolPrice) / 1e18;
+                // polNeeded = (remainingTokens * discountedPolPrice) / 1e18
+                const polNeeded = (remainingTokens * discountedPolPrice) / 10n ** 18n;
                 const polBal = await provider.getBalance(userAddress);
                 const usable = polNeeded < polBal ? polNeeded : polBal;
                 polInput.value = parseFloat(ethers.formatUnits(usable, 18)).toFixed(4);
@@ -1548,7 +1572,7 @@
             if (!val || parseFloat(val) <= 0) return alert("Enter POL amount");
 
             const polAmount = ethers.parseUnits(val, 18);
-            const tokenAmount = (polAmount * 1e18) / discountedPolPrice;
+            const tokenAmount = (polAmount * 10n ** 18n) / discountedPolPrice;
             const slippage = getIdoSlippagePercent();
             const minTokensOut = tokenAmount * BigInt(Math.floor((1 - slippage) * 10000)) / 10000n;
 
@@ -1573,7 +1597,7 @@
         };
 
         // ================================================================
-        // TAB 4: ADMIN (unchanged)
+        // TAB 4: ADMIN
         // ================================================================
         async function refreshAdmin() {
             if (!isConnected) return;
