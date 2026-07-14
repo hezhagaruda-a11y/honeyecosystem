@@ -879,9 +879,8 @@
         // ================================================================
         function formatNumber(num, decimals = 2) {
             if (num === undefined || num === null || isNaN(num)) return '0.00';
-            // If it's a BigInt, convert to Number (may lose precision for huge numbers, but fine for display)
             if (typeof num === 'bigint') {
-                num = Number(num) / 1e18; // convert to decimal
+                num = Number(num) / 1e18;
             }
             return Number(num).toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
         }
@@ -889,7 +888,7 @@
         function formatPrice(price) {
             if (price === undefined || price === null || isNaN(price)) return '--';
             if (typeof price === 'bigint') {
-                price = Number(price) / 1e18; // convert to decimal
+                price = Number(price) / 1e18;
             }
             let s = price.toFixed(8);
             s = s.replace(/\.?0+$/, '');
@@ -1374,7 +1373,9 @@
             await refreshIDODetails();
         };
 
-        // --- FIX: use staticCall for non-view functions ---
+        // ================================================================
+        // REFRESH IDO DETAILS – WITH DEBUG LOGGING
+        // ================================================================
         async function refreshIDODetails() {
             console.log("refreshIDODetails called, selectedPoolAddress:", selectedPoolAddress);
             if (!isConnected || !idoContract || !selectedPoolAddress) {
@@ -1383,18 +1384,15 @@
             }
 
             try {
-                // 1. Re‑fetch tier
                 const tier = Number(await nftContract.getUserTier(userAddress));
                 userTier = tier;
                 console.log("User tier:", userTier);
 
-                // 2. Update tier display
                 const names = ["None", "🥉 Bronze", "🥈 Silver", "🥇 Gold"];
                 const cls = ["", "bronze", "silver", "gold"];
                 tierDisplay.textContent = `Tier: ${names[tier] || "None"}`;
                 tierDisplay.className = `tier-badge ${cls[tier] || ""}`;
 
-                // 3. Get pool details – fetch directly if cache miss
                 let details = poolDataMap[selectedPoolAddress];
                 if (!details) {
                     console.log("Cache miss, fetching details directly");
@@ -1430,7 +1428,6 @@
                     bigCountdown.innerHTML = `<span style="color:#ef4444;">⏳ Sale Ended</span>`;
                 }
 
-                // Stats
                 const totalSold = await idoContract.totalSold();
                 const totalSupply = await idoContract.totalSupplyForSale();
                 const soldNum = parseFloat(ethers.formatUnits(totalSold, 18));
@@ -1438,12 +1435,12 @@
                 const remainingNum = totalNum - soldNum;
                 const percent = totalNum > 0 ? (soldNum / totalNum) * 100 : 0;
 
-                // ---- FIX: use staticCall to simulate the non-view function ----
+                // ---- Fetch discounted price ----
                 if (tier > 0) {
                     try {
-                        // This will simulate the call without sending a transaction
                         const discountedPriceWei = await idoContract.getDiscountedPriceForTier.staticCall(tier);
                         discountedPolPrice = discountedPriceWei;
+                        console.log("Discounted price (wei):", discountedPolPrice.toString());
                         const polPriceFormatted = parseFloat(ethers.formatUnits(discountedPolPrice, 18));
                         idoPriceDisplay.textContent = `💲 Discounted Price: ${formatPrice(polPriceFormatted)} POL per ${saleTokenSymbol}`;
                         if (totalSold > 0) {
@@ -1468,13 +1465,25 @@
                 percentDisplay.textContent = `${percent.toFixed(2)}% SOLD`;
                 idoProgress.style.width = `${Math.min(percent, 100)}%`;
 
-                const cap = await idoContract.maxPerWallet();
-                capDisplay.textContent = `Cap: ${formatNumber(parseFloat(ethers.formatUnits(cap, 18)))} ${saleTokenSymbol}`;
+                // ---- Fetch maxPerWallet ----
+                try {
+                    const cap = await idoContract.maxPerWallet();
+                    console.log("maxPerWallet (wei):", cap.toString());
+                    capDisplay.textContent = `Cap: ${formatNumber(parseFloat(ethers.formatUnits(cap, 18)))} ${saleTokenSymbol}`;
+                    // Store cap for later use
+                    window._cap = cap;
+                } catch (capError) {
+                    console.warn("Error fetching maxPerWallet:", capError);
+                    capDisplay.textContent = `Cap: --`;
+                    window._cap = 0n;
+                }
 
                 const userPurchased = await idoContract.purchased(userAddress);
                 userContributionEl.textContent = `${formatNumber(parseFloat(ethers.formatUnits(userPurchased, 18)))} ${saleTokenSymbol}`;
 
+                // ---- Determine if sale is active ----
                 const isActive = (now >= startTime && now <= endTime && tier > 0 && !details.paused && discountedPolPrice > 0);
+                console.log("isActive:", isActive, "now:", now, "startTime:", startTime, "endTime:", endTime);
                 polInput.disabled = !isActive || !isConnected;
                 maxBtn.disabled = !isActive || !isConnected;
                 buyBtn.disabled = !isActive || !isConnected;
@@ -1496,7 +1505,7 @@
         }
 
         // ================================================================
-        // UPDATED QUOTE FUNCTION – FIXED WITH BIGINT
+        // UPDATE IDO QUOTE (with BigInt)
         // ================================================================
         async function updateIDOQuote() {
             if (!isConnected || userTier === 0 || !idoContract) {
@@ -1504,7 +1513,6 @@
                 idoMinReceive.textContent = "0.00";
                 return;
             }
-            // If discountedPolPrice is zero or undefined, show zero
             if (!discountedPolPrice || discountedPolPrice === 0n) {
                 quoteAmount.textContent = "0.00";
                 idoMinReceive.textContent = "0.00";
@@ -1518,9 +1526,7 @@
             }
             try {
                 const polAmount = ethers.parseUnits(val, 18);
-                // Use BigInt arithmetic: tokenAmount = (polAmount * 1e18) / discountedPolPrice
                 const tokenAmount = (polAmount * 10n ** 18n) / discountedPolPrice;
-                // Convert to decimal for display
                 const tokensNum = Number(tokenAmount) / 1e18;
                 const slippage = getIdoSlippagePercent();
                 const minTokensNum = tokensNum * (1 - slippage);
@@ -1545,28 +1551,63 @@
             idoRefreshBtn.textContent = "⟳";
         };
 
-        // --- MAX BUTTON (also uses BigInt) ---
+        // ================================================================
+        // MAX BUTTON (with debug logging)
+        // ================================================================
         maxBtn.onclick = async () => {
             if (!isConnected || userTier === 0 || !idoContract) return alert("Connect wallet & hold NFT");
             if (!discountedPolPrice || discountedPolPrice === 0n) return alert("Price not loaded");
             try {
                 const cap = await idoContract.maxPerWallet();
+                console.log("MAX: cap (wei):", cap.toString());
                 const purchased = await idoContract.purchased(userAddress);
+                console.log("MAX: purchased (wei):", purchased.toString());
                 const remainingTokens = cap - purchased;
+                console.log("MAX: remainingTokens (wei):", remainingTokens.toString());
                 // polNeeded = (remainingTokens * discountedPolPrice) / 1e18
                 const polNeeded = (remainingTokens * discountedPolPrice) / 10n ** 18n;
+                console.log("MAX: polNeeded (wei):", polNeeded.toString());
                 const polBal = await provider.getBalance(userAddress);
+                console.log("MAX: user POL balance (wei):", polBal.toString());
                 const usable = polNeeded < polBal ? polNeeded : polBal;
+                console.log("MAX: usable (wei):", usable.toString());
                 polInput.value = parseFloat(ethers.formatUnits(usable, 18)).toFixed(4);
                 await updateIDOQuote();
-            } catch (e) { console.error(e); }
+            } catch (e) {
+                console.error(e);
+                alert("Error calculating max: " + (e.message || e.reason));
+            }
         };
 
+        // ================================================================
+        // BUY BUTTON (with safety check for sale active)
+        // ================================================================
         buyBtn.onclick = async () => {
             if (!isConnected) return alert("Connect wallet");
             if (userTier === 0) return alert("You need an Investor NFT");
             if (!idoContract) return alert("Select a pool first");
             if (discountedPolPrice === 0n) return alert("Price not available – oracle may be offline.");
+
+            // Extra safety: check if sale is active
+            const now = Math.floor(Date.now() / 1000);
+            if (now < startTime) {
+                alert("The sale has not started yet. Please wait.");
+                return;
+            }
+            if (now > endTime) {
+                alert("The sale has ended.");
+                return;
+            }
+            // Check if paused
+            try {
+                const paused = await idoContract.paused();
+                if (paused) {
+                    alert("The pool is paused. Please try again later.");
+                    return;
+                }
+            } catch (e) {
+                console.warn("Could not check paused state", e);
+            }
 
             const val = polInput.value.trim();
             if (!val || parseFloat(val) <= 0) return alert("Enter POL amount");
@@ -1597,7 +1638,7 @@
         };
 
         // ================================================================
-        // TAB 4: ADMIN
+        // TAB 4: ADMIN (unchanged)
         // ================================================================
         async function refreshAdmin() {
             if (!isConnected) return;
@@ -1727,7 +1768,6 @@
         // INIT – URL tab parameter
         // ================================================================
         window.addEventListener('load', async () => {
-            // Auto-select tab from URL parameter
             const urlParams = new URLSearchParams(window.location.search);
             const tabParam = urlParams.get('tab');
             if (tabParam) {
@@ -1745,7 +1785,6 @@
                     }
                 }
             }
-            // Auto-connect if MetaMask already unlocked
             if (window.ethereum && window.ethereum.selectedAddress) {
                 try { await connectBtn.click(); } catch (e) { /* user might reject */ }
             }
