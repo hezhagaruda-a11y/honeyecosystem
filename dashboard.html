@@ -3,47 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🍯 Honey Ecosystem • Full Dashboard</title>
+    <title>🍯 Honey Ecosystem • Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/ethers@6.7.0/dist/ethers.umd.min.js">
     </script>
     <style>
-        /* ----- GLOBAL RESET & THEME (unchanged) ----- */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        /* ----- GLOBAL RESET & SOFTENED THEME (unchanged) ----- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
-            --bg-primary: #0d1117;
+            --bg-primary: #161b22;
             --bg-card: rgba(255, 255, 255, 0.05);
-            --border-card: rgba(255, 255, 255, 0.1);
+            --border-card: rgba(255, 255, 255, 0.08);
             --text-primary: #f0f6fc;
-            --text-secondary: #8b949e;
+            --text-secondary: #a0aec0;
             --accent-purple: #7c3aed;
             --accent-blue: #60a5fa;
             --accent-green: #10b981;
             --accent-red: #ef4444;
             --accent-yellow: #d69e2e;
-            --shadow-glow: 0 0 40px rgba(124, 58, 237, 0.2);
-            --glass-bg: rgba(0, 0, 0, 0.4);
-            --tab-bg: rgba(255, 255, 255, 0.04);
-            --card-hover: rgba(124, 58, 237, 0.15);
+            --shadow-glow: 0 0 40px rgba(124, 58, 237, 0.12);
+            --glass-bg: rgba(0, 0, 0, 0.35);
+            --card-hover: rgba(124, 58, 237, 0.12);
         }
         [data-theme="light"] {
-            --bg-primary: #f6f8fa;
-            --bg-card: rgba(255, 255, 255, 0.8);
-            --border-card: rgba(0, 0, 0, 0.1);
-            --text-primary: #1f2937;
-            --text-secondary: #4b5563;
+            --bg-primary: #f0f4f8;
+            --bg-card: rgba(255, 255, 255, 0.75);
+            --border-card: rgba(0, 0, 0, 0.08);
+            --text-primary: #1a202c;
+            --text-secondary: #4a5568;
+            --shadow-glow: 0 0 40px rgba(124, 58, 237, 0.06);
             --glass-bg: rgba(255, 255, 255, 0.5);
-            --shadow-glow: 0 0 40px rgba(124, 58, 237, 0.1);
-            --tab-bg: rgba(0, 0, 0, 0.04);
-            --card-hover: rgba(124, 58, 237, 0.1);
+            --card-hover: rgba(124, 58, 237, 0.08);
         }
         body {
             font-family: 'Inter', -apple-system, sans-serif;
             background-color: var(--bg-primary);
-            background-image: radial-gradient(circle at 10% 20%, rgba(124, 58, 237, 0.15) 0%, transparent 50%);
+            background-image: radial-gradient(circle at 10% 20%, rgba(124, 58, 237, 0.12) 0%, transparent 50%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -120,12 +114,8 @@
             border: 1px solid var(--border-card);
             font-size: 14px;
         }
-        .wallet-bar .addr {
-            color: var(--text-secondary);
-        }
-        .wallet-bar .balance {
-            font-weight: 600;
-        }
+        .wallet-bar .addr { color: var(--text-secondary); }
+        .wallet-bar .balance { font-weight: 600; }
         .tier-badge {
             display: inline-block;
             padding: 4px 16px;
@@ -135,18 +125,9 @@
             background: #2d3748;
             color: #a0aec0;
         }
-        .tier-badge.bronze {
-            background: #b7791f;
-            color: #fefcbf;
-        }
-        .tier-badge.silver {
-            background: #718096;
-            color: #e2e8f0;
-        }
-        .tier-badge.gold {
-            background: #d69e2e;
-            color: #2d3748;
-        }
+        .tier-badge.bronze { background: #b7791f; color: #fefcbf; }
+        .tier-badge.silver { background: #718096; color: #e2e8f0; }
+        .tier-badge.gold { background: #d69e2e; color: #2d3748; }
         .tabs {
             display: flex;
             gap: 4px;
@@ -184,18 +165,10 @@
             display: none;
             animation: fadeIn 0.3s ease;
         }
-        .tab-content.active {
-            display: block;
-        }
+        .tab-content.active { display: block; }
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(6px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         .section-title {
             font-size: 16px;
@@ -210,16 +183,8 @@
             color: var(--text-secondary);
             margin-bottom: 16px;
         }
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-        .grid-3 {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 12px;
-        }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
         .stat-card {
             background: var(--glass-bg);
             padding: 12px 14px;
@@ -232,10 +197,7 @@
             letter-spacing: 0.04em;
             color: var(--text-secondary);
         }
-        .stat-value {
-            font-size: 18px;
-            font-weight: 600;
-        }
+        .stat-value { font-size: 18px; font-weight: 600; }
         .nft-card {
             background: var(--glass-bg);
             border: 1px solid var(--border-card);
@@ -244,18 +206,9 @@
             text-align: center;
             transition: all 0.2s;
         }
-        .nft-card:hover {
-            border-color: var(--accent-purple);
-        }
-        .nft-card .tier-icon {
-            font-size: 28px;
-            display: block;
-            margin-bottom: 4px;
-        }
-        .nft-card .tier-name {
-            font-weight: 700;
-            font-size: 16px;
-        }
+        .nft-card:hover { border-color: var(--accent-purple); }
+        .nft-card .tier-icon { font-size: 28px; display: block; margin-bottom: 4px; }
+        .nft-card .tier-name { font-weight: 700; font-size: 16px; }
         .nft-card .tier-price {
             font-size: 13px;
             color: var(--text-secondary);
@@ -286,10 +239,7 @@
             align-items: flex-start;
             margin-bottom: 6px;
         }
-        .ido-card .pool-name {
-            font-weight: 700;
-            font-size: 16px;
-        }
+        .ido-card .pool-name { font-weight: 700; font-size: 16px; }
         .ido-card .pool-status {
             font-size: 11px;
             font-weight: 600;
@@ -298,22 +248,10 @@
             text-transform: uppercase;
             letter-spacing: 0.03em;
         }
-        .pool-status.live {
-            background: var(--accent-green);
-            color: white;
-        }
-        .pool-status.upcoming {
-            background: var(--accent-yellow);
-            color: #1a1a1a;
-        }
-        .pool-status.ended {
-            background: var(--accent-red);
-            color: white;
-        }
-        .pool-status.paused {
-            background: #6b7280;
-            color: white;
-        }
+        .pool-status.live { background: var(--accent-green); color: white; }
+        .pool-status.upcoming { background: var(--accent-yellow); color: #1a1a1a; }
+        .pool-status.ended { background: var(--accent-red); color: white; }
+        .pool-status.paused { background: #6b7280; color: white; }
         .ido-card .card-details {
             font-size: 13px;
             color: var(--text-secondary);
@@ -322,10 +260,7 @@
             gap: 2px;
             margin-top: 4px;
         }
-        .ido-card .card-details .row {
-            display: flex;
-            justify-content: space-between;
-        }
+        .ido-card .card-details .row { display: flex; justify-content: space-between; }
         .ido-card .card-progress {
             width: 100%;
             height: 4px;
@@ -379,16 +314,9 @@
             transform: none;
             box-shadow: none;
         }
-        .btn-success {
-            background: var(--accent-green);
-        }
-        .btn-danger {
-            background: var(--accent-red);
-        }
-        .btn-sm {
-            padding: 6px 14px;
-            font-size: 12px;
-        }
+        .btn-success { background: var(--accent-green); }
+        .btn-danger { background: var(--accent-red); }
+        .btn-sm { padding: 6px 14px; font-size: 12px; }
         .input-flex {
             display: flex;
             gap: 10px;
@@ -413,9 +341,7 @@
         .input-flex select:focus {
             border-color: var(--accent-purple);
         }
-        .input-flex input::placeholder {
-            color: #4a5568;
-        }
+        .input-flex input::placeholder { color: #4a5568; }
         .slippage-control {
             display: flex;
             align-items: center;
@@ -455,14 +381,8 @@
             text-align: center;
             color: var(--text-secondary);
         }
-        .quote-box strong {
-            color: var(--text-primary);
-            font-size: 18px;
-        }
-        .quote-box .min-label {
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
+        .quote-box strong { color: var(--text-primary); font-size: 18px; }
+        .quote-box .min-label { font-size: 12px; color: var(--text-secondary); }
         .price-display {
             font-size: 13px;
             color: var(--text-secondary);
@@ -494,10 +414,7 @@
             margin-bottom: 16px;
             border: 1px solid var(--border-card);
         }
-        .admin-section h4 {
-            margin-bottom: 8px;
-            font-size: 15px;
-        }
+        .admin-section h4 { margin-bottom: 8px; font-size: 15px; }
         .admin-section .sub {
             font-size: 13px;
             color: var(--text-secondary);
@@ -517,9 +434,7 @@
             font-weight: 600;
             color: var(--accent-blue);
         }
-        #bigCountdown {
-            font-size: 20px;
-        }
+        #bigCountdown { font-size: 20px; }
         .pool-list {
             max-height: 200px;
             overflow-y: auto;
@@ -546,9 +461,7 @@
             border-top: 1px solid var(--border-card);
             display: none;
         }
-        .ido-detail-view.visible {
-            display: block;
-        }
+        .ido-detail-view.visible { display: block; }
         .ido-placeholder {
             margin-top: 24px;
             padding: 30px 20px;
@@ -573,22 +486,10 @@
             color: var(--text-primary);
         }
         @media (max-width: 600px) {
-            .grid-2,
-            .grid-3 {
-                grid-template-columns: 1fr;
-            }
-            .card {
-                padding: 16px 12px;
-            }
-            .input-flex {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .tabs .tab-btn {
-                flex: 1 1 45%;
-                font-size: 12px;
-                padding: 6px 8px;
-            }
+            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+            .card { padding: 16px 12px; }
+            .input-flex { flex-direction: column; align-items: stretch; }
+            .tabs .tab-btn { flex: 1 1 45%; font-size: 12px; padding: 6px 8px; }
         }
     </style>
 </head>
@@ -829,18 +730,16 @@
 
     <script>
         // ================================================================
-        // DEPLOYED ADDRESSES (SEPOLIA - UPDATE AFTER NEW DEPLOYMENT)
+        // DEPLOYED ADDRESSES (SEPOLIA)
         // ================================================================
-        // THESE WILL BE PRINTED BY THE DEPLOYMENT SCRIPT.
-        // COPY THEM HERE AFTER RUNNING THE DEPLOYMENT.
-        const HONEY_ADDRESS = "0x62090D4d4b4F06639A9E020b4b6A904c82e46bc3"; // UPDATED
-        const USDC_ADDRESS = "0xe18433b318bE3E726EBE9bfdB17D6f4c266508E1"; // UPDATED
-        const SPARK_POOL_ADDRESS = "0x9be8B668D609d54CA584dA375A84698E53b425D8"; // UPDATED
-        const NFT_ADDRESS = "0x28334Da567c8Ad0D8259bc4Ab594644F9fD22359"; // UPDATED
-        const FACTORY_ADDRESS = "0x0aBd7A8C0FDe01b48C586Eb0BbFd3349D65E4f3D"; // UPDATED
+        const HONEY_ADDRESS = "0x62090D4d4b4F06639A9E020b4b6A904c82e46bc3";
+        const USDC_ADDRESS = "0xe18433b318bE3E726EBE9bfdB17D6f4c266508E1";
+        const SPARK_POOL_ADDRESS = "0x9be8B668D609d54CA584dA375A84698E53b425D8";
+        const NFT_ADDRESS = "0x28334Da567c8Ad0D8259bc4Ab594644F9fD22359";
+        const FACTORY_ADDRESS = "0x0aBd7A8C0FDe01b48C586Eb0BbFd3349D65E4f3D";
 
         // ================================================================
-        // ABIs (UPDATED)
+        // ABIs
         // ================================================================
         const ERC20_ABI = [
             "function balanceOf(address) view returns (uint256)",
@@ -852,7 +751,7 @@
 
         const SPARK_POOL_ABI = [
             "function getReserves() view returns (uint256, uint256)",
-            "function swap(uint256,uint256,address) returns (uint256)", // amountIn, amountOutMin, tokenIn
+            "function swap(uint256,uint256,address) returns (uint256)",
             "function seedLiquidity(uint256,uint256)"
         ];
 
@@ -865,7 +764,7 @@
         ];
 
         const IDO_ABI = [
-            "function buy(uint256) external payable", // minTokensOut
+            "function buy(uint256) external payable",
             "function purchased(address) view returns (uint256)",
             "function maxPerWallet() view returns (uint256)",
             "function getDiscountedPriceForTier(uint256) view returns (uint256)",
@@ -897,7 +796,6 @@
         let honeyBalance = 0n;
         let usdcBalance = 0n;
 
-        // IDO multi-pool state
         let allPoolAddresses = [];
         let selectedPoolAddress = null;
         let idoContract = null;
@@ -926,16 +824,13 @@
         const swapReceiveSymbol = document.getElementById('swapReceiveSymbol');
         const swapMinReceive = document.getElementById('swapMinReceive');
 
-        // Slippage refs (DEX)
         const slippageRange = document.getElementById('slippageRange');
         const slippageDisplay = document.getElementById('slippageDisplay');
 
-        // IDO Slippage refs
         const idoSlippageRange = document.getElementById('idoSlippageRange');
         const idoSlippageDisplay = document.getElementById('idoSlippageDisplay');
         const idoMinReceive = document.getElementById('idoMinReceive');
 
-        // NFT refs
         const bronzePrice = document.getElementById('bronzePrice');
         const silverPrice = document.getElementById('silverPrice');
         const goldPrice = document.getElementById('goldPrice');
@@ -943,7 +838,6 @@
         const mintSilverBtn = document.getElementById('mintSilverBtn');
         const mintGoldBtn = document.getElementById('mintGoldBtn');
 
-        // IDO refs
         const idoPoolCards = document.getElementById('idoPoolCards');
         const idoRefreshBtn = document.getElementById('idoRefreshBtn');
         const idoPlaceholder = document.getElementById('idoPlaceholder');
@@ -967,7 +861,6 @@
         const countdownContainer = document.getElementById('countdownContainer');
         const bigCountdown = document.getElementById('bigCountdown');
 
-        // Admin refs
         const poolList = document.getElementById('poolList');
         const adminSaleToken = document.getElementById('adminSaleToken');
         const adminTreasury = document.getElementById('adminTreasury');
@@ -983,28 +876,22 @@
         const adminRemoveBtn = document.getElementById('adminRemoveBtn');
 
         // ================================================================
-        // FORMATTING HELPERS
+        // HELPERS
         // ================================================================
         function formatNumber(num, decimals = 2) {
             if (num === undefined || num === null || isNaN(num)) return '0.00';
-            return Number(num).toLocaleString('en-US', {
-                minimumFractionDigits: decimals,
-                maximumFractionDigits: decimals
-            });
+            return Number(num).toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
         }
-
         function formatPrice(price) {
             if (price === undefined || price === null || isNaN(price)) return '--';
             let s = price.toFixed(8);
             s = s.replace(/\.?0+$/, '');
             return s;
         }
-
         function shortenAddress(addr) {
             if (!addr) return '--';
             return addr.slice(0, 6) + '...' + addr.slice(-4);
         }
-
         function formatCountdown(seconds) {
             if (seconds <= 0) return '0d 0h 0m';
             const d = Math.floor(seconds / 86400);
@@ -1012,17 +899,13 @@
             const m = Math.floor((seconds % 3600) / 60);
             return `${d}d ${h}h ${m}m`;
         }
-
-        // Get slippage value as decimal (e.g., 0.5 -> 0.005)
         function getSlippagePercent() {
             return parseFloat(slippageRange.value) / 100;
         }
-
         function getIdoSlippagePercent() {
             return parseFloat(idoSlippageRange.value) / 100;
         }
 
-        // Update slippage display
         slippageRange.oninput = () => {
             slippageDisplay.textContent = slippageRange.value + '%';
             updateSwapQuote();
@@ -1169,7 +1052,7 @@
         }
 
         // ================================================================
-        // TAB 1: DEX (UPDATED with Slippage)
+        // TAB 1: DEX
         // ================================================================
         async function refreshDEX() {
             try {
@@ -1199,14 +1082,13 @@
                 const isUSDC = swapFromToken.value === "USDC";
                 const reserveIn = isUSDC ? reserve1 : reserve0;
                 const reserveOut = isUSDC ? reserve0 : reserve1;
-                const fee = 30; // 0.3%
+                const fee = 30;
                 const amountInWithFee = amountIn * (10000n - BigInt(fee)) / 10000n;
                 const numerator = reserveOut * amountInWithFee;
                 const denominator = reserveIn + amountInWithFee;
                 const amountOut = numerator / denominator;
                 const outNum = parseFloat(ethers.formatUnits(amountOut, 18));
 
-                // Calculate minimum with slippage
                 const slippage = getSlippagePercent();
                 const minOutNum = outNum * (1 - slippage);
 
@@ -1234,7 +1116,6 @@
             const tokenIn = isUSDC ? USDC_ADDRESS : HONEY_ADDRESS;
             const tokenContract = isUSDC ? usdcContract : honeyContract;
 
-            // Calculate amountOutMin
             const [reserve0, reserve1] = await sparkPoolContract.getReserves();
             const reserveIn = isUSDC ? reserve1 : reserve0;
             const reserveOut = isUSDC ? reserve0 : reserve1;
@@ -1270,7 +1151,7 @@
         };
 
         // ================================================================
-        // TAB 2: NFT (Unchanged)
+        // TAB 2: NFT
         // ================================================================
         async function refreshNFT() {
             try {
@@ -1323,7 +1204,7 @@
         mintGoldBtn.onclick = () => mintNFT(3);
 
         // ================================================================
-        // TAB 3: IDO (UPDATED with Slippage)
+        // TAB 3: IDO (CARDS) – FIXED: re-fetch tier and handle oracle errors
         // ================================================================
         async function renderPoolCards() {
             if (!isConnected || !factoryContract) return;
@@ -1487,12 +1368,24 @@
             await refreshIDODetails();
         };
 
+        // FIXED: this function now re-fetches the tier and handles oracle errors gracefully
         async function refreshIDODetails() {
             if (!isConnected || !idoContract || !selectedPoolAddress) {
                 return;
             }
 
             try {
+                // 1. Re-fetch the user's tier directly from the NFT contract (fresh)
+                const tier = Number(await nftContract.getUserTier(userAddress));
+                userTier = tier; // update the global variable
+
+                // 2. Update the tier display in the wallet bar (in case it changed)
+                const names = ["None", "🥉 Bronze", "🥈 Silver", "🥇 Gold"];
+                const cls = ["", "bronze", "silver", "gold"];
+                tierDisplay.textContent = `Tier: ${names[tier] || "None"}`;
+                tierDisplay.className = `tier-badge ${cls[tier] || ""}`;
+
+                // 3. Get pool details from cache
                 const details = poolDataMap[selectedPoolAddress];
                 if (!details) return;
 
@@ -1508,6 +1401,7 @@
                 endTime = details.endTime;
                 const now = Math.floor(Date.now() / 1000);
 
+                // 4. Countdown
                 countdownContainer.style.display = "block";
                 if (now < startTime) {
                     const diff = startTime - now;
@@ -1522,6 +1416,7 @@
                     bigCountdown.innerHTML = `<span style="color:#ef4444;">⏳ Sale Ended</span>`;
                 }
 
+                // 5. Stats from contract
                 const totalSold = await idoContract.totalSold();
                 const totalSupply = await idoContract.totalSupplyForSale();
                 const soldNum = parseFloat(ethers.formatUnits(totalSold, 18));
@@ -1529,21 +1424,32 @@
                 const remainingNum = totalNum - soldNum;
                 const percent = totalNum > 0 ? (soldNum / totalNum) * 100 : 0;
 
-                if (userTier > 0) {
-                    discountedPolPrice = await idoContract.getDiscountedPriceForTier(userTier);
-                    const polPriceFormatted = parseFloat(ethers.formatUnits(discountedPolPrice, 18));
-                    idoPriceDisplay.textContent = `💲 Discounted Price: ${formatPrice(polPriceFormatted)} POL per ${saleTokenSymbol}`;
-                    if (totalSold > 0) {
-                        const polRaisedEstimate = (totalSold * discountedPolPrice) / 1e18;
-                        polRaisedEl.textContent = `${formatNumber(parseFloat(ethers.formatUnits(polRaisedEstimate, 18)))} POL`;
-                    } else {
-                        polRaisedEl.textContent = `0.00 POL`;
+                // 6. Discounted price – with error handling
+                if (tier > 0) {
+                    try {
+                        discountedPolPrice = await idoContract.getDiscountedPriceForTier(tier);
+                        const polPriceFormatted = parseFloat(ethers.formatUnits(discountedPolPrice, 18));
+                        idoPriceDisplay.textContent = `💲 Discounted Price: ${formatPrice(polPriceFormatted)} POL per ${saleTokenSymbol}`;
+                        // Calculate POL raised estimate
+                        if (totalSold > 0) {
+                            const polRaisedEstimate = (totalSold * discountedPolPrice) / 1e18;
+                            polRaisedEl.textContent = `${formatNumber(parseFloat(ethers.formatUnits(polRaisedEstimate, 18)))} POL`;
+                        } else {
+                            polRaisedEl.textContent = `0.00 POL`;
+                        }
+                    } catch (priceError) {
+                        console.warn("Failed to get discounted price:", priceError);
+                        idoPriceDisplay.textContent = `⚠️ Price unavailable – oracle may be offline. Please try again later.`;
+                        polRaisedEl.textContent = `-- POL`;
+                        // Keep discountedPolPrice as 0 so buy buttons remain disabled
+                        discountedPolPrice = 0n;
                     }
                 } else {
-                    idoPriceDisplay.textContent = `💲 Hold an NFT to see discounted price.`;
+                    idoPriceDisplay.textContent = `💲 Hold an Investor NFT to see the discounted price.`;
                     polRaisedEl.textContent = `0.00 POL`;
                 }
 
+                // 7. Update other stats
                 soldDisplay.textContent = `${formatNumber(soldNum)} ${saleTokenSymbol}`;
                 remainingDisplay.textContent = `${formatNumber(remainingNum)} ${saleTokenSymbol}`;
                 percentDisplay.textContent = `${percent.toFixed(2)}% SOLD`;
@@ -1555,7 +1461,8 @@
                 const userPurchased = await idoContract.purchased(userAddress);
                 userContributionEl.textContent = `${formatNumber(parseFloat(ethers.formatUnits(userPurchased, 18)))} ${saleTokenSymbol}`;
 
-                const isActive = (now >= startTime && now <= endTime && userTier > 0 && !details.paused);
+                // 8. Enable/disable input based on sale state and NFT
+                const isActive = (now >= startTime && now <= endTime && tier > 0 && !details.paused && discountedPolPrice > 0);
                 polInput.disabled = !isActive || !isConnected;
                 maxBtn.disabled = !isActive || !isConnected;
                 buyBtn.disabled = !isActive || !isConnected;
@@ -1564,6 +1471,8 @@
 
             } catch (e) {
                 console.error("Error refreshing IDO details:", e);
+                // Show a generic error but don't break the UI
+                idoPriceDisplay.textContent = `⚠️ Error loading IDO data. Please refresh.`;
             }
         }
 
@@ -1575,7 +1484,6 @@
             }
         }
 
-        // UPDATED with slippage
         async function updateIDOQuote() {
             if (!isConnected || userTier === 0 || discountedPolPrice === 0n || !idoContract) {
                 quoteAmount.textContent = "0.00";
@@ -1615,7 +1523,6 @@
             idoRefreshBtn.textContent = "⟳";
         };
 
-        // MAX button
         maxBtn.onclick = async () => {
             if (!isConnected || userTier === 0 || !idoContract) return alert("Connect wallet & hold NFT");
             if (discountedPolPrice === 0n) return alert("Price not loaded");
@@ -1631,17 +1538,16 @@
             } catch (e) { console.error(e); }
         };
 
-        // BUY button (UPDATED with minTokensOut)
         buyBtn.onclick = async () => {
             if (!isConnected) return alert("Connect wallet");
             if (userTier === 0) return alert("You need an Investor NFT");
             if (!idoContract) return alert("Select a pool first");
+            if (discountedPolPrice === 0n) return alert("Price not available – oracle may be offline.");
+
             const val = polInput.value.trim();
             if (!val || parseFloat(val) <= 0) return alert("Enter POL amount");
 
             const polAmount = ethers.parseUnits(val, 18);
-
-            // Calculate minTokensOut based on current quote and slippage
             const tokenAmount = (polAmount * 1e18) / discountedPolPrice;
             const slippage = getIdoSlippagePercent();
             const minTokensOut = tokenAmount * BigInt(Math.floor((1 - slippage) * 10000)) / 10000n;
@@ -1667,7 +1573,7 @@
         };
 
         // ================================================================
-        // TAB 4: ADMIN (Unchanged)
+        // TAB 4: ADMIN
         // ================================================================
         async function refreshAdmin() {
             if (!isConnected) return;
@@ -1794,14 +1700,34 @@
         };
 
         // ================================================================
-        // INIT
+        // INIT – URL tab parameter
         // ================================================================
-        console.log("🍯 Full Ecosystem UI loaded.");
         window.addEventListener('load', async () => {
+            // Auto-select tab from URL parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            const tabParam = urlParams.get('tab');
+            if (tabParam) {
+                const tabMap = {
+                    'dex': 'tabDEX',
+                    'ido': 'tabIDO',
+                    'nft': 'tabNFT',
+                    'admin': 'tabAdmin'
+                };
+                const targetTabId = tabMap[tabParam];
+                if (targetTabId) {
+                    const targetBtn = document.querySelector(`.tab-btn[data-tab="${targetTabId}"]`);
+                    if (targetBtn) {
+                        setTimeout(() => targetBtn.click(), 100);
+                    }
+                }
+            }
+            // Auto-connect if MetaMask already unlocked
             if (window.ethereum && window.ethereum.selectedAddress) {
-                try { await connectBtn.click(); } catch (e) { /* User might reject */ }
+                try { await connectBtn.click(); } catch (e) { /* user might reject */ }
             }
         });
+
+        console.log("🍯 Full Ecosystem UI loaded.");
     </script>
 </body>
 </html>
