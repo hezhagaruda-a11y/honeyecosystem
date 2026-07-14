@@ -1204,7 +1204,7 @@
         mintGoldBtn.onclick = () => mintNFT(3);
 
         // ================================================================
-        // TAB 3: IDO (CARDS) – FIXED: re-fetch tier and handle oracle errors
+        // TAB 3: IDO (CARDS) – IMPROVED DETAIL FETCH
         // ================================================================
         async function renderPoolCards() {
             if (!isConnected || !factoryContract) return;
@@ -1354,6 +1354,7 @@
         }
 
         window.selectPool = async function(addr) {
+            console.log("selectPool called with:", addr);
             if (!addr) return;
             selectedPoolAddress = addr;
             idoContract = new ethers.Contract(addr, IDO_ABI, signer);
@@ -1364,30 +1365,42 @@
 
             idoDetailView.classList.add('visible');
             idoPlaceholder.style.display = 'none';
-
+            console.log("Pool selected, calling refreshIDODetails");
             await refreshIDODetails();
         };
 
-        // FIXED: this function now re-fetches the tier and handles oracle errors gracefully
+        // REFRESH IDO DETAILS – re-fetches cache if missing
         async function refreshIDODetails() {
+            console.log("refreshIDODetails called, selectedPoolAddress:", selectedPoolAddress);
             if (!isConnected || !idoContract || !selectedPoolAddress) {
+                console.log("Missing prerequisites, aborting");
                 return;
             }
 
             try {
-                // 1. Re-fetch the user's tier directly from the NFT contract (fresh)
+                // 1. Re‑fetch the user's tier
                 const tier = Number(await nftContract.getUserTier(userAddress));
-                userTier = tier; // update the global variable
+                userTier = tier;
+                console.log("User tier:", userTier);
 
-                // 2. Update the tier display in the wallet bar (in case it changed)
+                // 2. Update tier display
                 const names = ["None", "🥉 Bronze", "🥈 Silver", "🥇 Gold"];
                 const cls = ["", "bronze", "silver", "gold"];
                 tierDisplay.textContent = `Tier: ${names[tier] || "None"}`;
                 tierDisplay.className = `tier-badge ${cls[tier] || ""}`;
 
-                // 3. Get pool details from cache
-                const details = poolDataMap[selectedPoolAddress];
-                if (!details) return;
+                // 3. Get pool details – if map is empty, fetch directly
+                let details = poolDataMap[selectedPoolAddress];
+                if (!details) {
+                    console.log("Cache miss, fetching details directly");
+                    details = await fetchPoolDetails(selectedPoolAddress);
+                    if (details) {
+                        poolDataMap[selectedPoolAddress] = details;
+                    } else {
+                        throw new Error("Could not fetch pool details");
+                    }
+                }
+                console.log("Pool details:", details);
 
                 saleTokenSymbol = details.symbol;
                 quoteSymbol.textContent = saleTokenSymbol;
@@ -1401,7 +1414,7 @@
                 endTime = details.endTime;
                 const now = Math.floor(Date.now() / 1000);
 
-                // 4. Countdown
+                // Countdown
                 countdownContainer.style.display = "block";
                 if (now < startTime) {
                     const diff = startTime - now;
@@ -1416,7 +1429,7 @@
                     bigCountdown.innerHTML = `<span style="color:#ef4444;">⏳ Sale Ended</span>`;
                 }
 
-                // 5. Stats from contract
+                // Stats
                 const totalSold = await idoContract.totalSold();
                 const totalSupply = await idoContract.totalSupplyForSale();
                 const soldNum = parseFloat(ethers.formatUnits(totalSold, 18));
@@ -1424,13 +1437,12 @@
                 const remainingNum = totalNum - soldNum;
                 const percent = totalNum > 0 ? (soldNum / totalNum) * 100 : 0;
 
-                // 6. Discounted price – with error handling
+                // Discounted price
                 if (tier > 0) {
                     try {
                         discountedPolPrice = await idoContract.getDiscountedPriceForTier(tier);
                         const polPriceFormatted = parseFloat(ethers.formatUnits(discountedPolPrice, 18));
                         idoPriceDisplay.textContent = `💲 Discounted Price: ${formatPrice(polPriceFormatted)} POL per ${saleTokenSymbol}`;
-                        // Calculate POL raised estimate
                         if (totalSold > 0) {
                             const polRaisedEstimate = (totalSold * discountedPolPrice) / 1e18;
                             polRaisedEl.textContent = `${formatNumber(parseFloat(ethers.formatUnits(polRaisedEstimate, 18)))} POL`;
@@ -1438,10 +1450,9 @@
                             polRaisedEl.textContent = `0.00 POL`;
                         }
                     } catch (priceError) {
-                        console.warn("Failed to get discounted price:", priceError);
-                        idoPriceDisplay.textContent = `⚠️ Price unavailable – oracle may be offline. Please try again later.`;
+                        console.warn("Price fetch error:", priceError);
+                        idoPriceDisplay.textContent = `⚠️ Price unavailable – oracle may be offline.`;
                         polRaisedEl.textContent = `-- POL`;
-                        // Keep discountedPolPrice as 0 so buy buttons remain disabled
                         discountedPolPrice = 0n;
                     }
                 } else {
@@ -1449,7 +1460,7 @@
                     polRaisedEl.textContent = `0.00 POL`;
                 }
 
-                // 7. Update other stats
+                // Update stats
                 soldDisplay.textContent = `${formatNumber(soldNum)} ${saleTokenSymbol}`;
                 remainingDisplay.textContent = `${formatNumber(remainingNum)} ${saleTokenSymbol}`;
                 percentDisplay.textContent = `${percent.toFixed(2)}% SOLD`;
@@ -1461,7 +1472,7 @@
                 const userPurchased = await idoContract.purchased(userAddress);
                 userContributionEl.textContent = `${formatNumber(parseFloat(ethers.formatUnits(userPurchased, 18)))} ${saleTokenSymbol}`;
 
-                // 8. Enable/disable input based on sale state and NFT
+                // Enable/disable inputs
                 const isActive = (now >= startTime && now <= endTime && tier > 0 && !details.paused && discountedPolPrice > 0);
                 polInput.disabled = !isActive || !isConnected;
                 maxBtn.disabled = !isActive || !isConnected;
@@ -1470,9 +1481,8 @@
                 await updateIDOQuote();
 
             } catch (e) {
-                console.error("Error refreshing IDO details:", e);
-                // Show a generic error but don't break the UI
-                idoPriceDisplay.textContent = `⚠️ Error loading IDO data. Please refresh.`;
+                console.error("Error in refreshIDODetails:", e);
+                idoPriceDisplay.textContent = `⚠️ Error loading IDO data. Please refresh the page.`;
             }
         }
 
