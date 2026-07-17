@@ -870,7 +870,7 @@
         const NFT_ADDRESS = "0x656A974cED49cE41B5cB5A1DCEBBdBD359219A11";
         const FACTORY_ADDRESS = "0xfE682E8F790f7Ba6C620C26C61dCcddeAdE21C6F";
         // REPLACE WITH YOUR NEW TOKEN FACTORY ADDRESS AFTER REDEPLOYMENT
-        const TOKEN_FACTORY_ADDRESS = "0x8A942914E623586adf4f606B2EE54c0Ca799013c";
+        const TOKEN_FACTORY_ADDRESS = "0xf5d9a2213bF05B69f02840131d9D3d7B622B34C7";
         const PRIZE_POT_ADDRESS = "0xDeF985C7123ae7b3d2Ce1c0244C087fbeC84ecFf";
 
         // ================================================================
@@ -1279,8 +1279,8 @@
             try {
                 const pools = await tokenFactoryContract.getAllPools();
                 // Create a mutable copy to avoid frozen array error
-                dexPoolAddresses = pools.slice();
-                if (!pools.some(p => p.toLowerCase() === HONEY_POOL_ADDRESS.toLowerCase())) {
+                dexPoolAddresses = Array.from(pools);
+                if (!dexPoolAddresses.some(p => p.toLowerCase() === HONEY_POOL_ADDRESS.toLowerCase())) {
                     dexPoolAddresses.push(HONEY_POOL_ADDRESS);
                 }
 
