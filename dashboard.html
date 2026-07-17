@@ -7,7 +7,7 @@
     <script src="https://cdn.jsdelivr.net/npm/ethers@6.7.0/dist/ethers.umd.min.js">
     </script>
     <style>
-        /* ----- GLOBAL RESET & SOFTENED THEME ----- */
+        /* ----- GLOBAL RESET & SOFTENED THEME (unchanged) ----- */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --bg-primary: #161b22;
@@ -868,7 +868,6 @@
         const POL_ADDRESS = "0x7095E1f56870480B058563487fe8825E95729ef3";
         const NFT_ADDRESS = "0x656A974cED49cE41B5cB5A1DCEBBdBD359219A11";
         const FACTORY_ADDRESS = "0xfE682E8F790f7Ba6C620C26C61dCcddeAdE21C6F";
-        // ✅ NEW TOKEN FACTORY (currently empty – will show pools after launch)
         const TOKEN_FACTORY_ADDRESS = "0xf5d9a2213bF05B69f02840131d9D3d7B622B34C7";
         const PRIZE_POT_ADDRESS = "0xDeF985C7123ae7b3d2Ce1c0244C087fbeC84ecFf";
 
@@ -1055,11 +1054,13 @@
             return Number(num).toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
         }
 
+        // Format price to strip trailing zeros (e.g., 0.00004 → "0.00004")
         function formatPrice(price) {
             if (price === undefined || price === null || isNaN(price)) return '--';
             if (typeof price === 'bigint') {
                 price = Number(price) / 1e18;
             }
+            // Convert to string with 8 decimals, then strip trailing zeros
             let s = price.toFixed(8);
             s = s.replace(/\.?0+$/, '');
             return s;
@@ -1232,22 +1233,33 @@
                 const [reserve0, reserve1] = await pool.getReserves();
                 const token0Addr = await pool.token0();
                 const token1Addr = await pool.token1();
-                let tokenAddr, polTokenAddr;
-                if (token1Addr.toLowerCase() === POL_ADDRESS.toLowerCase()) {
-                    tokenAddr = token0Addr;
-                    polTokenAddr = token1Addr;
-                } else {
+
+                // Determine which token is POL and which is the token
+                let tokenAddr, polAddr;
+                if (token0Addr.toLowerCase() === POL_ADDRESS.toLowerCase()) {
+                    // token0 is POL, token1 is the token
+                    polAddr = token0Addr;
                     tokenAddr = token1Addr;
-                    polTokenAddr = token0Addr;
+                } else {
+                    // token0 is the token, token1 is POL
+                    tokenAddr = token0Addr;
+                    polAddr = token1Addr;
                 }
+
                 const tokenContract = new ethers.Contract(tokenAddr, ERC20_ABI, provider);
                 let symbol = 'TOKEN';
                 try {
                     symbol = await tokenContract.symbol();
                 } catch (e) { /* ignore */ }
+
+                // Get reserves in the correct order
                 const reserveToken = tokenAddr === token0Addr ? reserve0 : reserve1;
-                const reservePOL = tokenAddr === token0Addr ? reserve1 : reserve0;
+                const reservePOL = polAddr === token0Addr ? reserve0 : reserve1;
+
+                // Compute price = reservePOL / reserveToken (price of token in POL)
                 const price = reservePOL / reserveToken;
+
+                // Store initial price for change calculation
                 const initialPrice = localStorage.getItem(`pool_initial_${poolAddress}`);
                 let change = 0;
                 if (initialPrice) {
@@ -1258,6 +1270,7 @@
                 } else {
                     localStorage.setItem(`pool_initial_${poolAddress}`, price.toString());
                 }
+
                 return {
                     address: poolAddress,
                     tokenAddress: tokenAddr,
@@ -1276,7 +1289,6 @@
         async function refreshDEX() {
             if (!isConnected) return;
             try {
-                // Get pools from TokenFactory registry – NO MANUAL ADDITIONS
                 const pools = await tokenFactoryContract.getAllPools();
                 dexPoolAddresses = Array.from(pools);
 
