@@ -862,14 +862,13 @@
 
     <script>
         // ================================================================
-        // DEPLOYED ADDRESSES (SEPOLIA) – FROM YOUR DEPLOYMENT
+        // DEPLOYED ADDRESSES (SEPOLIA) – PERMISSIONLESS DEX
         // ================================================================
         const HONEY_ADDRESS = "0x01FB563d25E001E85b099Ab60D6e3d7a87d7fCda";
         const POL_ADDRESS = "0x7095E1f56870480B058563487fe8825E95729ef3";
-        const HONEY_POOL_ADDRESS = "0x87a4d5eB36156931357B9F06d0D53d3F6CaC6611";
         const NFT_ADDRESS = "0x656A974cED49cE41B5cB5A1DCEBBdBD359219A11";
         const FACTORY_ADDRESS = "0xfE682E8F790f7Ba6C620C26C61dCcddeAdE21C6F";
-        // ✅ UPDATED TO THE NEW DEPLOYED TOKEN FACTORY
+        // ✅ NEW TOKEN FACTORY (currently empty – will show pools after launch)
         const TOKEN_FACTORY_ADDRESS = "0xf5d9a2213bF05B69f02840131d9D3d7B622B34C7";
         const PRIZE_POT_ADDRESS = "0xDeF985C7123ae7b3d2Ce1c0244C087fbeC84ecFf";
 
@@ -1225,7 +1224,7 @@
         }
 
         // ================================================================
-        // DEX
+        // DEX – PERMISSIONLESS: ONLY SHOWS POOLS FROM TOKEN FACTORY
         // ================================================================
         async function fetchPoolData(poolAddress) {
             try {
@@ -1277,11 +1276,9 @@
         async function refreshDEX() {
             if (!isConnected) return;
             try {
+                // Get pools from TokenFactory registry – NO MANUAL ADDITIONS
                 const pools = await tokenFactoryContract.getAllPools();
                 dexPoolAddresses = Array.from(pools);
-                if (!dexPoolAddresses.some(p => p.toLowerCase() === HONEY_POOL_ADDRESS.toLowerCase())) {
-                    dexPoolAddresses.push(HONEY_POOL_ADDRESS);
-                }
 
                 let poolDataArray = [];
                 for (const addr of dexPoolAddresses) {
@@ -1292,7 +1289,7 @@
                 poolDataArray.forEach(d => { dexPoolData[d.address] = d; });
 
                 if (poolDataArray.length === 0) {
-                    dexPoolCards.innerHTML = `<div style="color:var(--text-secondary); grid-column: span 3; text-align:center; padding: 20px;">No pools available.</div>`;
+                    dexPoolCards.innerHTML = `<div style="color:var(--text-secondary); grid-column: span 3; text-align:center; padding: 20px;">No pools deployed yet. Launch a token to create one.</div>`;
                 } else {
                     let html = '';
                     for (const d of poolDataArray) {
