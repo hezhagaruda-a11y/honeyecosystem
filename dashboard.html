@@ -869,7 +869,8 @@
         const HONEY_POOL_ADDRESS = "0x87a4d5eB36156931357B9F06d0D53d3F6CaC6611";
         const NFT_ADDRESS = "0x656A974cED49cE41B5cB5A1DCEBBdBD359219A11";
         const FACTORY_ADDRESS = "0xfE682E8F790f7Ba6C620C26C61dCcddeAdE21C6F";
-        const TOKEN_FACTORY_ADDRESS = "0x759026d0944268eD17594E8095b970Cef80d646f";
+        // REPLACE WITH YOUR NEW TOKEN FACTORY ADDRESS AFTER REDEPLOYMENT
+        const TOKEN_FACTORY_ADDRESS = "0x8A942914E623586adf4f606B2EE54c0Ca799013c";
         const PRIZE_POT_ADDRESS = "0xDeF985C7123ae7b3d2Ce1c0244C087fbeC84ecFf";
 
         // ================================================================
@@ -1224,7 +1225,7 @@
         }
 
         // ================================================================
-        // DEX
+        // DEX (FIXED ARRAY MUTATION)
         // ================================================================
         async function fetchPoolData(poolAddress) {
             try {
@@ -1232,7 +1233,6 @@
                 const [reserve0, reserve1] = await pool.getReserves();
                 const token0Addr = await pool.token0();
                 const token1Addr = await pool.token1();
-                // Determine which token is the traded token (we assume token0 is the token, token1 is POL)
                 let tokenAddr, polTokenAddr;
                 if (token1Addr.toLowerCase() === POL_ADDRESS.toLowerCase()) {
                     tokenAddr = token0Addr;
@@ -1241,17 +1241,14 @@
                     tokenAddr = token1Addr;
                     polTokenAddr = token0Addr;
                 }
-                // Get token symbol
                 const tokenContract = new ethers.Contract(tokenAddr, ERC20_ABI, provider);
                 let symbol = 'TOKEN';
                 try {
                     symbol = await tokenContract.symbol();
                 } catch (e) { /* ignore */ }
-                // Compute price: token price in POL = reservePOL / reserveToken
                 const reserveToken = tokenAddr === token0Addr ? reserve0 : reserve1;
                 const reservePOL = tokenAddr === token0Addr ? reserve1 : reserve0;
-                const price = reservePOL / reserveToken; // as BigInt
-                // Compute change from stored initial price
+                const price = reservePOL / reserveToken;
                 const initialPrice = localStorage.getItem(`pool_initial_${poolAddress}`);
                 let change = 0;
                 if (initialPrice) {
@@ -1280,9 +1277,9 @@
         async function refreshDEX() {
             if (!isConnected) return;
             try {
-                // Get all pools from TokenFactory
                 const pools = await tokenFactoryContract.getAllPools();
-                dexPoolAddresses = pools;
+                // Create a mutable copy to avoid frozen array error
+                dexPoolAddresses = pools.slice();
                 if (!pools.some(p => p.toLowerCase() === HONEY_POOL_ADDRESS.toLowerCase())) {
                     dexPoolAddresses.push(HONEY_POOL_ADDRESS);
                 }
@@ -1295,7 +1292,6 @@
                 dexPoolData = {};
                 poolDataArray.forEach(d => { dexPoolData[d.address] = d; });
 
-                // Render pool cards
                 if (poolDataArray.length === 0) {
                     dexPoolCards.innerHTML = `<div style="color:var(--text-secondary); grid-column: span 3; text-align:center; padding: 20px;">No pools available.</div>`;
                 } else {
@@ -1318,7 +1314,6 @@
                     dexPoolCards.innerHTML = html;
                 }
 
-                // Stats
                 let count = poolDataArray.length;
                 let avgChange = 0;
                 if (count > 0) {
@@ -1329,7 +1324,6 @@
                 dexAvgChange.textContent = (avgChange || 0).toFixed(1) + '%';
                 dexPoolCount.textContent = count;
 
-                // Select default pool
                 if (!selectedDexPoolAddress || !dexPoolData[selectedDexPoolAddress]) {
                     if (poolDataArray.length > 0) {
                         await selectDexPool(poolDataArray[0].address, true);
@@ -1446,7 +1440,6 @@
                 const tx = await dexPoolContract.swap(amountIn, amountOutMin, tokenIn);
                 const receipt = await tx.wait();
 
-                // Add trade
                 const tokenSymbol = dexPoolData[selectedDexPoolAddress].tokenSymbol;
                 const type = isPOL ? 'BUY' : 'SELL';
                 const trade = {
@@ -1960,7 +1953,7 @@
         };
 
         // ================================================================
-        // LAUNCH TOKEN
+        // LAUNCH TOKEN – WITH POL APPROVAL
         // ================================================================
         polAmountRange.oninput = () => {
             polAmountDisplay.textContent = polAmountRange.value + ' POL';
@@ -1971,11 +1964,21 @@
             const name = tokenName.value.trim();
             const symbol = tokenSymbol.value.trim();
             if (!name || !symbol) return alert("Fill in token name and symbol");
+
             const polAmount = ethers.parseUnits(polAmountRange.value, 18);
 
             try {
                 launchTokenBtn.disabled = true;
-                launchTokenBtn.textContent = "Launching...";
+                launchTokenBtn.textContent = "Approving POL...";
+
+                // Approve POL spending if needed
+                const allowance = await polContract.allowance(userAddress, TOKEN_FACTORY_ADDRESS);
+                if (allowance < polAmount) {
+                    const approveTx = await polContract.approve(TOKEN_FACTORY_ADDRESS, polAmount);
+                    await approveTx.wait();
+                }
+
+                launchTokenBtn.textContent = "Launching Token...";
                 launchTokenStatus.textContent = "Deploying token...";
 
                 const tx = await tokenFactoryContract.launchToken(name, symbol, polAmount);
@@ -1991,6 +1994,9 @@
                 } else {
                     launchTokenStatus.textContent = "✅ Transaction successful. Check the contract.";
                 }
+                // Clear fields
+                tokenName.value = '';
+                tokenSymbol.value = '';
                 await refreshAll();
             } catch (e) {
                 console.error(e);
