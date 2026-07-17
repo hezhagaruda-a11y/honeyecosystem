@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🍯 Honey Ecosystem • Dashboard</title>
-    <script src="https://cdn.jsdelivr.net/npm/ethers@6.7.0/dist/ethers.umd.min.js">
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@6.7.0/dist/ethers.umd.min.js"></script>
     <style>
         /* ----- GLOBAL RESET & SOFTENED THEME (unchanged) ----- */
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -570,1617 +569,1655 @@
 </head>
 <body>
 
-    <div class="card">
-        <!-- HEADER -->
-        <div class="card-header">
-            <h1>🍯 Honey Ecosystem</h1>
-            <div class="header-actions">
-                <button id="themeToggle">🌙</button>
-                <button id="connect">Connect Wallet</button>
-            </div>
-        </div>
-
-        <!-- WALLET BAR -->
-        <div class="wallet-bar">
-            <span class="addr" id="walletDisplay">🦊 Not connected</span>
-            <span class="balance" id="balanceDisplay">HONEY: 0.00 | POL: 0.00</span>
-            <span id="tierDisplay" class="tier-badge">Tier: None</span>
-        </div>
-
-        <!-- TABS -->
-        <div class="tabs">
-            <button class="tab-btn active" data-tab="tabDEX">🏊 DEX</button>
-            <button class="tab-btn" data-tab="tabNFT">🎟️ Mint NFT</button>
-            <button class="tab-btn" data-tab="tabIDO">🚀 IDO Launches</button>
-            <button class="tab-btn" data-tab="tabLaunchToken">🚀 Launch Token</button>
-            <button class="tab-btn" data-tab="tabPrize">🏆 Prize Pot</button>
-            <button class="tab-btn" data-tab="tabAdmin">⚙️ Admin</button>
-        </div>
-
-        <!-- ======================== TAB 1: DEX ======================== -->
-        <div id="tabDEX" class="tab-content active">
-            <div class="section-title">🏊 Spark DEX</div>
-            <div class="section-desc">Browse all token pools and swap POL ↔ any token.</div>
-
-            <div class="dex-stats" id="dexStats">
-                <div class="dex-stat"><div class="value" id="dexTotalVolume">--</div><div class="label">Total Volume</div></div>
-                <div class="dex-stat"><div class="value" id="dexTotalTrades">--</div><div class="label">Trades</div></div>
-                <div class="dex-stat"><div class="value" id="dexAvgChange">--</div><div class="label">Avg Price Change</div></div>
-                <div class="dex-stat"><div class="value" id="dexPoolCount">--</div><div class="label">Pools</div></div>
-            </div>
-
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                <span style="font-weight:600; font-size:15px;">Token Pools • Live Prices (POL)</span>
-                <button id="refreshPoolsBtn" class="btn btn-sm btn-outline">⟳ Refresh</button>
-            </div>
-            <div id="dexPoolCards" class="grid-3" style="margin-bottom:16px;">
-                <div style="color:var(--text-secondary); grid-column: span 3; text-align:center; padding: 20px;">Loading pools...</div>
-            </div>
-
-            <!-- Recent Trades -->
-            <div class="recent-trades">
-                <div style="font-weight:600; margin-bottom:6px;">Recent Trades</div>
-                <div id="recentTradesList">
-                    <div class="trade-item" style="color:var(--text-secondary);">No trades yet.</div>
-                </div>
-            </div>
-
-            <!-- Swap Interface -->
-            <div style="margin-top:12px;">
-                <div class="price-display" id="dexPriceDisplay">Selected: <span id="selectedPoolName">--</span> — 1 <span id="selectedTokenSymbol">TOKEN</span> = <span id="selectedPoolPrice">--</span> POL</div>
-
-                <div style="margin: 12px 0;">
-                    <label style="font-size:14px; font-weight:500; color:var(--text-secondary);">Swap</label>
-                    <div class="input-flex">
-                        <select id="swapFromToken">
-                            <option value="POL">POL → Token</option>
-                            <option value="TOKEN">Token → POL</option>
-                        </select>
-                        <input type="number" id="swapAmount" placeholder="0.0" step="0.01" min="0">
-                        <button id="swapBtn" class="btn">Swap</button>
-                    </div>
-                </div>
-
-                <div class="slippage-control">
-                    <span>⚠️ Slippage</span>
-                    <input type="range" id="slippageRange" min="0.1" max="5" step="0.1" value="0.5">
-                    <span class="slippage-value" id="slippageDisplay">0.5%</span>
-                </div>
-
-                <div class="quote-box" id="swapQuote">
-                    You receive: <strong id="swapReceive">0.00</strong> <span id="swapReceiveSymbol">TOKEN</span>
-                    <br><span class="min-label">Minimum (after slippage): <span id="swapMinReceive">0.00</span></span>
-                </div>
-                <div style="font-size:12px; color:var(--text-secondary); text-align:center;">⚠️ 0.3% fee applied.</div>
-            </div>
-        </div>
-
-        <!-- ======================== TAB 2: MINT NFT ======================== -->
-        <div id="tabNFT" class="tab-content">
-            <div class="section-title">🎟️ Mint Investor NFT</div>
-            <div class="section-desc">Mint your NFT using HONEY. The price is dynamic based on the Spark Pool reserves. Higher tier = higher discount on IDOs.</div>
-            <div class="grid-3">
-                <div class="nft-card">
-                    <span class="tier-icon">🥉</span>
-                    <div class="tier-name">Bronze</div>
-                    <div class="tier-price" id="bronzePrice">Loading...</div>
-                    <button class="btn btn-sm" id="mintBronzeBtn" style="width:100%;">Mint Bronze</button>
-                    <div style="font-size:11px; color:var(--text-secondary); margin-top:4px;">8% IDO Discount</div>
-                </div>
-                <div class="nft-card">
-                    <span class="tier-icon">🥈</span>
-                    <div class="tier-name">Silver</div>
-                    <div class="tier-price" id="silverPrice">Loading...</div>
-                    <button class="btn btn-sm" id="mintSilverBtn" style="width:100%;">Mint Silver</button>
-                    <div style="font-size:11px; color:var(--text-secondary); margin-top:4px;">15% IDO Discount</div>
-                </div>
-                <div class="nft-card">
-                    <span class="tier-icon">🥇</span>
-                    <div class="tier-name">Gold</div>
-                    <div class="tier-price" id="goldPrice">Loading...</div>
-                    <button class="btn btn-sm" id="mintGoldBtn" style="width:100%;">Mint Gold</button>
-                    <div style="font-size:11px; color:var(--text-secondary); margin-top:4px;">22% IDO Discount</div>
-                </div>
-            </div>
-            <div style="font-size:13px; color:var(--text-secondary); text-align:center; margin-top:6px;">
-                💡 You need HONEY in your wallet. Approval is auto-requested.
-            </div>
-        </div>
-
-        <!-- ======================== TAB 3: IDO LAUNCHES ======================== -->
-        <div id="tabIDO" class="tab-content">
-            <div class="section-title">
-                <span>🚀 IDO Launches</span>
-                <button id="idoRefreshBtn" class="refresh-icon" title="Refresh Pools">⟳</button>
-            </div>
-            <div class="section-desc">Select an IDO pool card below to view details and participate. Your NFT tier determines the discount.</div>
-
-            <div id="idoPoolCards" class="grid-3" style="margin-bottom: 8px;">
-                <div style="color:var(--text-secondary); grid-column: span 3; text-align:center; padding: 20px;">Loading pools...</div>
-            </div>
-
-            <div id="idoPlaceholder" class="ido-placeholder">
-                👆 Select an IDO pool above to view details and participate.
-            </div>
-
-            <div id="idoDetailView" class="ido-detail-view">
-                <div id="poolStatusSummary" style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:12px; font-size:13px; color:var(--text-secondary);">
-                    <span class="badge" id="poolStatusBadge">Status: --</span>
-                    <span class="badge" id="poolSaleTokenLabel">Token: --</span>
-                    <span class="badge" id="poolTreasuryLabel">Treasury: --</span>
-                </div>
-
-                <div id="countdownContainer" style="display:none;">
-                    <span id="bigCountdown">Loading...</span>
-                </div>
-
-                <div class="grid-2">
-                    <div class="stat-card">
-                        <div class="stat-label">💰 POL Raised</div>
-                        <div id="polRaised" class="stat-value">0.00 POL</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">📦 Sold</div>
-                        <div id="soldDisplay" class="stat-value">0.00</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">📊 Remaining</div>
-                        <div id="remainingDisplay" class="stat-value">0.00</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">🧾 Your Tokens</div>
-                        <div id="userContribution" class="stat-value">0.00</div>
-                    </div>
-                </div>
-
-                <div class="progress-container">
-                    <div id="idoProgress" class="progress-bar" style="width:0%;"></div>
-                </div>
-                <div style="display:flex; justify-content:space-between; font-size:13px; color:var(--text-secondary); margin: -4px 0 12px 0;">
-                    <span id="percentDisplay">0% SOLD</span>
-                    <span id="capDisplay">Cap: 0</span>
-                </div>
-
-                <div class="price-display" id="idoPriceDisplay">⏳ Select a pool to see discounted price.</div>
-
-                <div class="slippage-control">
-                    <span>⚠️ Slippage</span>
-                    <input type="range" id="idoSlippageRange" min="0.1" max="5" step="0.1" value="0.5">
-                    <span class="slippage-value" id="idoSlippageDisplay">0.5%</span>
-                </div>
-
-                <div class="input-flex">
-                    <input type="number" id="polInput" placeholder="0.0 POL" step="0.01" min="0" disabled>
-                    <button id="maxBtn" class="btn btn-outline" style="padding:10px 16px;" disabled>MAX</button>
-                    <button id="buyBtn" class="btn" disabled>Buy Tokens</button>
-                </div>
-
-                <div class="quote-box" id="quoteBox">
-                    You receive: <strong id="quoteAmount">0.00</strong> <span id="quoteSymbol">SALE</span>
-                    <br><span class="min-label">Minimum (after slippage): <span id="idoMinReceive">0.00</span></span>
-                </div>
-            </div>
-        </div>
-
-        <!-- ======================== TAB 4: LAUNCH TOKEN ======================== -->
-        <div id="tabLaunchToken" class="tab-content">
-            <div class="section-title">🚀 Launch a New Token</div>
-            <div class="section-desc">Permissionlessly deploy a new ERC‑20 token with an instant Spark Pool.</div>
-
-            <div class="input-flex">
-                <input type="text" id="tokenName" placeholder="Token Name (e.g., My Token)" style="flex:1;">
-                <input type="text" id="tokenSymbol" placeholder="Symbol (e.g., MYT)" style="flex:1;">
-            </div>
-
-            <div class="slippage-control">
-                <span>POL to Pair</span>
-                <input type="range" id="polAmountRange" min="25" max="1000" step="25" value="300">
-                <span class="slippage-value" id="polAmountDisplay">300 POL</span>
-            </div>
-
-            <div style="font-size:13px; color:var(--text-secondary); margin: 6px 0;">
-                ⚙️ Fixed supply: 1,000,000,000 tokens • 0.75% (7.5M) to Spark Pool
-            </div>
-
-            <button id="launchTokenBtn" class="btn" style="width:100%; margin-top:12px;">Launch Token</button>
-            <div id="launchTokenStatus" style="font-size:13px; color:var(--text-secondary); margin-top:8px;"></div>
-        </div>
-
-        <!-- ======================== TAB 5: PRIZE POT ======================== -->
-        <div id="tabPrize" class="tab-content">
-            <div class="section-title">🏆 HONEY Prize Pot</div>
-            <div class="section-desc">800M HONEY distributed over 7 years to the top 16 holders. Claim your allocation.</div>
-
-            <div class="grid-2">
-                <div class="stat-card">
-                    <div class="stat-label">Current Year</div>
-                    <div id="prizeYear" class="stat-value">--</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Annual Pot</div>
-                    <div id="prizeAnnualPot" class="stat-value">--</div>
-                </div>
-            </div>
-
-            <div style="margin-top: 16px;">
-                <button id="claimPrizeBtn" class="btn" disabled>Claim (Proof required)</button>
-                <div style="font-size:13px; color:var(--text-secondary); margin-top:8px;">
-                    Proof generation is off‑chain. A claim interface will be available after the snapshot.
-                </div>
-            </div>
-        </div>
-
-        <!-- ======================== TAB 6: ADMIN ======================== -->
-        <div id="tabAdmin" class="tab-content">
-            <div class="section-title">⚙️ Admin Panel</div>
-            <div class="section-desc">Manage IDO launches. Only the contract owner can access these functions.</div>
-
-            <div class="admin-section">
-                <h4>📋 All Pools</h4>
-                <div class="sub">Currently deployed IDO pools.</div>
-                <div id="poolList" class="pool-list">
-                    <div style="color:var(--text-secondary); font-size:13px;">Loading pools...</div>
-                </div>
-            </div>
-
-            <div class="admin-section">
-                <h4>🚀 Launch New IDO</h4>
-                <div class="sub">Deploy a new IDO pool. All fields required.</div>
-                <div class="input-flex"><input type="text" id="adminSaleToken" placeholder="Sale Token Address (0x...)" style="flex:1;"></div>
-                <div class="input-flex"><input type="text" id="adminTreasury" placeholder="Treasury Wallet (0x...)" style="flex:1;"></div>
-                <div class="input-flex">
-                    <input type="number" id="adminStartTime" placeholder="Start Time (Unix)" style="flex:1;">
-                    <input type="number" id="adminEndTime" placeholder="End Time (Unix)" style="flex:1;">
-                </div>
-                <div class="input-flex">
-                    <input type="number" id="adminSupply" placeholder="Supply (18 decimals)" style="flex:1;">
-                    <input type="number" id="adminCap" placeholder="Max Per Wallet (18 decimals)" style="flex:1;">
-                </div>
-                <button id="adminLaunchBtn" class="btn btn-success" style="width:100%; margin-top:8px;">Launch IDO</button>
-            </div>
-
-            <div class="admin-section">
-                <h4>🛑 Manage Pool</h4>
-                <div class="sub">Pause, resume, or remove a pool by address.</div>
-                <div class="input-flex">
-                    <input type="text" id="adminPoolAddress" placeholder="Pool Address (0x...)" style="flex:1;">
-                    <button id="adminPauseBtn" class="btn btn-outline btn-sm">Pause</button>
-                    <button id="adminResumeBtn" class="btn btn-outline btn-sm">Resume</button>
-                    <button id="adminRemoveBtn" class="btn btn-danger btn-sm">Remove</button>
-                </div>
-            </div>
-
-            <div style="font-size:12px; color:var(--text-secondary); text-align:center; margin-top:8px;">
-                ⚠️ Only the deployer wallet (owner) can perform admin actions.
-            </div>
-        </div>
-
-        <div class="footer">
-            ⚡ Sepolia Testnet • Full Ecosystem • Dynamic AMM • Multi-Pool IDOs
+<div class="card">
+    <!-- HEADER -->
+    <div class="card-header">
+        <h1>🍯 Honey Ecosystem</h1>
+        <div class="header-actions">
+            <button id="themeToggle">🌙</button>
+            <button id="connect">Connect Wallet</button>
         </div>
     </div>
 
-    <script>
-        // ================================================================
-        // DEPLOYED ADDRESSES (SEPOLIA) – PERMISSIONLESS DEX
-        // ================================================================
-        const HONEY_ADDRESS = "0x01FB563d25E001E85b099Ab60D6e3d7a87d7fCda";
-        const POL_ADDRESS = "0x7095E1f56870480B058563487fe8825E95729ef3";
-        const NFT_ADDRESS = "0x656A974cED49cE41B5cB5A1DCEBBdBD359219A11";
-        const FACTORY_ADDRESS = "0xfE682E8F790f7Ba6C620C26C61dCcddeAdE21C6F";
-        const TOKEN_FACTORY_ADDRESS = "0xf5d9a2213bF05B69f02840131d9D3d7B622B34C7";
-        const PRIZE_POT_ADDRESS = "0xDeF985C7123ae7b3d2Ce1c0244C087fbeC84ecFf";
+    <!-- WALLET BAR -->
+    <div class="wallet-bar">
+        <span class="addr" id="walletDisplay">🦊 Not connected</span>
+        <span class="balance" id="balanceDisplay">HONEY: 0.00 | POL: 0.00</span>
+        <span id="tierDisplay" class="tier-badge">Tier: None</span>
+    </div>
 
-        // ================================================================
-        // ABIs
-        // ================================================================
-        const ERC20_ABI = [
-            "function balanceOf(address) view returns (uint256)",
-            "function approve(address,uint256) returns (bool)",
-            "function allowance(address,address) view returns (uint256)",
-            "function symbol() view returns (string)",
-            "function decimals() view returns (uint8)"
-        ];
+    <!-- TABS -->
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="tabDEX">🏊 DEX</button>
+        <button class="tab-btn" data-tab="tabNFT">🎟️ Mint NFT</button>
+        <button class="tab-btn" data-tab="tabIDO">🚀 IDO Launches</button>
+        <button class="tab-btn" data-tab="tabLaunchToken">🚀 Launch Token</button>
+        <button class="tab-btn" data-tab="tabPrize">🏆 Prize Pot</button>
+        <button class="tab-btn" data-tab="tabAdmin">⚙️ Admin</button>
+    </div>
 
-        const SPARK_POOL_ABI = [
-            "function getReserves() view returns (uint256, uint256)",
-            "function swap(uint256,uint256,address) returns (uint256)",
-            "function seedLiquidity(uint256,uint256)",
-            "function token0() view returns (address)",
-            "function token1() view returns (address)"
-        ];
+    <!-- ======================== TAB 1: DEX ======================== -->
+    <div id="tabDEX" class="tab-content active">
+        <div class="section-title">🏊 Spark DEX</div>
+        <div class="section-desc">Browse all token pools and swap POL ↔ any token.</div>
 
-        const NFT_ABI = [
-            "function getUserTier(address) view returns (uint256)",
-            "function getRequiredHoneyForTier(uint256) view returns (uint256)",
-            "function mintBronze() external",
-            "function mintSilver() external",
-            "function mintGold() external"
-        ];
+        <div class="dex-stats" id="dexStats">
+            <div class="dex-stat"><div class="value" id="dexTotalVolume">--</div><div class="label">Total Volume</div></div>
+            <div class="dex-stat"><div class="value" id="dexTotalTrades">--</div><div class="label">Trades</div></div>
+            <div class="dex-stat"><div class="value" id="dexAvgChange">--</div><div class="label">Avg Price Change</div></div>
+            <div class="dex-stat"><div class="value" id="dexPoolCount">--</div><div class="label">Pools</div></div>
+        </div>
 
-        const IDO_ABI = [
-            "function buy(uint256) external payable",
-            "function purchased(address) view returns (uint256)",
-            "function maxPerWallet() view returns (uint256)",
-            "function getDiscountedPriceForTier(uint256) returns (uint256)",
-            "function totalSold() view returns (uint256)",
-            "function totalSupplyForSale() view returns (uint256)",
-            "function startTime() view returns (uint256)",
-            "function endTime() view returns (uint256)",
-            "function saleToken() view returns (address)",
-            "function treasury() view returns (address)",
-            "function paused() view returns (bool)",
-            "function pause(bool) external"
-        ];
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <span style="font-weight:600; font-size:15px;">Token Pools • Live Prices (POL)</span>
+            <button id="refreshPoolsBtn" class="btn btn-sm btn-outline">⟳ Refresh</button>
+        </div>
+        <div id="dexPoolCards" class="grid-3" style="margin-bottom:16px;">
+            <div style="color:var(--text-secondary); grid-column: span 3; text-align:center; padding: 20px;">Loading pools...</div>
+        </div>
 
-        const FACTORY_ABI = [
-            "function launchIDO(address,address,uint256,uint256,uint256,uint256) returns (address)",
-            "function getAllPools() view returns (address[])",
-            "function removePool(uint256) external",
-            "function owner() view returns (address)",
-            "function addExistingPool(address) external"
-        ];
+        <!-- Recent Trades -->
+        <div class="recent-trades">
+            <div style="font-weight:600; margin-bottom:6px;">Recent Trades</div>
+            <div id="recentTradesList">
+                <div class="trade-item" style="color:var(--text-secondary);">No trades yet.</div>
+            </div>
+        </div>
 
-        const TOKEN_FACTORY_ABI = [
-            "function launchToken(string,string,uint256) returns (address,address,address)",
-            "function getAllPools() view returns (address[])"
-        ];
+        <!-- Swap Interface -->
+        <div style="margin-top:12px;">
+            <div class="price-display" id="dexPriceDisplay">Selected: <span id="selectedPoolName">--</span> — 1 <span id="selectedTokenSymbol">TOKEN</span> = <span id="selectedPoolPrice">--</span> POL</div>
 
-        // ================================================================
-        // STATE
-        // ================================================================
-        let provider, signer, userAddress;
-        let honeyContract, polContract, nftContract, factoryContract, tokenFactoryContract, prizePotContract;
-        let userTier = 0;
-        let isConnected = false;
-        let isOwner = false;
-        let honeyBalance = 0n;
-        let polBalance = 0n;
+            <div style="margin: 12px 0;">
+                <label style="font-size:14px; font-weight:500; color:var(--text-secondary);">Swap</label>
+                <div class="input-flex">
+                    <select id="swapFromToken">
+                        <option value="POL">POL → Token</option>
+                        <option value="TOKEN">Token → POL</option>
+                    </select>
+                    <input type="number" id="swapAmount" placeholder="0.0" step="0.01" min="0">
+                    <button id="swapBtn" class="btn">Swap</button>
+                </div>
+            </div>
 
-        // DEX
-        let dexPoolAddresses = [];
-        let dexPoolData = {};
-        let selectedDexPoolAddress = null;
-        let dexPoolContract = null;
-        let recentTrades = [];
-        const MAX_TRADES = 20;
-        let totalVolumePOL = 0;
+            <div class="slippage-control">
+                <span>⚠️ Slippage</span>
+                <input type="range" id="slippageRange" min="0.1" max="5" step="0.1" value="0.5">
+                <span class="slippage-value" id="slippageDisplay">0.5%</span>
+            </div>
 
-        // IDO
-        let allPoolAddresses = [];
-        let selectedPoolAddress = null;
-        let idoContract = null;
-        let saleTokenSymbol = "SALE";
-        let discountedPolPrice = 0n;
-        let startTime = 0;
-        let endTime = 0;
-        let poolDataMap = {};
-        let countdownInterval = null;
+            <div class="quote-box" id="swapQuote">
+                You receive: <strong id="swapReceive">0.00</strong> <span id="swapReceiveSymbol">TOKEN</span>
+                <br><span class="min-label">Minimum (after slippage): <span id="swapMinReceive">0.00</span></span>
+            </div>
+            <div style="font-size:12px; color:var(--text-secondary); text-align:center;">⚠️ 0.3% fee applied.</div>
+        </div>
+    </div>
 
-        // DOM refs
-        const connectBtn = document.getElementById('connect');
-        const walletDisplay = document.getElementById('walletDisplay');
-        const balanceDisplay = document.getElementById('balanceDisplay');
-        const tierDisplay = document.getElementById('tierDisplay');
-        const themeToggle = document.getElementById('themeToggle');
+    <!-- ======================== TAB 2: MINT NFT ======================== -->
+    <div id="tabNFT" class="tab-content">
+        <div class="section-title">🎟️ Mint Investor NFT</div>
+        <div class="section-desc">Mint your NFT using HONEY. The price is dynamic based on the Spark Pool reserves. Higher tier = higher discount on IDOs.</div>
+        <div class="grid-3">
+            <div class="nft-card">
+                <span class="tier-icon">🥉</span>
+                <div class="tier-name">Bronze</div>
+                <div class="tier-price" id="bronzePrice">Loading...</div>
+                <button class="btn btn-sm" id="mintBronzeBtn" style="width:100%;">Mint Bronze</button>
+                <div style="font-size:11px; color:var(--text-secondary); margin-top:4px;">8% IDO Discount</div>
+            </div>
+            <div class="nft-card">
+                <span class="tier-icon">🥈</span>
+                <div class="tier-name">Silver</div>
+                <div class="tier-price" id="silverPrice">Loading...</div>
+                <button class="btn btn-sm" id="mintSilverBtn" style="width:100%;">Mint Silver</button>
+                <div style="font-size:11px; color:var(--text-secondary); margin-top:4px;">15% IDO Discount</div>
+            </div>
+            <div class="nft-card">
+                <span class="tier-icon">🥇</span>
+                <div class="tier-name">Gold</div>
+                <div class="tier-price" id="goldPrice">Loading...</div>
+                <button class="btn btn-sm" id="mintGoldBtn" style="width:100%;">Mint Gold</button>
+                <div style="font-size:11px; color:var(--text-secondary); margin-top:4px;">22% IDO Discount</div>
+            </div>
+        </div>
+        <div style="font-size:13px; color:var(--text-secondary); text-align:center; margin-top:6px;">
+            💡 You need HONEY in your wallet. Approval is auto-requested.
+        </div>
+    </div>
 
-        // DEX refs
-        const dexPoolCards = document.getElementById('dexPoolCards');
-        const refreshPoolsBtn = document.getElementById('refreshPoolsBtn');
-        const dexTotalVolume = document.getElementById('dexTotalVolume');
-        const dexTotalTrades = document.getElementById('dexTotalTrades');
-        const dexAvgChange = document.getElementById('dexAvgChange');
-        const dexPoolCount = document.getElementById('dexPoolCount');
-        const selectedPoolName = document.getElementById('selectedPoolName');
-        const selectedTokenSymbol = document.getElementById('selectedTokenSymbol');
-        const selectedPoolPrice = document.getElementById('selectedPoolPrice');
-        const swapFromToken = document.getElementById('swapFromToken');
-        const swapAmount = document.getElementById('swapAmount');
-        const swapBtn = document.getElementById('swapBtn');
-        const swapReceive = document.getElementById('swapReceive');
-        const swapReceiveSymbol = document.getElementById('swapReceiveSymbol');
-        const swapMinReceive = document.getElementById('swapMinReceive');
-        const slippageRange = document.getElementById('slippageRange');
-        const slippageDisplay = document.getElementById('slippageDisplay');
-        const recentTradesList = document.getElementById('recentTradesList');
+    <!-- ======================== TAB 3: IDO LAUNCHES ======================== -->
+    <div id="tabIDO" class="tab-content">
+        <div class="section-title">
+            <span>🚀 IDO Launches</span>
+            <button id="idoRefreshBtn" class="refresh-icon" title="Refresh Pools">⟳</button>
+        </div>
+        <div class="section-desc">Select an IDO pool card below to view details and participate. Your NFT tier determines the discount.</div>
 
-        // NFT refs
-        const bronzePrice = document.getElementById('bronzePrice');
-        const silverPrice = document.getElementById('silverPrice');
-        const goldPrice = document.getElementById('goldPrice');
-        const mintBronzeBtn = document.getElementById('mintBronzeBtn');
-        const mintSilverBtn = document.getElementById('mintSilverBtn');
-        const mintGoldBtn = document.getElementById('mintGoldBtn');
+        <div id="idoPoolCards" class="grid-3" style="margin-bottom: 8px;">
+            <div style="color:var(--text-secondary); grid-column: span 3; text-align:center; padding: 20px;">Loading pools...</div>
+        </div>
 
-        // IDO refs
-        const idoPoolCards = document.getElementById('idoPoolCards');
-        const idoRefreshBtn = document.getElementById('idoRefreshBtn');
-        const idoPlaceholder = document.getElementById('idoPlaceholder');
-        const idoDetailView = document.getElementById('idoDetailView');
-        const poolStatusBadge = document.getElementById('poolStatusBadge');
-        const poolSaleTokenLabel = document.getElementById('poolSaleTokenLabel');
-        const poolTreasuryLabel = document.getElementById('poolTreasuryLabel');
-        const polRaisedEl = document.getElementById('polRaised');
-        const soldDisplay = document.getElementById('soldDisplay');
-        const remainingDisplay = document.getElementById('remainingDisplay');
-        const userContributionEl = document.getElementById('userContribution');
-        const idoProgress = document.getElementById('idoProgress');
-        const percentDisplay = document.getElementById('percentDisplay');
-        const capDisplay = document.getElementById('capDisplay');
-        const polInput = document.getElementById('polInput');
-        const maxBtn = document.getElementById('maxBtn');
-        const buyBtn = document.getElementById('buyBtn');
-        const quoteAmount = document.getElementById('quoteAmount');
-        const quoteSymbol = document.getElementById('quoteSymbol');
-        const idoPriceDisplay = document.getElementById('idoPriceDisplay');
-        const countdownContainer = document.getElementById('countdownContainer');
-        const bigCountdown = document.getElementById('bigCountdown');
+        <div id="idoPlaceholder" class="ido-placeholder">
+            👆 Select an IDO pool above to view details and participate.
+        </div>
 
-        // Admin refs
-        const poolList = document.getElementById('poolList');
-        const adminSaleToken = document.getElementById('adminSaleToken');
-        const adminTreasury = document.getElementById('adminTreasury');
-        const adminStartTime = document.getElementById('adminStartTime');
-        const adminEndTime = document.getElementById('adminEndTime');
-        const adminSupply = document.getElementById('adminSupply');
-        const adminCap = document.getElementById('adminCap');
-        const adminLaunchBtn = document.getElementById('adminLaunchBtn');
-        const adminPoolAddress = document.getElementById('adminPoolAddress');
-        const adminPauseBtn = document.getElementById('adminPauseBtn');
-        const adminResumeBtn = document.getElementById('adminResumeBtn');
-        const adminRemoveBtn = document.getElementById('adminRemoveBtn');
+        <div id="idoDetailView" class="ido-detail-view">
+            <div id="poolStatusSummary" style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:12px; font-size:13px; color:var(--text-secondary);">
+                <span class="badge" id="poolStatusBadge">Status: --</span>
+                <span class="badge" id="poolSaleTokenLabel">Token: --</span>
+                <span class="badge" id="poolTreasuryLabel">Treasury: --</span>
+            </div>
 
-        // Prize Pot refs
-        const prizeYear = document.getElementById('prizeYear');
-        const prizeAnnualPot = document.getElementById('prizeAnnualPot');
-        const claimPrizeBtn = document.getElementById('claimPrizeBtn');
+            <div id="countdownContainer" style="display:none;">
+                <span id="bigCountdown">Loading...</span>
+            </div>
 
-        // Launch Token refs
-        const tokenName = document.getElementById('tokenName');
-        const tokenSymbol = document.getElementById('tokenSymbol');
-        const polAmountRange = document.getElementById('polAmountRange');
-        const polAmountDisplay = document.getElementById('polAmountDisplay');
-        const launchTokenBtn = document.getElementById('launchTokenBtn');
-        const launchTokenStatus = document.getElementById('launchTokenStatus');
+            <div class="grid-2">
+                <div class="stat-card">
+                    <div class="stat-label">💰 POL Raised</div>
+                    <div id="polRaised" class="stat-value">0.00 POL</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">📦 Sold</div>
+                    <div id="soldDisplay" class="stat-value">0.00</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">📊 Remaining</div>
+                    <div id="remainingDisplay" class="stat-value">0.00</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">🧾 Your Tokens</div>
+                    <div id="userContribution" class="stat-value">0.00</div>
+                </div>
+            </div>
 
-        // ================================================================
-        // HELPERS
-        // ================================================================
-        function formatNumber(num, decimals = 2) {
-            if (num === undefined || num === null || isNaN(num)) return '0.00';
-            if (typeof num === 'bigint') {
-                num = Number(num) / 1e18;
+            <div class="progress-container">
+                <div id="idoProgress" class="progress-bar" style="width:0%;"></div>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:13px; color:var(--text-secondary); margin: -4px 0 12px 0;">
+                <span id="percentDisplay">0% SOLD</span>
+                <span id="capDisplay">Cap: 0</span>
+            </div>
+
+            <div class="price-display" id="idoPriceDisplay">⏳ Select a pool to see discounted price.</div>
+
+            <div class="slippage-control">
+                <span>⚠️ Slippage</span>
+                <input type="range" id="idoSlippageRange" min="0.1" max="5" step="0.1" value="0.5">
+                <span class="slippage-value" id="idoSlippageDisplay">0.5%</span>
+            </div>
+
+            <div class="input-flex">
+                <input type="number" id="polInput" placeholder="0.0 POL" step="0.01" min="0" disabled>
+                <button id="maxBtn" class="btn btn-outline" style="padding:10px 16px;" disabled>MAX</button>
+                <button id="buyBtn" class="btn" disabled>Buy Tokens</button>
+            </div>
+
+            <div class="quote-box" id="quoteBox">
+                You receive: <strong id="quoteAmount">0.00</strong> <span id="quoteSymbol">SALE</span>
+                <br><span class="min-label">Minimum (after slippage): <span id="idoMinReceive">0.00</span></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================== TAB 4: LAUNCH TOKEN ======================== -->
+    <div id="tabLaunchToken" class="tab-content">
+        <div class="section-title">🚀 Launch a New Token</div>
+        <div class="section-desc">Permissionlessly deploy a new ERC‑20 token with an instant Spark Pool.</div>
+
+        <div class="input-flex">
+            <input type="text" id="tokenName" placeholder="Token Name (e.g., My Token)" style="flex:1;">
+            <input type="text" id="tokenSymbol" placeholder="Symbol (e.g., MYT)" style="flex:1;">
+        </div>
+
+        <div class="slippage-control">
+            <span>POL to Pair</span>
+            <input type="range" id="polAmountRange" min="25" max="1000" step="25" value="300">
+            <span class="slippage-value" id="polAmountDisplay">300 POL</span>
+        </div>
+
+        <div style="font-size:13px; color:var(--text-secondary); margin: 6px 0;">
+            ⚙️ Fixed supply: 1,000,000,000 tokens • 0.75% (7.5M) to Spark Pool
+        </div>
+
+        <button id="launchTokenBtn" class="btn" style="width:100%; margin-top:12px;">Launch Token</button>
+        <div id="launchTokenStatus" style="font-size:13px; color:var(--text-secondary); margin-top:8px;"></div>
+    </div>
+
+    <!-- ======================== TAB 5: PRIZE POT ======================== -->
+    <div id="tabPrize" class="tab-content">
+        <div class="section-title">🏆 HONEY Prize Pot</div>
+        <div class="section-desc">800M HONEY distributed over 7 years to the top 16 holders. Claim your allocation.</div>
+
+        <div class="grid-2">
+            <div class="stat-card">
+                <div class="stat-label">Current Year</div>
+                <div id="prizeYear" class="stat-value">--</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Annual Pot</div>
+                <div id="prizeAnnualPot" class="stat-value">--</div>
+            </div>
+        </div>
+
+        <div style="margin-top: 16px;">
+            <button id="claimPrizeBtn" class="btn" disabled>Claim (Proof required)</button>
+            <div style="font-size:13px; color:var(--text-secondary); margin-top:8px;">
+                Proof generation is off‑chain. A claim interface will be available after the snapshot.
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================== TAB 6: ADMIN ======================== -->
+    <div id="tabAdmin" class="tab-content">
+        <div class="section-title">⚙️ Admin Panel</div>
+        <div class="section-desc">Manage IDO launches. Only the contract owner can access these functions.</div>
+
+        <div class="admin-section">
+            <h4>📋 All Pools</h4>
+            <div class="sub">Currently deployed IDO pools.</div>
+            <div id="poolList" class="pool-list">
+                <div style="color:var(--text-secondary); font-size:13px;">Loading pools...</div>
+            </div>
+        </div>
+
+        <div class="admin-section">
+            <h4>🚀 Launch New IDO</h4>
+            <div class="sub">Deploy a new IDO pool. All fields required.</div>
+            <div class="input-flex"><input type="text" id="adminSaleToken" placeholder="Sale Token Address (0x...)" style="flex:1;"></div>
+            <div class="input-flex"><input type="text" id="adminTreasury" placeholder="Treasury Wallet (0x...)" style="flex:1;"></div>
+            <div class="input-flex">
+                <input type="number" id="adminStartTime" placeholder="Start Time (Unix)" style="flex:1;">
+                <input type="number" id="adminEndTime" placeholder="End Time (Unix)" style="flex:1;">
+            </div>
+            <div class="input-flex">
+                <input type="number" id="adminSupply" placeholder="Supply (18 decimals)" style="flex:1;">
+                <input type="number" id="adminCap" placeholder="Max Per Wallet (18 decimals)" style="flex:1;">
+            </div>
+            <button id="adminLaunchBtn" class="btn btn-success" style="width:100%; margin-top:8px;">Launch IDO</button>
+        </div>
+
+        <div class="admin-section">
+            <h4>🛑 Manage Pool</h4>
+            <div class="sub">Pause, resume, or remove a pool by address.</div>
+            <div class="input-flex">
+                <input type="text" id="adminPoolAddress" placeholder="Pool Address (0x...)" style="flex:1;">
+                <button id="adminPauseBtn" class="btn btn-outline btn-sm">Pause</button>
+                <button id="adminResumeBtn" class="btn btn-outline btn-sm">Resume</button>
+                <button id="adminRemoveBtn" class="btn btn-danger btn-sm">Remove</button>
+            </div>
+        </div>
+
+        <div style="font-size:12px; color:var(--text-secondary); text-align:center; margin-top:8px;">
+            ⚠️ Only the deployer wallet (owner) can perform admin actions.
+        </div>
+    </div>
+
+    <div class="footer">
+        ⚡ Sepolia Testnet • Full Ecosystem • Dynamic AMM • Multi-Pool IDOs
+    </div>
+</div>
+
+<script>
+    // ================================================================
+    // DEPLOYED ADDRESSES (SEPOLIA) – PERMISSIONLESS DEX
+    // ================================================================
+    const HONEY_ADDRESS = "0x01FB563d25E001E85b099Ab60D6e3d7a87d7fCda";
+    const POL_ADDRESS = "0x7095E1f56870480B058563487fe8825E95729ef3";
+    const NFT_ADDRESS = "0x656A974cED49cE41B5cB5A1DCEBBdBD359219A11";
+    const FACTORY_ADDRESS = "0xfE682E8F790f7Ba6C620C26C61dCcddeAdE21C6F";
+    const TOKEN_FACTORY_ADDRESS = "0xf5d9a2213bF05B69f02840131d9D3d7B622B34C7";
+    const PRIZE_POT_ADDRESS = "0xDeF985C7123ae7b3d2Ce1c0244C087fbeC84ecFf";
+
+    // ================================================================
+    // ABIs
+    // ================================================================
+    const ERC20_ABI = [
+        "function balanceOf(address) view returns (uint256)",
+        "function approve(address,uint256) returns (bool)",
+        "function allowance(address,address) view returns (uint256)",
+        "function symbol() view returns (string)",
+        "function decimals() view returns (uint8)"
+    ];
+
+    const SPARK_POOL_ABI = [
+        "function getReserves() view returns (uint256, uint256)",
+        "function swap(uint256,uint256,address) returns (uint256)",
+        "function seedLiquidity(uint256,uint256)",
+        "function token0() view returns (address)",
+        "function token1() view returns (address)"
+    ];
+
+    const NFT_ABI = [
+        "function getUserTier(address) view returns (uint256)",
+        "function getRequiredHoneyForTier(uint256) view returns (uint256)",
+        "function mintBronze() external",
+        "function mintSilver() external",
+        "function mintGold() external"
+    ];
+
+    const IDO_ABI = [
+        "function buy(uint256) external payable",
+        "function purchased(address) view returns (uint256)",
+        "function maxPerWallet() view returns (uint256)",
+        "function getDiscountedPriceForTier(uint256) returns (uint256)",
+        "function totalSold() view returns (uint256)",
+        "function totalSupplyForSale() view returns (uint256)",
+        "function startTime() view returns (uint256)",
+        "function endTime() view returns (uint256)",
+        "function saleToken() view returns (address)",
+        "function treasury() view returns (address)",
+        "function paused() view returns (bool)",
+        "function pause(bool) external"
+    ];
+
+    const FACTORY_ABI = [
+        "function launchIDO(address,address,uint256,uint256,uint256,uint256) returns (address)",
+        "function getAllPools() view returns (address[])",
+        "function removePool(uint256) external",
+        "function owner() view returns (address)",
+        "function addExistingPool(address) external"
+    ];
+
+    const TOKEN_FACTORY_ABI = [
+        "function launchToken(string,string,uint256) returns (address,address,address)",
+        "function getAllPools() view returns (address[])"
+    ];
+
+    // ================================================================
+    // STATE
+    // ================================================================
+    let provider, signer, userAddress;
+    let honeyContract, polContract, nftContract, factoryContract, tokenFactoryContract, prizePotContract;
+    let userTier = 0;
+    let isConnected = false;
+    let isOwner = false;
+    let honeyBalance = 0n;
+    let polBalance = 0n;
+
+    // DEX
+    let dexPoolAddresses = [];
+    let dexPoolData = {};               // addr -> { price (BigInt), change, ... }
+    let selectedDexPoolAddress = null;
+    let dexPoolContract = null;
+    let recentTrades = [];
+    const MAX_TRADES = 20;
+    let totalVolumePOL = 0;
+
+    // IDO
+    let allPoolAddresses = [];
+    let selectedPoolAddress = null;
+    let idoContract = null;
+    let saleTokenSymbol = "SALE";
+    let discountedPolPrice = 0n;
+    let startTime = 0;
+    let endTime = 0;
+    let poolDataMap = {};
+    let countdownInterval = null;       // for card countdowns
+    let detailCountdownInterval = null; // for big countdown
+
+    // DOM refs (centralized)
+    const connectBtn = document.getElementById('connect');
+    const walletDisplay = document.getElementById('walletDisplay');
+    const balanceDisplay = document.getElementById('balanceDisplay');
+    const tierDisplay = document.getElementById('tierDisplay');
+    const themeToggle = document.getElementById('themeToggle');
+
+    // DEX refs
+    const dexPoolCards = document.getElementById('dexPoolCards');
+    const refreshPoolsBtn = document.getElementById('refreshPoolsBtn');
+    const dexTotalVolume = document.getElementById('dexTotalVolume');
+    const dexTotalTrades = document.getElementById('dexTotalTrades');
+    const dexAvgChange = document.getElementById('dexAvgChange');
+    const dexPoolCount = document.getElementById('dexPoolCount');
+    const selectedPoolName = document.getElementById('selectedPoolName');
+    const selectedTokenSymbol = document.getElementById('selectedTokenSymbol');
+    const selectedPoolPrice = document.getElementById('selectedPoolPrice');
+    const swapFromToken = document.getElementById('swapFromToken');
+    const swapAmount = document.getElementById('swapAmount');
+    const swapBtn = document.getElementById('swapBtn');
+    const swapReceive = document.getElementById('swapReceive');
+    const swapReceiveSymbol = document.getElementById('swapReceiveSymbol');
+    const swapMinReceive = document.getElementById('swapMinReceive');
+    const slippageRange = document.getElementById('slippageRange');
+    const slippageDisplay = document.getElementById('slippageDisplay');
+    const recentTradesList = document.getElementById('recentTradesList');
+
+    // NFT refs
+    const bronzePrice = document.getElementById('bronzePrice');
+    const silverPrice = document.getElementById('silverPrice');
+    const goldPrice = document.getElementById('goldPrice');
+    const mintBronzeBtn = document.getElementById('mintBronzeBtn');
+    const mintSilverBtn = document.getElementById('mintSilverBtn');
+    const mintGoldBtn = document.getElementById('mintGoldBtn');
+
+    // IDO refs
+    const idoPoolCards = document.getElementById('idoPoolCards');
+    const idoRefreshBtn = document.getElementById('idoRefreshBtn');
+    const idoPlaceholder = document.getElementById('idoPlaceholder');
+    const idoDetailView = document.getElementById('idoDetailView');
+    const poolStatusBadge = document.getElementById('poolStatusBadge');
+    const poolSaleTokenLabel = document.getElementById('poolSaleTokenLabel');
+    const poolTreasuryLabel = document.getElementById('poolTreasuryLabel');
+    const polRaisedEl = document.getElementById('polRaised');
+    const soldDisplay = document.getElementById('soldDisplay');
+    const remainingDisplay = document.getElementById('remainingDisplay');
+    const userContributionEl = document.getElementById('userContribution');
+    const idoProgress = document.getElementById('idoProgress');
+    const percentDisplay = document.getElementById('percentDisplay');
+    const capDisplay = document.getElementById('capDisplay');
+    const polInput = document.getElementById('polInput');
+    const maxBtn = document.getElementById('maxBtn');
+    const buyBtn = document.getElementById('buyBtn');
+    const quoteAmount = document.getElementById('quoteAmount');
+    const quoteSymbol = document.getElementById('quoteSymbol');
+    const idoPriceDisplay = document.getElementById('idoPriceDisplay');
+    const countdownContainer = document.getElementById('countdownContainer');
+    const bigCountdown = document.getElementById('bigCountdown');
+    const idoSlippageRange = document.getElementById('idoSlippageRange');
+    const idoSlippageDisplay = document.getElementById('idoSlippageDisplay');
+    const idoMinReceive = document.getElementById('idoMinReceive');
+
+    // Admin refs
+    const poolList = document.getElementById('poolList');
+    const adminSaleToken = document.getElementById('adminSaleToken');
+    const adminTreasury = document.getElementById('adminTreasury');
+    const adminStartTime = document.getElementById('adminStartTime');
+    const adminEndTime = document.getElementById('adminEndTime');
+    const adminSupply = document.getElementById('adminSupply');
+    const adminCap = document.getElementById('adminCap');
+    const adminLaunchBtn = document.getElementById('adminLaunchBtn');
+    const adminPoolAddress = document.getElementById('adminPoolAddress');
+    const adminPauseBtn = document.getElementById('adminPauseBtn');
+    const adminResumeBtn = document.getElementById('adminResumeBtn');
+    const adminRemoveBtn = document.getElementById('adminRemoveBtn');
+
+    // Prize Pot refs
+    const prizeYear = document.getElementById('prizeYear');
+    const prizeAnnualPot = document.getElementById('prizeAnnualPot');
+    const claimPrizeBtn = document.getElementById('claimPrizeBtn');
+
+    // Launch Token refs
+    const tokenName = document.getElementById('tokenName');
+    const tokenSymbol = document.getElementById('tokenSymbol');
+    const polAmountRange = document.getElementById('polAmountRange');
+    const polAmountDisplay = document.getElementById('polAmountDisplay');
+    const launchTokenBtn = document.getElementById('launchTokenBtn');
+    const launchTokenStatus = document.getElementById('launchTokenStatus');
+
+    // ================================================================
+    // HELPERS
+    // ================================================================
+    function formatNumber(num, decimals = 2) {
+        if (num === undefined || num === null || isNaN(num)) return '0.00';
+        if (typeof num === 'bigint') {
+            num = Number(num) / 1e18;
+        }
+        return Number(num).toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+    }
+
+    function formatPrice(price) {
+        if (price === undefined || price === null || isNaN(price)) return '--';
+        if (typeof price === 'bigint') {
+            price = Number(price) / 1e18;
+        }
+        let s = price.toFixed(8);
+        s = s.replace(/\.?0+$/, '');
+        return s;
+    }
+
+    function shortenAddress(addr) {
+        if (!addr) return '--';
+        return addr.slice(0, 6) + '...' + addr.slice(-4);
+    }
+
+    function formatCountdown(seconds) {
+        if (seconds <= 0) return '0d 0h 0m';
+        const d = Math.floor(seconds / 86400);
+        const h = Math.floor((seconds % 86400) / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        return `${d}d ${h}h ${m}m`;
+    }
+
+    function getSlippagePercent() { return parseFloat(slippageRange.value) / 100; }
+    function getIdoSlippagePercent() { return parseFloat(idoSlippageRange.value) / 100; }
+
+    // ================================================================
+    // THEME TOGGLE
+    // ================================================================
+    function setTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+        themeToggle.textContent = theme === 'dark' ? '☀️' : '🌙';
+    }
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    setTheme(savedTheme);
+    themeToggle.onclick = () => {
+        const current = document.documentElement.getAttribute('data-theme') || 'dark';
+        setTheme(current === 'dark' ? 'light' : 'dark');
+    };
+
+    // ================================================================
+    // TAB SWITCHING
+    // ================================================================
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.onclick = () => {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(btn.dataset.tab).classList.add('active');
+            if (isConnected) {
+                if (btn.dataset.tab === 'tabDEX') refreshDEX();
+                if (btn.dataset.tab === 'tabNFT') refreshNFT();
+                if (btn.dataset.tab === 'tabIDO') refreshIDOTab();
+                if (btn.dataset.tab === 'tabPrize') refreshPrizePot();
+                if (btn.dataset.tab === 'tabAdmin') refreshAdmin();
             }
-            return Number(num).toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
-        }
-
-        // Format price to strip trailing zeros (e.g., 0.00004 → "0.00004")
-        function formatPrice(price) {
-            if (price === undefined || price === null || isNaN(price)) return '--';
-            if (typeof price === 'bigint') {
-                price = Number(price) / 1e18;
-            }
-            // Convert to string with 8 decimals, then strip trailing zeros
-            let s = price.toFixed(8);
-            s = s.replace(/\.?0+$/, '');
-            return s;
-        }
-
-        function shortenAddress(addr) {
-            if (!addr) return '--';
-            return addr.slice(0, 6) + '...' + addr.slice(-4);
-        }
-
-        function formatCountdown(seconds) {
-            if (seconds <= 0) return '0d 0h 0m';
-            const d = Math.floor(seconds / 86400);
-            const h = Math.floor((seconds % 86400) / 3600);
-            const m = Math.floor((seconds % 3600) / 60);
-            return `${d}d ${h}h ${m}m`;
-        }
-
-        function getSlippagePercent() { return parseFloat(slippageRange.value) / 100; }
-        function getIdoSlippagePercent() { return parseFloat(idoSlippageRange.value) / 100; }
-
-        // ================================================================
-        // THEME TOGGLE
-        // ================================================================
-        function setTheme(theme) {
-            document.documentElement.setAttribute('data-theme', theme);
-            localStorage.setItem('theme', theme);
-            themeToggle.textContent = theme === 'dark' ? '☀️' : '🌙';
-        }
-        const savedTheme = localStorage.getItem('theme') || 'dark';
-        setTheme(savedTheme);
-        themeToggle.onclick = () => {
-            const current = document.documentElement.getAttribute('data-theme') || 'dark';
-            setTheme(current === 'dark' ? 'light' : 'dark');
         };
+    });
 
-        // ================================================================
-        // TAB SWITCHING
-        // ================================================================
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.onclick = () => {
-                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                btn.classList.add('active');
-                document.getElementById(btn.dataset.tab).classList.add('active');
-                if (isConnected) {
-                    if (btn.dataset.tab === 'tabDEX') refreshDEX();
-                    if (btn.dataset.tab === 'tabNFT') refreshNFT();
-                    if (btn.dataset.tab === 'tabIDO') refreshIDOTab();
-                    if (btn.dataset.tab === 'tabPrize') refreshPrizePot();
-                    if (btn.dataset.tab === 'tabAdmin') refreshAdmin();
-                }
+    // ================================================================
+    // CONNECT WALLET
+    // ================================================================
+    connectBtn.onclick = async () => {
+        try {
+            if (typeof ethers === 'undefined') {
+                alert("⚠️ ethers library failed to load. Please refresh.");
+                return;
+            }
+            if (typeof window.ethereum === 'undefined') {
+                return alert(
+                    "🦊 MetaMask not detected.\n\n" +
+                    "If you have MetaMask installed, try these fixes:\n" +
+                    "1. Open this page via a local server (e.g., python3 -m http.server 8080).\n" +
+                    "2. In Brave, go to brave://settings/wallet and set 'Default wallet' to 'MetaMask'.\n" +
+                    "3. Ensure MetaMask is unlocked and you are on the Sepolia network."
+                );
+            }
+
+            provider = new ethers.BrowserProvider(window.ethereum);
+            signer = await provider.getSigner();
+            userAddress = await signer.getAddress();
+
+            const network = await provider.getNetwork();
+            const chainId = Number(network.chainId);
+            if (chainId !== 11155111) {
+                alert(`⚠️ Please switch to Sepolia network (chain ID 11155111). Currently on chain ${chainId}.`);
+                return;
+            }
+
+            isConnected = true;
+
+            honeyContract = new ethers.Contract(HONEY_ADDRESS, ERC20_ABI, signer);
+            polContract = new ethers.Contract(POL_ADDRESS, ERC20_ABI, signer);
+            nftContract = new ethers.Contract(NFT_ADDRESS, NFT_ABI, signer);
+            factoryContract = new ethers.Contract(FACTORY_ADDRESS, FACTORY_ABI, signer);
+            tokenFactoryContract = new ethers.Contract(TOKEN_FACTORY_ADDRESS, TOKEN_FACTORY_ABI, signer);
+            prizePotContract = new ethers.Contract(PRIZE_POT_ADDRESS, [
+                "function getCurrentYear() view returns (uint256)",
+                "function ANNUAL_POT() view returns (uint256)"
+            ], signer);
+
+            try {
+                const factoryOwner = await factoryContract.owner();
+                isOwner = factoryOwner.toLowerCase() === userAddress.toLowerCase();
+            } catch (e) {
+                console.warn("Could not check factory owner:", e);
+                isOwner = false;
+            }
+
+            walletDisplay.textContent = `🦊 ${userAddress.slice(0,6)}...${userAddress.slice(-4)}`;
+            connectBtn.textContent = "✅ Connected";
+
+            await refreshAll();
+
+            swapBtn.disabled = false;
+            if (isOwner) {
+                adminLaunchBtn.disabled = false;
+                adminPauseBtn.disabled = false;
+                adminResumeBtn.disabled = false;
+                adminRemoveBtn.disabled = false;
+            }
+
+            setInterval(refreshAll, 6000);
+
+        } catch (e) {
+            console.error("Connection error:", e);
+            if (e.code !== 4001) {
+                alert("Connection failed:\n" + (e.message || e.reason || "Unknown error") +
+                    "\n\nCheck the console (F12) for details.");
+            }
+        }
+    };
+
+    // ================================================================
+    // REFRESH ALL TABS
+    // ================================================================
+    async function refreshAll() {
+        if (!isConnected) return;
+        await refreshBalancesAndTier();
+        await refreshDEX();
+        await refreshNFT();
+        await refreshIDOTab();
+        await refreshPrizePot();
+        await refreshAdmin();
+    }
+
+    // ================================================================
+    // REFRESH BALANCES & TIER
+    // ================================================================
+    async function refreshBalancesAndTier() {
+        try {
+            honeyBalance = await honeyContract.balanceOf(userAddress);
+            polBalance = await polContract.balanceOf(userAddress);
+            balanceDisplay.textContent =
+                `HONEY: ${formatNumber(parseFloat(ethers.formatUnits(honeyBalance, 18)))} | POL: ${formatNumber(parseFloat(ethers.formatUnits(polBalance, 18)))}`;
+
+            const tier = Number(await nftContract.getUserTier(userAddress));
+            userTier = tier;
+            const names = ["None", "🥉 Bronze", "🥈 Silver", "🥇 Gold"];
+            const cls = ["", "bronze", "silver", "gold"];
+            tierDisplay.textContent = `Tier: ${names[tier] || "None"}`;
+            tierDisplay.className = `tier-badge ${cls[tier] || ""}`;
+        } catch (e) {
+            console.error("Balance refresh error:", e);
+        }
+    }
+
+    // ================================================================
+    // DEX – FIXED RESERVE DIRECTION & PRICE PRECISION
+    // ================================================================
+    async function fetchPoolData(poolAddress) {
+        try {
+            const pool = new ethers.Contract(poolAddress, SPARK_POOL_ABI, provider);
+            const [reserve0, reserve1] = await pool.getReserves();
+            const token0Addr = await pool.token0();
+            const token1Addr = await pool.token1();
+
+            // Determine which token is POL and which is the other token
+            let tokenAddr, polAddr, reserveToken, reservePOL;
+            if (token0Addr.toLowerCase() === POL_ADDRESS.toLowerCase()) {
+                // token0 = POL, token1 = token
+                polAddr = token0Addr;
+                tokenAddr = token1Addr;
+                reservePOL = reserve0;
+                reserveToken = reserve1;
+            } else {
+                // token0 = token, token1 = POL
+                tokenAddr = token0Addr;
+                polAddr = token1Addr;
+                reserveToken = reserve0;
+                reservePOL = reserve1;
+            }
+
+            const tokenContract = new ethers.Contract(tokenAddr, ERC20_ABI, provider);
+            let symbol = 'TOKEN';
+            try {
+                symbol = await tokenContract.symbol();
+            } catch (e) { /* ignore */ }
+
+            // Price = reservePOL / reserveToken, scaled to 18 decimals
+            const PRECISION = 10n ** 18n;
+            const price = (reservePOL * PRECISION) / reserveToken;
+
+            // Track price change from first seen value (stored in localStorage)
+            const key = `pool_initial_${poolAddress}`;
+            let change = 0;
+            const stored = localStorage.getItem(key);
+            if (stored) {
+                try {
+                    const initPrice = BigInt(stored);
+                    if (initPrice > 0n && price > 0n) {
+                        const diff = price - initPrice;
+                        change = parseFloat((Number(diff) / Number(initPrice) * 100).toFixed(1));
+                    }
+                } catch {}
+            } else {
+                localStorage.setItem(key, price.toString());
+            }
+
+            return {
+                address: poolAddress,
+                tokenAddress: tokenAddr,
+                tokenSymbol: symbol,
+                reserveToken,
+                reservePOL,
+                price,
+                change
             };
-        });
-
-        // ================================================================
-        // CONNECT WALLET
-        // ================================================================
-        connectBtn.onclick = async () => {
-            try {
-                if (typeof ethers === 'undefined') {
-                    alert("⚠️ ethers library failed to load. Please refresh.");
-                    return;
-                }
-                if (typeof window.ethereum === 'undefined') {
-                    return alert(
-                        "🦊 MetaMask not detected.\n\n" +
-                        "If you have MetaMask installed, try these fixes:\n" +
-                        "1. Open this page via a local server (e.g., python3 -m http.server 8080).\n" +
-                        "2. In Brave, go to brave://settings/wallet and set 'Default wallet' to 'MetaMask'.\n" +
-                        "3. Ensure MetaMask is unlocked and you are on the Sepolia network."
-                    );
-                }
-
-                provider = new ethers.BrowserProvider(window.ethereum);
-                signer = await provider.getSigner();
-                userAddress = await signer.getAddress();
-
-                const network = await provider.getNetwork();
-                const chainId = Number(network.chainId);
-                if (chainId !== 11155111) {
-                    alert(`⚠️ Please switch to Sepolia network (chain ID 11155111). Currently on chain ${chainId}.`);
-                    return;
-                }
-
-                isConnected = true;
-
-                honeyContract = new ethers.Contract(HONEY_ADDRESS, ERC20_ABI, signer);
-                polContract = new ethers.Contract(POL_ADDRESS, ERC20_ABI, signer);
-                nftContract = new ethers.Contract(NFT_ADDRESS, NFT_ABI, signer);
-                factoryContract = new ethers.Contract(FACTORY_ADDRESS, FACTORY_ABI, signer);
-                tokenFactoryContract = new ethers.Contract(TOKEN_FACTORY_ADDRESS, TOKEN_FACTORY_ABI, signer);
-                prizePotContract = new ethers.Contract(PRIZE_POT_ADDRESS, [
-                    "function getCurrentYear() view returns (uint256)",
-                    "function ANNUAL_POT() view returns (uint256)"
-                ], signer);
-
-                try {
-                    const factoryOwner = await factoryContract.owner();
-                    isOwner = factoryOwner.toLowerCase() === userAddress.toLowerCase();
-                } catch (e) {
-                    console.warn("Could not check factory owner:", e);
-                    isOwner = false;
-                }
-
-                walletDisplay.textContent = `🦊 ${userAddress.slice(0,6)}...${userAddress.slice(-4)}`;
-                connectBtn.textContent = "✅ Connected";
-
-                await refreshAll();
-
-                swapBtn.disabled = false;
-                if (isOwner) {
-                    adminLaunchBtn.disabled = false;
-                    adminPauseBtn.disabled = false;
-                    adminResumeBtn.disabled = false;
-                    adminRemoveBtn.disabled = false;
-                }
-
-                setInterval(refreshAll, 6000);
-
-            } catch (e) {
-                console.error("Connection error:", e);
-                if (e.code !== 4001) {
-                    alert("Connection failed:\n" + (e.message || e.reason || "Unknown error") +
-                        "\n\nCheck the console (F12) for details.");
-                }
-            }
-        };
-
-        // ================================================================
-        // REFRESH ALL TABS
-        // ================================================================
-        async function refreshAll() {
-            if (!isConnected) return;
-            await refreshBalancesAndTier();
-            await refreshDEX();
-            await refreshNFT();
-            await refreshIDOTab();
-            await refreshPrizePot();
-            await refreshAdmin();
+        } catch (e) {
+            console.error("Error fetching pool data for", poolAddress, e);
+            return null;
         }
+    }
 
-        // ================================================================
-        // REFRESH BALANCES & TIER
-        // ================================================================
-        async function refreshBalancesAndTier() {
-            try {
-                honeyBalance = await honeyContract.balanceOf(userAddress);
-                polBalance = await polContract.balanceOf(userAddress);
-                balanceDisplay.textContent =
-                    `HONEY: ${formatNumber(parseFloat(ethers.formatUnits(honeyBalance, 18)))} | POL: ${formatNumber(parseFloat(ethers.formatUnits(polBalance, 18)))}`;
+    async function refreshDEX() {
+        if (!isConnected) return;
+        try {
+            const pools = await tokenFactoryContract.getAllPools();
+            dexPoolAddresses = Array.from(pools);
 
-                const tier = Number(await nftContract.getUserTier(userAddress));
-                userTier = tier;
-                const names = ["None", "🥉 Bronze", "🥈 Silver", "🥇 Gold"];
-                const cls = ["", "bronze", "silver", "gold"];
-                tierDisplay.textContent = `Tier: ${names[tier] || "None"}`;
-                tierDisplay.className = `tier-badge ${cls[tier] || ""}`;
-            } catch (e) {
-                console.error("Balance refresh error:", e);
+            const poolDataArray = [];
+            for (const addr of dexPoolAddresses) {
+                const data = await fetchPoolData(addr);
+                if (data) poolDataArray.push(data);
             }
-        }
+            dexPoolData = {};
+            poolDataArray.forEach(d => { dexPoolData[d.address] = d; });
 
-        // ================================================================
-        // DEX – PERMISSIONLESS: ONLY SHOWS POOLS FROM TOKEN FACTORY
-        // ================================================================
-        async function fetchPoolData(poolAddress) {
-            try {
-                const pool = new ethers.Contract(poolAddress, SPARK_POOL_ABI, provider);
-                const [reserve0, reserve1] = await pool.getReserves();
-                const token0Addr = await pool.token0();
-                const token1Addr = await pool.token1();
-
-                // Determine which token is POL and which is the token
-                let tokenAddr, polAddr;
-                if (token0Addr.toLowerCase() === POL_ADDRESS.toLowerCase()) {
-                    // token0 is POL, token1 is the token
-                    polAddr = token0Addr;
-                    tokenAddr = token1Addr;
-                } else {
-                    // token0 is the token, token1 is POL
-                    tokenAddr = token0Addr;
-                    polAddr = token1Addr;
-                }
-
-                const tokenContract = new ethers.Contract(tokenAddr, ERC20_ABI, provider);
-                let symbol = 'TOKEN';
-                try {
-                    symbol = await tokenContract.symbol();
-                } catch (e) { /* ignore */ }
-
-                // Get reserves in the correct order
-                const reserveToken = tokenAddr === token0Addr ? reserve0 : reserve1;
-                const reservePOL = polAddr === token0Addr ? reserve0 : reserve1;
-
-                // Compute price = reservePOL / reserveToken (price of token in POL)
-                const price = reservePOL / reserveToken;
-
-                // Store initial price for change calculation
-                const initialPrice = localStorage.getItem(`pool_initial_${poolAddress}`);
-                let change = 0;
-                if (initialPrice) {
-                    const initPrice = BigInt(initialPrice);
-                    if (initPrice > 0) {
-                        change = parseFloat((Number(price - initPrice) / Number(initPrice) * 100).toFixed(1));
-                    }
-                } else {
-                    localStorage.setItem(`pool_initial_${poolAddress}`, price.toString());
-                }
-
-                return {
-                    address: poolAddress,
-                    tokenAddress: tokenAddr,
-                    tokenSymbol: symbol,
-                    reserveToken,
-                    reservePOL,
-                    price,
-                    change
-                };
-            } catch (e) {
-                console.error("Error fetching pool data for", poolAddress, e);
-                return null;
-            }
-        }
-
-        async function refreshDEX() {
-            if (!isConnected) return;
-            try {
-                const pools = await tokenFactoryContract.getAllPools();
-                dexPoolAddresses = Array.from(pools);
-
-                let poolDataArray = [];
-                for (const addr of dexPoolAddresses) {
-                    const data = await fetchPoolData(addr);
-                    if (data) poolDataArray.push(data);
-                }
-                dexPoolData = {};
-                poolDataArray.forEach(d => { dexPoolData[d.address] = d; });
-
-                if (poolDataArray.length === 0) {
-                    dexPoolCards.innerHTML = `<div style="color:var(--text-secondary); grid-column: span 3; text-align:center; padding: 20px;">No pools deployed yet. Launch a token to create one.</div>`;
-                } else {
-                    let html = '';
-                    for (const d of poolDataArray) {
-                        const activeClass = (d.address === selectedDexPoolAddress) ? 'active' : '';
-                        const priceStr = formatPrice(parseFloat(ethers.formatUnits(d.price, 18)));
-                        const changeStr = d.change >= 0 ? `+${d.change.toFixed(1)}%` : `${d.change.toFixed(1)}%`;
-                        const changeClass = d.change >= 0 ? 'positive' : 'negative';
-                        html += `
-                            <div class="pool-card ${activeClass}" data-addr="${d.address}" onclick="selectDexPool('${d.address}')">
-                                <div class="pool-name">
-                                    <span>${d.tokenSymbol}</span>
-                                    <span class="pool-change ${changeClass}">${changeStr}</span>
-                                </div>
-                                <div class="pool-price">${priceStr} POL</div>
-                            </div>
-                        `;
-                    }
-                    dexPoolCards.innerHTML = html;
-                }
-
-                let count = poolDataArray.length;
-                let avgChange = 0;
-                if (count > 0) {
-                    avgChange = poolDataArray.reduce((acc, d) => acc + d.change, 0) / count;
-                }
-                dexTotalVolume.textContent = formatNumber(totalVolumePOL) + ' POL';
-                dexTotalTrades.textContent = recentTrades.length;
-                dexAvgChange.textContent = (avgChange || 0).toFixed(1) + '%';
-                dexPoolCount.textContent = count;
-
-                if (!selectedDexPoolAddress || !dexPoolData[selectedDexPoolAddress]) {
-                    if (poolDataArray.length > 0) {
-                        await selectDexPool(poolDataArray[0].address, true);
-                    }
-                } else {
-                    await selectDexPool(selectedDexPoolAddress, true);
-                }
-
-                renderRecentTrades();
-
-            } catch (e) {
-                console.error("DEX refresh error:", e);
-            }
-        }
-
-        window.selectDexPool = async function(poolAddress, skipRefresh = false) {
-            if (!poolAddress) return;
-            selectedDexPoolAddress = poolAddress;
-            document.querySelectorAll('.pool-card').forEach(el => {
-                el.classList.toggle('active', el.dataset.addr === poolAddress);
-            });
-
-            const data = dexPoolData[poolAddress];
-            if (!data) return;
-
-            selectedPoolName.textContent = data.tokenSymbol;
-            selectedTokenSymbol.textContent = data.tokenSymbol;
-            const priceNum = parseFloat(ethers.formatUnits(data.price, 18));
-            selectedPoolPrice.textContent = formatPrice(priceNum);
-
-            swapFromToken.innerHTML = `
-                <option value="POL">POL → ${data.tokenSymbol}</option>
-                <option value="TOKEN">${data.tokenSymbol} → POL</option>
-            `;
-            swapReceiveSymbol.textContent = data.tokenSymbol;
-
-            dexPoolContract = new ethers.Contract(poolAddress, SPARK_POOL_ABI, signer);
-            updateSwapQuote();
-            if (!skipRefresh) refreshDEX();
-        };
-
-        async function updateSwapQuote() {
-            const val = swapAmount.value.trim();
-            if (!val || parseFloat(val) <= 0 || !dexPoolContract) {
-                swapReceive.textContent = "0.00";
-                swapMinReceive.textContent = "0.00";
-                return;
-            }
-            try {
-                const amountIn = ethers.parseUnits(val, 18);
-                const [reserve0, reserve1] = await dexPoolContract.getReserves();
-                const isPOL = swapFromToken.value === "POL";
-                const reserveIn = isPOL ? reserve1 : reserve0;
-                const reserveOut = isPOL ? reserve0 : reserve1;
-                const fee = 30;
-                const amountInWithFee = amountIn * (10000n - BigInt(fee)) / 10000n;
-                const numerator = reserveOut * amountInWithFee;
-                const denominator = reserveIn + amountInWithFee;
-                const amountOut = numerator / denominator;
-                const outNum = parseFloat(ethers.formatUnits(amountOut, 18));
-
-                const slippage = getSlippagePercent();
-                const minOutNum = outNum * (1 - slippage);
-
-                swapReceive.textContent = formatNumber(outNum);
-                swapReceiveSymbol.textContent = isPOL ? "TOKEN" : "POL";
-                swapMinReceive.textContent = formatNumber(minOutNum);
-            } catch (e) {
-                swapReceive.textContent = "Error";
-                swapMinReceive.textContent = "Error";
-                console.error("Quote error:", e);
-            }
-        }
-
-        swapAmount.oninput = updateSwapQuote;
-        swapFromToken.onchange = updateSwapQuote;
-        slippageRange.oninput = () => {
-            slippageDisplay.textContent = slippageRange.value + '%';
-            updateSwapQuote();
-        };
-
-        refreshPoolsBtn.onclick = async () => {
-            await refreshDEX();
-        };
-
-        swapBtn.onclick = async () => {
-            if (!isConnected) return alert("Connect wallet first");
-            if (!dexPoolContract) return alert("Select a pool first.");
-            const val = swapAmount.value.trim();
-            if (!val || parseFloat(val) <= 0) return alert("Enter amount");
-
-            const amountIn = ethers.parseUnits(val, 18);
-            const isPOL = swapFromToken.value === "POL";
-            const tokenIn = isPOL ? POL_ADDRESS : dexPoolData[selectedDexPoolAddress].tokenAddress;
-            const tokenContract = isPOL ? polContract : new ethers.Contract(tokenIn, ERC20_ABI, signer);
-
-            const [reserve0, reserve1] = await dexPoolContract.getReserves();
-            const reserveIn = isPOL ? reserve1 : reserve0;
-            const reserveOut = isPOL ? reserve0 : reserve1;
-            const fee = 30;
-            const amountInWithFee = amountIn * (10000n - BigInt(fee)) / 10000n;
-            const amountOut = (reserveOut * amountInWithFee) / (reserveIn + amountInWithFee);
-            const slippage = getSlippagePercent();
-            const amountOutMin = amountOut * BigInt(Math.floor((1 - slippage) * 10000)) / 10000n;
-
-            try {
-                swapBtn.disabled = true;
-                swapBtn.textContent = "Swapping...";
-                const allowance = await tokenContract.allowance(userAddress, selectedDexPoolAddress);
-                if (allowance < amountIn) {
-                    const approveTx = await tokenContract.approve(selectedDexPoolAddress, amountIn);
-                    await approveTx.wait();
-                }
-                const tx = await dexPoolContract.swap(amountIn, amountOutMin, tokenIn);
-                const receipt = await tx.wait();
-
-                const tokenSymbol = dexPoolData[selectedDexPoolAddress].tokenSymbol;
-                const type = isPOL ? 'BUY' : 'SELL';
-                const trade = {
-                    type,
-                    symbol: tokenSymbol,
-                    amount: parseFloat(val),
-                    price: parseFloat(ethers.formatUnits(amountOut / amountIn, 18)),
-                    timestamp: Date.now()
-                };
-                recentTrades.unshift(trade);
-                if (recentTrades.length > MAX_TRADES) recentTrades.pop();
-                totalVolumePOL += parseFloat(val);
-                renderRecentTrades();
-
-                alert("✅ Swap successful!");
-                swapAmount.value = "";
-                await refreshAll();
-            } catch (e) {
-                console.error(e);
-                let msg = e.reason || e.message || "Transaction failed";
-                if (msg.includes("insufficient")) msg = "Insufficient balance or allowance.";
-                if (msg.includes("Slippage")) msg = "Slippage exceeded. Try increasing tolerance or a smaller amount.";
-                alert("❌ Swap failed: " + msg);
-            } finally {
-                swapBtn.disabled = false;
-                swapBtn.textContent = "Swap";
-            }
-        };
-
-        function renderRecentTrades() {
-            if (recentTrades.length === 0) {
-                recentTradesList.innerHTML = `<div class="trade-item" style="color:var(--text-secondary);">No trades yet.</div>`;
-                return;
-            }
-            let html = '';
-            for (const trade of recentTrades) {
-                const typeClass = trade.type.toLowerCase();
-                html += `
-                    <div class="trade-item">
-                        <span class="type ${typeClass}">${trade.type}</span>
-                        <span>${trade.symbol}</span>
-                        <span>${trade.amount.toFixed(1)} POL</span>
-                        <span>${trade.price.toFixed(5)}</span>
-                    </div>
-                `;
-            }
-            recentTradesList.innerHTML = html;
-        }
-
-        // ================================================================
-        // NFT
-        // ================================================================
-        async function refreshNFT() {
-            try {
-                const bronze = await nftContract.getRequiredHoneyForTier(1);
-                const silver = await nftContract.getRequiredHoneyForTier(2);
-                const gold = await nftContract.getRequiredHoneyForTier(3);
-                bronzePrice.textContent = `${formatNumber(parseFloat(ethers.formatUnits(bronze, 18)))} HONEY`;
-                silverPrice.textContent = `${formatNumber(parseFloat(ethers.formatUnits(silver, 18)))} HONEY`;
-                goldPrice.textContent = `${formatNumber(parseFloat(ethers.formatUnits(gold, 18)))} HONEY`;
-                updateMintButtons();
-            } catch (e) {
-                console.error("NFT price error:", e);
-            }
-        }
-
-        function updateMintButtons() {
-            const bal = parseFloat(ethers.formatUnits(honeyBalance, 18));
-            const bronzeCost = parseFloat(bronzePrice.textContent.replace(' HONEY', '').replace(/,/g, ''));
-            const silverCost = parseFloat(silverPrice.textContent.replace(' HONEY', '').replace(/,/g, ''));
-            const goldCost = parseFloat(goldPrice.textContent.replace(' HONEY', '').replace(/,/g, ''));
-            mintBronzeBtn.disabled = isNaN(bronzeCost) || bronzeCost > bal;
-            mintSilverBtn.disabled = isNaN(silverCost) || silverCost > bal;
-            mintGoldBtn.disabled = isNaN(goldCost) || goldCost > bal;
-        }
-
-        async function mintNFT(tier) {
-            if (!isConnected) return alert("Connect wallet first");
-            try {
-                const costWei = await nftContract.getRequiredHoneyForTier(tier);
-                const allowance = await honeyContract.allowance(userAddress, NFT_ADDRESS);
-                if (allowance < costWei) {
-                    const approveTx = await honeyContract.approve(NFT_ADDRESS, costWei);
-                    await approveTx.wait();
-                }
-                let tx;
-                if (tier === 1) tx = await nftContract.mintBronze();
-                else if (tier === 2) tx = await nftContract.mintSilver();
-                else if (tier === 3) tx = await nftContract.mintGold();
-                await tx.wait();
-                alert(`🎉 Minted Tier ${tier} NFT!`);
-                await refreshAll();
-            } catch (e) {
-                console.error(e);
-                alert("Mint failed: " + (e.reason || e.message));
-            }
-        }
-
-        mintBronzeBtn.onclick = () => mintNFT(1);
-        mintSilverBtn.onclick = () => mintNFT(2);
-        mintGoldBtn.onclick = () => mintNFT(3);
-
-        // ================================================================
-        // IDO
-        // ================================================================
-        async function renderPoolCards() {
-            if (!isConnected || !factoryContract) return;
-            try {
-                const pools = await factoryContract.getAllPools();
-                allPoolAddresses = pools;
-
-                if (pools.length === 0) {
-                    idoPoolCards.innerHTML =
-                        `<div style="color:var(--text-secondary); grid-column: span 3; text-align:center; padding: 20px;">No IDO pools deployed yet.</div>`;
-                    idoDetailView.classList.remove('visible');
-                    idoPlaceholder.style.display = 'block';
-                    selectedPoolAddress = null;
-                    idoContract = null;
-                    if (countdownInterval) { clearInterval(countdownInterval);
-                        countdownInterval = null; }
-                    return;
-                }
-
+            if (poolDataArray.length === 0) {
+                dexPoolCards.innerHTML = `<div style="color:var(--text-secondary); grid-column: span 3; text-align:center; padding: 20px;">No pools deployed yet. Launch a token to create one.</div>`;
+            } else {
                 let html = '';
-                for (let i = 0; i < pools.length; i++) {
-                    const addr = pools[i];
-                    const details = await fetchPoolDetails(addr);
-                    if (!details) continue;
-                    poolDataMap[addr] = details;
-
-                    const statusClass = details.status;
-                    const statusLabel = details.status.charAt(0).toUpperCase() + details.status.slice(1);
-                    const activeClass = (selectedPoolAddress === addr) ? 'active' : '';
-                    const countdownId = `countdown-${addr}`;
-
+                for (const d of poolDataArray) {
+                    const activeClass = (d.address === selectedDexPoolAddress) ? 'active' : '';
+                    const priceNum = parseFloat(ethers.formatUnits(d.price, 18));
+                    const priceStr = formatPrice(priceNum);
+                    const changeStr = d.change >= 0 ? `+${d.change.toFixed(1)}%` : `${d.change.toFixed(1)}%`;
+                    const changeClass = d.change >= 0 ? 'positive' : 'negative';
                     html += `
-                        <div class="ido-card ${activeClass}" data-addr="${addr}" onclick="selectPool('${addr}')">
-                            <div class="card-top">
-                                <span class="pool-name">IDO #${i+1} - ${details.symbol}</span>
-                                <span class="pool-status ${statusClass}">${statusLabel}</span>
+                        <div class="pool-card ${activeClass}" data-addr="${d.address}" onclick="selectDexPool('${d.address}')">
+                            <div class="pool-name">
+                                <span>${d.tokenSymbol}</span>
+                                <span class="pool-change ${changeClass}">${changeStr}</span>
                             </div>
-                            <div class="card-details">
-                                <div class="row"><span>Raised</span><span>${formatNumber(details.totalSold)} ${details.symbol}</span></div>
-                                <div class="row"><span>Cap</span><span>${formatNumber(details.totalSupply)} ${details.symbol}</span></div>
-                                <div class="row"><span>Sold</span><span>${details.percentSold.toFixed(1)}%</span></div>
-                            </div>
-                            <div class="card-progress">
-                                <div class="fill" style="width: ${Math.min(details.percentSold, 100)}%;"></div>
-                            </div>
-                            <div class="card-countdown" id="${countdownId}">
-                                ${getCountdownText(details)}
-                            </div>
+                            <div class="pool-price">${priceStr} POL</div>
                         </div>
                     `;
                 }
-
-                idoPoolCards.innerHTML = html;
-
-                if (!countdownInterval) {
-                    countdownInterval = setInterval(updateAllCountdowns, 1000);
-                }
-
-                if (!selectedPoolAddress && pools.length > 0) {
-                    await selectPool(pools[0]);
-                } else if (selectedPoolAddress && pools.includes(selectedPoolAddress)) {
-                    await selectPool(selectedPoolAddress);
-                } else if (selectedPoolAddress && !pools.includes(selectedPoolAddress)) {
-                    selectedPoolAddress = null;
-                    idoContract = null;
-                    idoDetailView.classList.remove('visible');
-                    idoPlaceholder.style.display = 'block';
-                }
-
-            } catch (e) {
-                console.error("Error rendering pool cards:", e);
-                idoPoolCards.innerHTML =
-                    `<div style="color:var(--text-secondary); grid-column: span 3; text-align:center; padding: 20px;">Error loading pools. <button onclick="renderPoolCards()" class="btn btn-sm" style="margin-left:10px;">Retry</button></div>`;
+                dexPoolCards.innerHTML = html;
             }
+
+            const count = poolDataArray.length;
+            const avgChange = count > 0 ? poolDataArray.reduce((acc, d) => acc + (d.change || 0), 0) / count : 0;
+            dexTotalVolume.textContent = formatNumber(totalVolumePOL) + ' POL';
+            dexTotalTrades.textContent = recentTrades.length;
+            dexAvgChange.textContent = avgChange.toFixed(1) + '%';
+            dexPoolCount.textContent = count;
+
+            if (!selectedDexPoolAddress || !dexPoolData[selectedDexPoolAddress]) {
+                if (poolDataArray.length > 0) {
+                    await selectDexPool(poolDataArray[0].address, true);
+                }
+            } else {
+                await selectDexPool(selectedDexPoolAddress, true);
+            }
+
+            renderRecentTrades();
+
+        } catch (e) {
+            console.error("DEX refresh error:", e);
         }
+    }
 
-        function getCountdownText(details) {
-            const now = Math.floor(Date.now() / 1000);
-            if (details.status === 'ended') return '⏳ Closed';
-            if (details.status === 'paused') return '⏸️ Paused';
-            if (details.status === 'live') {
-                const remaining = details.endTime - now;
-                if (remaining <= 0) return '⏳ Closed';
-                return `⏳ ${formatCountdown(remaining)} remaining`;
-            }
-            if (details.status === 'upcoming') {
-                const startsIn = details.startTime - now;
-                if (startsIn <= 0) return '⏳ Starting soon';
-                return `⏳ Opens in ${formatCountdown(startsIn)}`;
-            }
-            return '';
-        }
-
-        function updateAllCountdowns() {
-            const cards = document.querySelectorAll('.ido-card');
-            cards.forEach(card => {
-                const addr = card.dataset.addr;
-                const details = poolDataMap[addr];
-                if (!details) return;
-                const countdownEl = document.getElementById(`countdown-${addr}`);
-                if (countdownEl) {
-                    countdownEl.textContent = getCountdownText(details);
-                }
-            });
-        }
-
-        async function fetchPoolDetails(addr) {
-            try {
-                const poolContract = new ethers.Contract(addr, IDO_ABI, signer);
-                const saleTokenAddr = await poolContract.saleToken();
-                const tokenContract = new ethers.Contract(saleTokenAddr, ERC20_ABI, provider);
-                const symbol = await tokenContract.symbol().catch(() => 'TOK');
-                const treasury = await poolContract.treasury();
-                const start = Number(await poolContract.startTime());
-                const end = Number(await poolContract.endTime());
-                const totalSold = await poolContract.totalSold();
-                const totalSupply = await poolContract.totalSupplyForSale();
-                const paused = await poolContract.paused();
-
-                const soldNum = parseFloat(ethers.formatUnits(totalSold, 18));
-                const totalNum = parseFloat(ethers.formatUnits(totalSupply, 18));
-                const percent = totalNum > 0 ? (soldNum / totalNum) * 100 : 0;
-
-                const now = Math.floor(Date.now() / 1000);
-                let status = 'upcoming';
-                if (paused) status = 'paused';
-                else if (now >= start && now <= end) status = 'live';
-                else if (now > end) status = 'ended';
-
-                return {
-                    address: addr,
-                    symbol: symbol,
-                    treasury: treasury,
-                    startTime: start,
-                    endTime: end,
-                    totalSold: soldNum,
-                    totalSupply: totalNum,
-                    percentSold: percent,
-                    status: status,
-                    paused: paused,
-                    saleTokenAddr: saleTokenAddr
-                };
-            } catch (e) {
-                console.error(`Error fetching details for ${addr}:`, e);
-                return null;
-            }
-        }
-
-        window.selectPool = async function(addr) {
-            console.log("selectPool called with:", addr);
-            if (!addr) return;
-            selectedPoolAddress = addr;
-            idoContract = new ethers.Contract(addr, IDO_ABI, signer);
-
-            document.querySelectorAll('.ido-card').forEach(el => {
-                el.classList.toggle('active', el.dataset.addr === addr);
-            });
-
-            idoDetailView.classList.add('visible');
-            idoPlaceholder.style.display = 'none';
-            await refreshIDODetails();
-        };
-
-        async function refreshIDODetails() {
-            console.log("refreshIDODetails called, selectedPoolAddress:", selectedPoolAddress);
-            if (!isConnected || !idoContract || !selectedPoolAddress) {
-                console.log("Missing prerequisites, aborting");
-                return;
-            }
-
-            try {
-                const tier = Number(await nftContract.getUserTier(userAddress));
-                userTier = tier;
-                console.log("User tier:", userTier);
-
-                const names = ["None", "🥉 Bronze", "🥈 Silver", "🥇 Gold"];
-                const cls = ["", "bronze", "silver", "gold"];
-                tierDisplay.textContent = `Tier: ${names[tier] || "None"}`;
-                tierDisplay.className = `tier-badge ${cls[tier] || ""}`;
-
-                let details = poolDataMap[selectedPoolAddress];
-                if (!details) {
-                    console.log("Cache miss, fetching details directly");
-                    details = await fetchPoolDetails(selectedPoolAddress);
-                    if (details) poolDataMap[selectedPoolAddress] = details;
-                    else throw new Error("Could not fetch pool details");
-                }
-                console.log("Pool details:", details);
-
-                saleTokenSymbol = details.symbol;
-                quoteSymbol.textContent = saleTokenSymbol;
-
-                const statusLabel = details.status.charAt(0).toUpperCase() + details.status.slice(1);
-                poolStatusBadge.textContent = `Status: ${statusLabel}`;
-                poolSaleTokenLabel.textContent = `Token: ${saleTokenSymbol}`;
-                poolTreasuryLabel.textContent = `Treasury: ${shortenAddress(details.treasury)}`;
-
-                startTime = details.startTime;
-                endTime = details.endTime;
-                const now = Math.floor(Date.now() / 1000);
-
-                countdownContainer.style.display = "block";
-                if (now < startTime) {
-                    const diff = startTime - now;
-                    const d = Math.floor(diff / 86400);
-                    const h = Math.floor((diff % 86400) / 3600);
-                    const m = Math.floor((diff % 3600) / 60);
-                    const s = diff % 60;
-                    bigCountdown.textContent = `${d}d ${h}h ${m}m ${s}s`;
-                } else if (now >= startTime && now <= endTime) {
-                    bigCountdown.innerHTML = `<span style="color:#10b981;">🚀 LIVE NOW</span>`;
-                } else {
-                    bigCountdown.innerHTML = `<span style="color:#ef4444;">⏳ Sale Ended</span>`;
-                }
-
-                const totalSold = await idoContract.totalSold();
-                const totalSupply = await idoContract.totalSupplyForSale();
-                const soldNum = parseFloat(ethers.formatUnits(totalSold, 18));
-                const totalNum = parseFloat(ethers.formatUnits(totalSupply, 18));
-                const remainingNum = totalNum - soldNum;
-                const percent = totalNum > 0 ? (soldNum / totalNum) * 100 : 0;
-
-                if (tier > 0) {
-                    try {
-                        const discountedPriceWei = await idoContract.getDiscountedPriceForTier.staticCall(tier);
-                        discountedPolPrice = discountedPriceWei;
-                        console.log("Discounted price (wei):", discountedPolPrice.toString());
-                        const polPriceFormatted = parseFloat(ethers.formatUnits(discountedPolPrice, 18));
-                        idoPriceDisplay.textContent = `💲 Discounted Price: ${formatPrice(polPriceFormatted)} POL per ${saleTokenSymbol}`;
-                        if (totalSold > 0) {
-                            const polRaisedEstimate = (totalSold * discountedPolPrice) / 1e18;
-                            polRaisedEl.textContent = `${formatNumber(parseFloat(ethers.formatUnits(polRaisedEstimate, 18)))} POL`;
-                        } else {
-                            polRaisedEl.textContent = `0.00 POL`;
-                        }
-                    } catch (priceError) {
-                        console.warn("Price fetch error (staticCall):", priceError);
-                        idoPriceDisplay.textContent = `⚠️ Price unavailable – oracle may be offline.`;
-                        polRaisedEl.textContent = `-- POL`;
-                        discountedPolPrice = 0n;
-                    }
-                } else {
-                    idoPriceDisplay.textContent = `💲 Hold an Investor NFT to see the discounted price.`;
-                    polRaisedEl.textContent = `0.00 POL`;
-                }
-
-                soldDisplay.textContent = `${formatNumber(soldNum)} ${saleTokenSymbol}`;
-                remainingDisplay.textContent = `${formatNumber(remainingNum)} ${saleTokenSymbol}`;
-                percentDisplay.textContent = `${percent.toFixed(2)}% SOLD`;
-                idoProgress.style.width = `${Math.min(percent, 100)}%`;
-
-                try {
-                    const cap = await idoContract.maxPerWallet();
-                    console.log("maxPerWallet (wei):", cap.toString());
-                    capDisplay.textContent = `Cap: ${formatNumber(parseFloat(ethers.formatUnits(cap, 18)))} ${saleTokenSymbol}`;
-                    window._cap = cap;
-                } catch (capError) {
-                    console.warn("Error fetching maxPerWallet:", capError);
-                    capDisplay.textContent = `Cap: --`;
-                    window._cap = 0n;
-                }
-
-                const userPurchased = await idoContract.purchased(userAddress);
-                userContributionEl.textContent = `${formatNumber(parseFloat(ethers.formatUnits(userPurchased, 18)))} ${saleTokenSymbol}`;
-
-                const isActive = (now >= startTime && now <= endTime && tier > 0 && !details.paused && discountedPolPrice > 0);
-                console.log("isActive:", isActive, "now:", now, "startTime:", startTime, "endTime:", endTime);
-                polInput.disabled = !isActive || !isConnected;
-                maxBtn.disabled = !isActive || !isConnected;
-                buyBtn.disabled = !isActive || !isConnected;
-
-                await updateIDOQuote();
-
-            } catch (e) {
-                console.error("Error in refreshIDODetails:", e);
-                idoPriceDisplay.textContent = `⚠️ Error loading IDO data. Please refresh the page.`;
-            }
-        }
-
-        async function refreshIDOTab() {
-            if (!isConnected) return;
-            await renderPoolCards();
-            if (selectedPoolAddress && idoContract) {
-                await refreshIDODetails();
-            }
-        }
-
-        async function updateIDOQuote() {
-            if (!isConnected || userTier === 0 || !idoContract) {
-                quoteAmount.textContent = "0.00";
-                idoMinReceive.textContent = "0.00";
-                return;
-            }
-            if (!discountedPolPrice || discountedPolPrice === 0n) {
-                quoteAmount.textContent = "0.00";
-                idoMinReceive.textContent = "0.00";
-                return;
-            }
-            const val = polInput.value.trim();
-            if (!val || parseFloat(val) <= 0) {
-                quoteAmount.textContent = "0.00";
-                idoMinReceive.textContent = "0.00";
-                return;
-            }
-            try {
-                const polAmount = ethers.parseUnits(val, 18);
-                const tokenAmount = (polAmount * 10n ** 18n) / discountedPolPrice;
-                const tokensNum = Number(tokenAmount) / 1e18;
-                const slippage = getIdoSlippagePercent();
-                const minTokensNum = tokensNum * (1 - slippage);
-
-                quoteAmount.textContent = formatNumber(tokensNum);
-                idoMinReceive.textContent = formatNumber(minTokensNum);
-            } catch (e) {
-                console.error("Quote error:", e);
-                quoteAmount.textContent = "Error";
-                idoMinReceive.textContent = "Error";
-            }
-        }
-
-        polInput.oninput = updateIDOQuote;
-
-        idoRefreshBtn.onclick = async () => {
-            idoRefreshBtn.textContent = "⟳";
-            await renderPoolCards();
-            if (selectedPoolAddress && idoContract) {
-                await refreshIDODetails();
-            }
-            idoRefreshBtn.textContent = "⟳";
-        };
-
-        maxBtn.onclick = async () => {
-            if (!isConnected || userTier === 0 || !idoContract) return alert("Connect wallet & hold NFT");
-            if (!discountedPolPrice || discountedPolPrice === 0n) return alert("Price not loaded");
-            try {
-                const cap = await idoContract.maxPerWallet();
-                console.log("MAX: cap (wei):", cap.toString());
-                const purchased = await idoContract.purchased(userAddress);
-                console.log("MAX: purchased (wei):", purchased.toString());
-                const remainingTokens = cap - purchased;
-                console.log("MAX: remainingTokens (wei):", remainingTokens.toString());
-                const polNeeded = (remainingTokens * discountedPolPrice) / 10n ** 18n;
-                console.log("MAX: polNeeded (wei):", polNeeded.toString());
-                const polBal = await provider.getBalance(userAddress);
-                console.log("MAX: user POL balance (wei):", polBal.toString());
-                const usable = polNeeded < polBal ? polNeeded : polBal;
-                console.log("MAX: usable (wei):", usable.toString());
-                polInput.value = parseFloat(ethers.formatUnits(usable, 18)).toFixed(4);
-                await updateIDOQuote();
-            } catch (e) {
-                console.error(e);
-                alert("Error calculating max: " + (e.message || e.reason));
-            }
-        };
-
-        buyBtn.onclick = async () => {
-            if (!isConnected) return alert("Connect wallet");
-            if (userTier === 0) return alert("You need an Investor NFT");
-            if (!idoContract) return alert("Select a pool first");
-            if (discountedPolPrice === 0n) return alert("Price not available – oracle may be offline.");
-
-            const now = Math.floor(Date.now() / 1000);
-            if (now < startTime) {
-                alert("The sale has not started yet. Please wait.");
-                return;
-            }
-            if (now > endTime) {
-                alert("The sale has ended.");
-                return;
-            }
-            try {
-                const paused = await idoContract.paused();
-                if (paused) {
-                    alert("The pool is paused. Please try again later.");
-                    return;
-                }
-            } catch (e) {
-                console.warn("Could not check paused state", e);
-            }
-
-            const val = polInput.value.trim();
-            if (!val || parseFloat(val) <= 0) return alert("Enter POL amount");
-
-            const polAmount = ethers.parseUnits(val, 18);
-            const tokenAmount = (polAmount * 10n ** 18n) / discountedPolPrice;
-            const slippage = getIdoSlippagePercent();
-            const minTokensOut = tokenAmount * BigInt(Math.floor((1 - slippage) * 10000)) / 10000n;
-
-            try {
-                buyBtn.disabled = true;
-                buyBtn.textContent = "Buying...";
-                const tx = await idoContract.buy(minTokensOut, { value: polAmount });
-                await tx.wait();
-                alert("🎉 Purchase successful!");
-                polInput.value = "";
-                await refreshAll();
-            } catch (e) {
-                console.error(e);
-                let msg = e.reason || e.message || "Transaction failed";
-                if (msg.includes("Wallet cap")) msg = "You reached your allocation limit";
-                if (msg.includes("Slippage")) msg = "Slippage exceeded. Try increasing tolerance or a smaller amount.";
-                alert("❌ " + msg);
-            } finally {
-                buyBtn.disabled = false;
-                buyBtn.textContent = "Buy Tokens";
-            }
-        };
-
-        // ================================================================
-        // LAUNCH TOKEN – WITH POL APPROVAL
-        // ================================================================
-        polAmountRange.oninput = () => {
-            polAmountDisplay.textContent = polAmountRange.value + ' POL';
-        };
-
-        launchTokenBtn.onclick = async () => {
-            if (!isConnected) return alert("Connect wallet first");
-            const name = tokenName.value.trim();
-            const symbol = tokenSymbol.value.trim();
-            if (!name || !symbol) return alert("Fill in token name and symbol");
-
-            const polAmount = ethers.parseUnits(polAmountRange.value, 18);
-
-            try {
-                launchTokenBtn.disabled = true;
-                launchTokenBtn.textContent = "Approving POL...";
-
-                // Approve POL spending if needed
-                const allowance = await polContract.allowance(userAddress, TOKEN_FACTORY_ADDRESS);
-                if (allowance < polAmount) {
-                    const approveTx = await polContract.approve(TOKEN_FACTORY_ADDRESS, polAmount);
-                    await approveTx.wait();
-                }
-
-                launchTokenBtn.textContent = "Launching Token...";
-                launchTokenStatus.textContent = "Deploying token...";
-
-                const tx = await tokenFactoryContract.launchToken(name, symbol, polAmount);
-                const receipt = await tx.wait();
-
-                const event = receipt.logs
-                    .map(log => {
-                        try { return tokenFactoryContract.interface.parseLog(log); } catch(e) {}
-                    })
-                    .find(ev => ev && ev.name === "TokenLaunched");
-                if (event) {
-                    launchTokenStatus.textContent = `✅ Token launched! Address: ${event.args.token}. Pool: ${event.args.pool}`;
-                } else {
-                    launchTokenStatus.textContent = "✅ Transaction successful. Check the contract.";
-                }
-                // Clear fields
-                tokenName.value = '';
-                tokenSymbol.value = '';
-                await refreshAll();
-            } catch (e) {
-                console.error(e);
-                launchTokenStatus.textContent = "❌ Error: " + (e.reason || e.message);
-            } finally {
-                launchTokenBtn.disabled = false;
-                launchTokenBtn.textContent = "Launch Token";
-            }
-        };
-
-        // ================================================================
-        // PRIZE POT
-        // ================================================================
-        async function refreshPrizePot() {
-            if (!isConnected) return;
-            try {
-                const year = await prizePotContract.getCurrentYear();
-                prizeYear.textContent = year > 7 ? '7 (Completed)' : year;
-                const pot = await prizePotContract.ANNUAL_POT();
-                prizeAnnualPot.textContent = formatNumber(parseFloat(ethers.formatUnits(pot, 18))) + ' HONEY';
-            } catch (e) {
-                console.warn("PrizePot not available", e);
-            }
-        }
-
-        // ================================================================
-        // ADMIN
-        // ================================================================
-        async function refreshAdmin() {
-            if (!isConnected) return;
-            try {
-                if (!isOwner) {
-                    poolList.innerHTML =
-                        `<div style="color:var(--text-secondary);">🔒 Admin access restricted to contract owner.</div>`;
-                    return;
-                }
-                const pools = await factoryContract.getAllPools();
-                if (pools.length === 0) {
-                    poolList.innerHTML = `<div style="color:var(--text-secondary);">No pools deployed yet.</div>`;
-                } else {
-                    let html = '';
-                    pools.forEach((addr, i) => {
-                        html += `
-                            <div class="pool-item">
-                                <span>#${i+1}</span>
-                                <span class="addr">${addr}</span>
-                                <span style="font-size:11px; color:var(--text-secondary);">${i === 0 ? 'Active' : 'Inactive'}</span>
-                            </div>
-                        `;
-                    });
-                    poolList.innerHTML = html;
-                }
-            } catch (e) {
-                console.error("Admin refresh error:", e);
-            }
-        }
-
-        adminLaunchBtn.onclick = async () => {
-            if (!isConnected || !isOwner) return alert("Only owner can launch IDOs");
-            const saleToken = adminSaleToken.value.trim();
-            const treasury = adminTreasury.value.trim();
-            const startTime = adminStartTime.value.trim();
-            const endTime = adminEndTime.value.trim();
-            const supply = adminSupply.value.trim();
-            const cap = adminCap.value.trim();
-
-            if (!saleToken || !treasury || !startTime || !endTime || !supply || !cap) {
-                return alert("Please fill all fields");
-            }
-
-            try {
-                adminLaunchBtn.disabled = true;
-                adminLaunchBtn.textContent = "Launching...";
-                const tx = await factoryContract.launchIDO(
-                    saleToken,
-                    treasury,
-                    BigInt(startTime),
-                    BigInt(endTime),
-                    BigInt(supply),
-                    BigInt(cap)
-                );
-                await tx.wait();
-                alert("✅ IDO launched successfully!");
-                adminSaleToken.value = '';
-                adminTreasury.value = '';
-                adminStartTime.value = '';
-                adminEndTime.value = '';
-                adminSupply.value = '';
-                adminCap.value = '';
-                await renderPoolCards();
-                await refreshAdmin();
-            } catch (e) {
-                console.error(e);
-                alert("Launch failed: " + (e.reason || e.message));
-            } finally {
-                adminLaunchBtn.disabled = false;
-                adminLaunchBtn.textContent = "Launch IDO";
-            }
-        };
-
-        adminPauseBtn.onclick = async () => {
-            if (!isConnected || !isOwner) return alert("Only owner can pause");
-            const addr = adminPoolAddress.value.trim();
-            if (!addr) return alert("Enter pool address");
-            try {
-                const pool = new ethers.Contract(addr, IDO_ABI, signer);
-                const tx = await pool.pause(true);
-                await tx.wait();
-                alert("⏸️ Pool paused");
-                await renderPoolCards();
-                await refreshAdmin();
-            } catch (e) {
-                alert("Failed: " + (e.reason || e.message));
-            }
-        };
-
-        adminResumeBtn.onclick = async () => {
-            if (!isConnected || !isOwner) return alert("Only owner can resume");
-            const addr = adminPoolAddress.value.trim();
-            if (!addr) return alert("Enter pool address");
-            try {
-                const pool = new ethers.Contract(addr, IDO_ABI, signer);
-                const tx = await pool.pause(false);
-                await tx.wait();
-                alert("▶️ Pool resumed");
-                await renderPoolCards();
-                await refreshAdmin();
-            } catch (e) {
-                alert("Failed: " + (e.reason || e.message));
-            }
-        };
-
-        adminRemoveBtn.onclick = async () => {
-            if (!isConnected || !isOwner) return alert("Only owner can remove");
-            const addr = adminPoolAddress.value.trim();
-            if (!addr) return alert("Enter pool address");
-            const index = allPoolAddresses.indexOf(addr);
-            if (index === -1) return alert("Pool not found in factory");
-            try {
-                const tx = await factoryContract.removePool(index);
-                await tx.wait();
-                alert("🗑️ Pool removed");
-                await renderPoolCards();
-                await refreshAdmin();
-            } catch (e) {
-                alert("Failed: " + (e.reason || e.message));
-            }
-        };
-
-        // ================================================================
-        // INIT
-        // ================================================================
-        window.addEventListener('load', async () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const tabParam = urlParams.get('tab');
-            if (tabParam) {
-                const tabMap = {
-                    'dex': 'tabDEX',
-                    'ido': 'tabIDO',
-                    'nft': 'tabNFT',
-                    'admin': 'tabAdmin'
-                };
-                const targetTabId = tabMap[tabParam];
-                if (targetTabId) {
-                    const targetBtn = document.querySelector(`.tab-btn[data-tab="${targetTabId}"]`);
-                    if (targetBtn) {
-                        setTimeout(() => targetBtn.click(), 100);
-                    }
-                }
-            }
-            if (window.ethereum && window.ethereum.selectedAddress) {
-                try { await connectBtn.click(); } catch (e) { /* user might reject */ }
-            }
+    window.selectDexPool = async function(poolAddress, skipRefresh = false) {
+        if (!poolAddress) return;
+        selectedDexPoolAddress = poolAddress;
+        document.querySelectorAll('.pool-card').forEach(el => {
+            el.classList.toggle('active', el.dataset.addr === poolAddress);
         });
 
-        console.log("🍯 Full Ecosystem UI loaded.");
-    </script>
+        const data = dexPoolData[poolAddress];
+        if (!data) return;
+
+        selectedPoolName.textContent = data.tokenSymbol;
+        selectedTokenSymbol.textContent = data.tokenSymbol;
+        const priceNum = parseFloat(ethers.formatUnits(data.price, 18));
+        selectedPoolPrice.textContent = formatPrice(priceNum);
+
+        swapFromToken.innerHTML = `
+            <option value="POL">POL → ${data.tokenSymbol}</option>
+            <option value="TOKEN">${data.tokenSymbol} → POL</option>
+        `;
+        swapReceiveSymbol.textContent = data.tokenSymbol;
+
+        dexPoolContract = new ethers.Contract(poolAddress, SPARK_POOL_ABI, signer);
+        updateSwapQuote();
+        if (!skipRefresh) refreshDEX();
+    };
+
+    async function updateSwapQuote() {
+        const val = swapAmount.value.trim();
+        if (!val || parseFloat(val) <= 0 || !dexPoolContract) {
+            swapReceive.textContent = "0.00";
+            swapMinReceive.textContent = "0.00";
+            return;
+        }
+        try {
+            const amountIn = ethers.parseUnits(val, 18);
+            const [reserve0, reserve1] = await dexPoolContract.getReserves();
+            const isPOL = swapFromToken.value === "POL";
+
+            // Correct reserve mapping: if isPOL → POL is token0 (if pool is POL/token), else token is token0
+            // We need to know which token is POL. Let's read it from the selected pool data.
+            const data = dexPoolData[selectedDexPoolAddress];
+            if (!data) return;
+
+            // Determine reserveIn / reserveOut based on the pool's actual tokens
+            let reserveIn, reserveOut;
+            const token0Addr = await dexPoolContract.token0();
+            if (token0Addr.toLowerCase() === POL_ADDRESS.toLowerCase()) {
+                // token0 = POL, token1 = token
+                if (isPOL) {
+                    reserveIn = reserve0;   // POL reserve
+                    reserveOut = reserve1;  // token reserve
+                } else {
+                    reserveIn = reserve1;   // token reserve
+                    reserveOut = reserve0;  // POL reserve
+                }
+            } else {
+                // token0 = token, token1 = POL
+                if (isPOL) {
+                    reserveIn = reserve1;   // POL reserve
+                    reserveOut = reserve0;  // token reserve
+                } else {
+                    reserveIn = reserve0;   // token reserve
+                    reserveOut = reserve1;  // POL reserve
+                }
+            }
+
+            const fee = 30n;
+            const amountInWithFee = amountIn * (10000n - fee) / 10000n;
+            const numerator = reserveOut * amountInWithFee;
+            const denominator = reserveIn + amountInWithFee;
+            const amountOut = numerator / denominator;
+            const outNum = parseFloat(ethers.formatUnits(amountOut, 18));
+
+            const slippage = getSlippagePercent();
+            const minOutNum = outNum * (1 - slippage);
+
+            swapReceive.textContent = formatNumber(outNum);
+            swapReceiveSymbol.textContent = isPOL ? data.tokenSymbol : "POL";
+            swapMinReceive.textContent = formatNumber(minOutNum);
+        } catch (e) {
+            swapReceive.textContent = "Error";
+            swapMinReceive.textContent = "Error";
+            console.error("Quote error:", e);
+        }
+    }
+
+    swapAmount.oninput = updateSwapQuote;
+    swapFromToken.onchange = updateSwapQuote;
+    slippageRange.oninput = () => {
+        slippageDisplay.textContent = slippageRange.value + '%';
+        updateSwapQuote();
+    };
+
+    refreshPoolsBtn.onclick = async () => {
+        await refreshDEX();
+    };
+
+    swapBtn.onclick = async () => {
+        if (!isConnected) return alert("Connect wallet first");
+        if (!dexPoolContract) return alert("Select a pool first.");
+        const val = swapAmount.value.trim();
+        if (!val || parseFloat(val) <= 0) return alert("Enter amount");
+
+        const data = dexPoolData[selectedDexPoolAddress];
+        if (!data) return alert("Pool data not loaded");
+
+        const amountIn = ethers.parseUnits(val, 18);
+        const isPOL = swapFromToken.value === "POL";
+        const tokenIn = isPOL ? POL_ADDRESS : data.tokenAddress;
+        const tokenContract = isPOL ? polContract : new ethers.Contract(tokenIn, ERC20_ABI, signer);
+
+        // Get reserves and compute output (same as quote)
+        const [reserve0, reserve1] = await dexPoolContract.getReserves();
+        const token0Addr = await dexPoolContract.token0();
+        let reserveIn, reserveOut;
+        if (token0Addr.toLowerCase() === POL_ADDRESS.toLowerCase()) {
+            if (isPOL) { reserveIn = reserve0; reserveOut = reserve1; }
+            else { reserveIn = reserve1; reserveOut = reserve0; }
+        } else {
+            if (isPOL) { reserveIn = reserve1; reserveOut = reserve0; }
+            else { reserveIn = reserve0; reserveOut = reserve1; }
+        }
+
+        const fee = 30n;
+        const amountInWithFee = amountIn * (10000n - fee) / 10000n;
+        const amountOut = (reserveOut * amountInWithFee) / (reserveIn + amountInWithFee);
+        const slippage = getSlippagePercent();
+        const slippageBps = BigInt(Math.floor(slippage * 10000));
+        const amountOutMin = amountOut * (10000n - slippageBps) / 10000n;
+
+        try {
+            swapBtn.disabled = true;
+            swapBtn.textContent = "Swapping...";
+            const allowance = await tokenContract.allowance(userAddress, selectedDexPoolAddress);
+            if (allowance < amountIn) {
+                const approveTx = await tokenContract.approve(selectedDexPoolAddress, amountIn);
+                await approveTx.wait();
+            }
+            const tx = await dexPoolContract.swap(amountIn, amountOutMin, tokenIn);
+            const receipt = await tx.wait();
+
+            const trade = {
+                type: isPOL ? 'BUY' : 'SELL',
+                symbol: data.tokenSymbol,
+                amount: parseFloat(val),
+                price: parseFloat(ethers.formatUnits(amountOut / amountIn, 18)),
+                timestamp: Date.now()
+            };
+            recentTrades.unshift(trade);
+            if (recentTrades.length > MAX_TRADES) recentTrades.pop();
+            totalVolumePOL += parseFloat(val);
+            renderRecentTrades();
+
+            alert("✅ Swap successful!");
+            swapAmount.value = "";
+            await refreshAll();
+        } catch (e) {
+            console.error(e);
+            let msg = e.reason || e.message || "Transaction failed";
+            if (msg.includes("insufficient")) msg = "Insufficient balance or allowance.";
+            if (msg.includes("Slippage")) msg = "Slippage exceeded. Try increasing tolerance or a smaller amount.";
+            alert("❌ Swap failed: " + msg);
+        } finally {
+            swapBtn.disabled = false;
+            swapBtn.textContent = "Swap";
+        }
+    };
+
+    function renderRecentTrades() {
+        if (recentTrades.length === 0) {
+            recentTradesList.innerHTML = `<div class="trade-item" style="color:var(--text-secondary);">No trades yet.</div>`;
+            return;
+        }
+        let html = '';
+        for (const trade of recentTrades) {
+            const typeClass = trade.type.toLowerCase();
+            html += `
+                <div class="trade-item">
+                    <span class="type ${typeClass}">${trade.type}</span>
+                    <span>${trade.symbol}</span>
+                    <span>${trade.amount.toFixed(1)} POL</span>
+                    <span>${trade.price.toFixed(5)}</span>
+                </div>
+            `;
+        }
+        recentTradesList.innerHTML = html;
+    }
+
+    // ================================================================
+    // NFT
+    // ================================================================
+    async function refreshNFT() {
+        try {
+            const bronze = await nftContract.getRequiredHoneyForTier(1);
+            const silver = await nftContract.getRequiredHoneyForTier(2);
+            const gold = await nftContract.getRequiredHoneyForTier(3);
+            bronzePrice.textContent = `${formatNumber(parseFloat(ethers.formatUnits(bronze, 18)))} HONEY`;
+            silverPrice.textContent = `${formatNumber(parseFloat(ethers.formatUnits(silver, 18)))} HONEY`;
+            goldPrice.textContent = `${formatNumber(parseFloat(ethers.formatUnits(gold, 18)))} HONEY`;
+            updateMintButtons();
+        } catch (e) {
+            console.error("NFT price error:", e);
+        }
+    }
+
+    function updateMintButtons() {
+        const bal = parseFloat(ethers.formatUnits(honeyBalance, 18));
+        const bronzeCost = parseFloat(bronzePrice.textContent.replace(' HONEY', '').replace(/,/g, ''));
+        const silverCost = parseFloat(silverPrice.textContent.replace(' HONEY', '').replace(/,/g, ''));
+        const goldCost = parseFloat(goldPrice.textContent.replace(' HONEY', '').replace(/,/g, ''));
+        mintBronzeBtn.disabled = isNaN(bronzeCost) || bronzeCost > bal;
+        mintSilverBtn.disabled = isNaN(silverCost) || silverCost > bal;
+        mintGoldBtn.disabled = isNaN(goldCost) || goldCost > bal;
+    }
+
+    async function mintNFT(tier) {
+        if (!isConnected) return alert("Connect wallet first");
+        try {
+            const costWei = await nftContract.getRequiredHoneyForTier(tier);
+            const allowance = await honeyContract.allowance(userAddress, NFT_ADDRESS);
+            if (allowance < costWei) {
+                const approveTx = await honeyContract.approve(NFT_ADDRESS, costWei);
+                await approveTx.wait();
+            }
+            let tx;
+            if (tier === 1) tx = await nftContract.mintBronze();
+            else if (tier === 2) tx = await nftContract.mintSilver();
+            else if (tier === 3) tx = await nftContract.mintGold();
+            await tx.wait();
+            alert(`🎉 Minted Tier ${tier} NFT!`);
+            await refreshAll();
+        } catch (e) {
+            console.error(e);
+            alert("Mint failed: " + (e.reason || e.message));
+        }
+    }
+
+    mintBronzeBtn.onclick = () => mintNFT(1);
+    mintSilverBtn.onclick = () => mintNFT(2);
+    mintGoldBtn.onclick = () => mintNFT(3);
+
+    // ================================================================
+    // IDO – WITH LIVE COUNTDOWN & SLIPPAGE LISTENER
+    // ================================================================
+    function clearDetailInterval() {
+        if (detailCountdownInterval) {
+            clearInterval(detailCountdownInterval);
+            detailCountdownInterval = null;
+        }
+    }
+
+    async function renderPoolCards() {
+        if (!isConnected || !factoryContract) return;
+        try {
+            const pools = await factoryContract.getAllPools();
+            allPoolAddresses = pools;
+
+            if (pools.length === 0) {
+                idoPoolCards.innerHTML =
+                    `<div style="color:var(--text-secondary); grid-column: span 3; text-align:center; padding: 20px;">No IDO pools deployed yet.</div>`;
+                idoDetailView.classList.remove('visible');
+                idoPlaceholder.style.display = 'block';
+                selectedPoolAddress = null;
+                idoContract = null;
+                clearDetailInterval();
+                if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
+                return;
+            }
+
+            let html = '';
+            for (let i = 0; i < pools.length; i++) {
+                const addr = pools[i];
+                const details = await fetchPoolDetails(addr);
+                if (!details) continue;
+                poolDataMap[addr] = details;
+
+                const statusLabel = details.status.charAt(0).toUpperCase() + details.status.slice(1);
+                const activeClass = (selectedPoolAddress === addr) ? 'active' : '';
+                const countdownId = `countdown-${addr}`;
+
+                html += `
+                    <div class="ido-card ${activeClass}" data-addr="${addr}" onclick="selectPool('${addr}')">
+                        <div class="card-top">
+                            <span class="pool-name">IDO #${i+1} - ${details.symbol}</span>
+                            <span class="pool-status ${details.status}">${statusLabel}</span>
+                        </div>
+                        <div class="card-details">
+                            <div class="row"><span>Raised</span><span>${formatNumber(details.totalSold)} ${details.symbol}</span></div>
+                            <div class="row"><span>Cap</span><span>${formatNumber(details.totalSupply)} ${details.symbol}</span></div>
+                            <div class="row"><span>Sold</span><span>${details.percentSold.toFixed(1)}%</span></div>
+                        </div>
+                        <div class="card-progress">
+                            <div class="fill" style="width: ${Math.min(details.percentSold, 100)}%;"></div>
+                        </div>
+                        <div class="card-countdown" id="${countdownId}">${getCountdownText(details)}</div>
+                    </div>
+                `;
+            }
+
+            idoPoolCards.innerHTML = html;
+
+            if (!countdownInterval) {
+                countdownInterval = setInterval(updateAllCountdowns, 1000);
+            }
+
+            // Auto‑select first pool if none selected
+            if (!selectedPoolAddress && pools.length > 0) {
+                await selectPool(pools[0]);
+            } else if (selectedPoolAddress && pools.includes(selectedPoolAddress)) {
+                await selectPool(selectedPoolAddress);
+            } else if (selectedPoolAddress && !pools.includes(selectedPoolAddress)) {
+                selectedPoolAddress = null;
+                idoContract = null;
+                idoDetailView.classList.remove('visible');
+                idoPlaceholder.style.display = 'block';
+                clearDetailInterval();
+            }
+        } catch (e) {
+            console.error("Error rendering pool cards:", e);
+            idoPoolCards.innerHTML =
+                `<div style="color:var(--text-secondary); grid-column: span 3; text-align:center; padding: 20px;">Error loading pools. <button onclick="renderPoolCards()" class="btn btn-sm" style="margin-left:10px;">Retry</button></div>`;
+        }
+    }
+
+    function getCountdownText(details) {
+        const now = Math.floor(Date.now() / 1000);
+        if (details.status === 'ended') return '⏳ Closed';
+        if (details.status === 'paused') return '⏸️ Paused';
+        if (details.status === 'live') {
+            const remaining = details.endTime - now;
+            if (remaining <= 0) return '⏳ Closed';
+            return `⏳ ${formatCountdown(remaining)} remaining`;
+        }
+        if (details.status === 'upcoming') {
+            const startsIn = details.startTime - now;
+            if (startsIn <= 0) return '⏳ Starting soon';
+            return `⏳ Opens in ${formatCountdown(startsIn)}`;
+        }
+        return '';
+    }
+
+    function updateAllCountdowns() {
+        document.querySelectorAll('.ido-card').forEach(card => {
+            const addr = card.dataset.addr;
+            const details = poolDataMap[addr];
+            if (!details) return;
+            const countdownEl = document.getElementById(`countdown-${addr}`);
+            if (countdownEl) {
+                countdownEl.textContent = getCountdownText(details);
+            }
+        });
+    }
+
+    // Update the big countdown in the detail view
+    function updateBigCountdown() {
+        if (!selectedPoolAddress || !poolDataMap[selectedPoolAddress]) return;
+        const details = poolDataMap[selectedPoolAddress];
+        const now = Math.floor(Date.now() / 1000);
+        if (now < details.startTime) {
+            const diff = details.startTime - now;
+            const d = Math.floor(diff / 86400);
+            const h = Math.floor((diff % 86400) / 3600);
+            const m = Math.floor((diff % 3600) / 60);
+            const s = diff % 60;
+            bigCountdown.textContent = `${d}d ${h}h ${m}m ${s}s`;
+        } else if (now >= details.startTime && now <= details.endTime) {
+            bigCountdown.innerHTML = `<span style="color:#10b981;">🚀 LIVE NOW</span>`;
+        } else {
+            bigCountdown.innerHTML = `<span style="color:#ef4444;">⏳ Sale Ended</span>`;
+        }
+    }
+
+    async function fetchPoolDetails(addr) {
+        try {
+            const poolContract = new ethers.Contract(addr, IDO_ABI, signer);
+            const saleTokenAddr = await poolContract.saleToken();
+            const tokenContract = new ethers.Contract(saleTokenAddr, ERC20_ABI, provider);
+            const symbol = await tokenContract.symbol().catch(() => 'TOK');
+            const treasury = await poolContract.treasury();
+            const start = Number(await poolContract.startTime());
+            const end = Number(await poolContract.endTime());
+            const totalSold = await poolContract.totalSold();
+            const totalSupply = await poolContract.totalSupplyForSale();
+            const paused = await poolContract.paused();
+
+            const soldNum = parseFloat(ethers.formatUnits(totalSold, 18));
+            const totalNum = parseFloat(ethers.formatUnits(totalSupply, 18));
+            const percent = totalNum > 0 ? (soldNum / totalNum) * 100 : 0;
+
+            const now = Math.floor(Date.now() / 1000);
+            let status = 'upcoming';
+            if (paused) status = 'paused';
+            else if (now >= start && now <= end) status = 'live';
+            else if (now > end) status = 'ended';
+
+            return {
+                address: addr,
+                symbol,
+                treasury,
+                startTime: start,
+                endTime: end,
+                totalSold: soldNum,
+                totalSupply: totalNum,
+                percentSold: percent,
+                status,
+                paused,
+                saleTokenAddr
+            };
+        } catch (e) {
+            console.error(`Error fetching details for ${addr}:`, e);
+            return null;
+        }
+    }
+
+    window.selectPool = async function(addr) {
+        if (!addr) return;
+        selectedPoolAddress = addr;
+        idoContract = new ethers.Contract(addr, IDO_ABI, signer);
+
+        document.querySelectorAll('.ido-card').forEach(el => {
+            el.classList.toggle('active', el.dataset.addr === addr);
+        });
+
+        idoDetailView.classList.add('visible');
+        idoPlaceholder.style.display = 'none';
+        clearDetailInterval();
+        await refreshIDODetails();
+        // Start updating big countdown every second
+        detailCountdownInterval = setInterval(updateBigCountdown, 1000);
+    };
+
+    async function refreshIDODetails() {
+        if (!isConnected || !idoContract || !selectedPoolAddress) return;
+
+        try {
+            const tier = Number(await nftContract.getUserTier(userAddress));
+            userTier = tier;
+            const names = ["None", "🥉 Bronze", "🥈 Silver", "🥇 Gold"];
+            const cls = ["", "bronze", "silver", "gold"];
+            tierDisplay.textContent = `Tier: ${names[tier] || "None"}`;
+            tierDisplay.className = `tier-badge ${cls[tier] || ""}`;
+
+            let details = poolDataMap[selectedPoolAddress];
+            if (!details) {
+                details = await fetchPoolDetails(selectedPoolAddress);
+                if (details) poolDataMap[selectedPoolAddress] = details;
+                else throw new Error("Could not fetch pool details");
+            }
+
+            saleTokenSymbol = details.symbol;
+            quoteSymbol.textContent = saleTokenSymbol;
+
+            poolStatusBadge.textContent = `Status: ${details.status.charAt(0).toUpperCase() + details.status.slice(1)}`;
+            poolSaleTokenLabel.textContent = `Token: ${saleTokenSymbol}`;
+            poolTreasuryLabel.textContent = `Treasury: ${shortenAddress(details.treasury)}`;
+
+            startTime = details.startTime;
+            endTime = details.endTime;
+            countdownContainer.style.display = "block";
+            updateBigCountdown(); // immediate update
+
+            const totalSold = await idoContract.totalSold();
+            const totalSupply = await idoContract.totalSupplyForSale();
+            const soldNum = parseFloat(ethers.formatUnits(totalSold, 18));
+            const totalNum = parseFloat(ethers.formatUnits(totalSupply, 18));
+            const remainingNum = totalNum - soldNum;
+            const percent = totalNum > 0 ? (soldNum / totalNum) * 100 : 0;
+
+            if (tier > 0) {
+                try {
+                    discountedPolPrice = await idoContract.getDiscountedPriceForTier.staticCall(tier);
+                    const polPriceFormatted = parseFloat(ethers.formatUnits(discountedPolPrice, 18));
+                    idoPriceDisplay.textContent = `💲 Discounted Price: ${formatPrice(polPriceFormatted)} POL per ${saleTokenSymbol}`;
+                    if (totalSold > 0) {
+                        const polRaisedEstimate = (totalSold * discountedPolPrice) / BigInt(10**18);
+                        polRaisedEl.textContent = `${formatNumber(parseFloat(ethers.formatUnits(polRaisedEstimate, 18)))} POL`;
+                    } else {
+                        polRaisedEl.textContent = `0.00 POL`;
+                    }
+                } catch (priceError) {
+                    console.warn("Price fetch error:", priceError);
+                    idoPriceDisplay.textContent = `⚠️ Price unavailable – oracle may be offline.`;
+                    polRaisedEl.textContent = `-- POL`;
+                    discountedPolPrice = 0n;
+                }
+            } else {
+                idoPriceDisplay.textContent = `💲 Hold an Investor NFT to see the discounted price.`;
+                polRaisedEl.textContent = `0.00 POL`;
+            }
+
+            soldDisplay.textContent = `${formatNumber(soldNum)} ${saleTokenSymbol}`;
+            remainingDisplay.textContent = `${formatNumber(remainingNum)} ${saleTokenSymbol}`;
+            percentDisplay.textContent = `${percent.toFixed(2)}% SOLD`;
+            idoProgress.style.width = `${Math.min(percent, 100)}%`;
+
+            try {
+                const cap = await idoContract.maxPerWallet();
+                capDisplay.textContent = `Cap: ${formatNumber(parseFloat(ethers.formatUnits(cap, 18)))} ${saleTokenSymbol}`;
+                window._cap = cap;
+            } catch (capError) {
+                console.warn("Error fetching maxPerWallet:", capError);
+                capDisplay.textContent = `Cap: --`;
+                window._cap = 0n;
+            }
+
+            const userPurchased = await idoContract.purchased(userAddress);
+            userContributionEl.textContent = `${formatNumber(parseFloat(ethers.formatUnits(userPurchased, 18)))} ${saleTokenSymbol}`;
+
+            const now = Math.floor(Date.now() / 1000);
+            const isActive = (now >= startTime && now <= endTime && tier > 0 && !details.paused && discountedPolPrice > 0);
+            polInput.disabled = !isActive || !isConnected;
+            maxBtn.disabled = !isActive || !isConnected;
+            buyBtn.disabled = !isActive || !isConnected;
+
+            await updateIDOQuote();
+
+        } catch (e) {
+            console.error("Error in refreshIDODetails:", e);
+            idoPriceDisplay.textContent = `⚠️ Error loading IDO data. Please refresh the page.`;
+        }
+    }
+
+    async function refreshIDOTab() {
+        if (!isConnected) return;
+        await renderPoolCards();
+        if (selectedPoolAddress && idoContract) {
+            await refreshIDODetails();
+        }
+    }
+
+    async function updateIDOQuote() {
+        if (!isConnected || userTier === 0 || !idoContract || discountedPolPrice === 0n) {
+            quoteAmount.textContent = "0.00";
+            idoMinReceive.textContent = "0.00";
+            return;
+        }
+        const val = polInput.value.trim();
+        if (!val || parseFloat(val) <= 0) {
+            quoteAmount.textContent = "0.00";
+            idoMinReceive.textContent = "0.00";
+            return;
+        }
+        try {
+            const polAmount = ethers.parseUnits(val, 18);
+            const tokenAmount = (polAmount * 10n**18n) / discountedPolPrice;
+            const tokensNum = Number(tokenAmount) / 1e18;
+            const slippage = getIdoSlippagePercent();
+            const minTokensNum = tokensNum * (1 - slippage);
+
+            quoteAmount.textContent = formatNumber(tokensNum);
+            idoMinReceive.textContent = formatNumber(minTokensNum);
+        } catch (e) {
+            console.error("Quote error:", e);
+            quoteAmount.textContent = "Error";
+            idoMinReceive.textContent = "Error";
+        }
+    }
+
+    polInput.oninput = updateIDOQuote;
+
+    // IDO slippage listeners
+    idoSlippageRange.oninput = () => {
+        idoSlippageDisplay.textContent = idoSlippageRange.value + '%';
+        updateIDOQuote();
+    };
+
+    idoRefreshBtn.onclick = async () => {
+        await renderPoolCards();
+        if (selectedPoolAddress && idoContract) {
+            await refreshIDODetails();
+        }
+    };
+
+    maxBtn.onclick = async () => {
+        if (!isConnected || userTier === 0 || !idoContract) return alert("Connect wallet & hold NFT");
+        if (!discountedPolPrice || discountedPolPrice === 0n) return alert("Price not loaded");
+        try {
+            const cap = await idoContract.maxPerWallet();
+            const purchased = await idoContract.purchased(userAddress);
+            const remainingTokens = cap - purchased;
+            const polNeeded = (remainingTokens * discountedPolPrice) / 10n**18n;
+            const polBal = await provider.getBalance(userAddress);
+            const usable = polNeeded < polBal ? polNeeded : polBal;
+            polInput.value = parseFloat(ethers.formatUnits(usable, 18)).toFixed(4);
+            await updateIDOQuote();
+        } catch (e) {
+            console.error(e);
+            alert("Error calculating max: " + (e.message || e.reason));
+        }
+    };
+
+    buyBtn.onclick = async () => {
+        if (!isConnected) return alert("Connect wallet");
+        if (userTier === 0) return alert("You need an Investor NFT");
+        if (!idoContract) return alert("Select a pool first");
+        if (discountedPolPrice === 0n) return alert("Price not available – oracle may be offline.");
+
+        const now = Math.floor(Date.now() / 1000);
+        if (now < startTime) {
+            alert("The sale has not started yet. Please wait.");
+            return;
+        }
+        if (now > endTime) {
+            alert("The sale has ended.");
+            return;
+        }
+        try {
+            const paused = await idoContract.paused();
+            if (paused) {
+                alert("The pool is paused. Please try again later.");
+                return;
+            }
+        } catch (e) {
+            console.warn("Could not check paused state", e);
+        }
+
+        const val = polInput.value.trim();
+        if (!val || parseFloat(val) <= 0) return alert("Enter POL amount");
+
+        const polAmount = ethers.parseUnits(val, 18);
+        const tokenAmount = (polAmount * 10n**18n) / discountedPolPrice;
+        const slippage = getIdoSlippagePercent();
+        const slippageBps = BigInt(Math.floor(slippage * 10000));
+        const minTokensOut = tokenAmount * (10000n - slippageBps) / 10000n;
+
+        try {
+            buyBtn.disabled = true;
+            buyBtn.textContent = "Buying...";
+            const tx = await idoContract.buy(minTokensOut, { value: polAmount });
+            await tx.wait();
+            alert("🎉 Purchase successful!");
+            polInput.value = "";
+            await refreshAll();
+        } catch (e) {
+            console.error(e);
+            let msg = e.reason || e.message || "Transaction failed";
+            if (msg.includes("Wallet cap")) msg = "You reached your allocation limit";
+            if (msg.includes("Slippage")) msg = "Slippage exceeded. Try increasing tolerance or a smaller amount.";
+            alert("❌ " + msg);
+        } finally {
+            buyBtn.disabled = false;
+            buyBtn.textContent = "Buy Tokens";
+        }
+    };
+
+    // ================================================================
+    // LAUNCH TOKEN
+    // ================================================================
+    polAmountRange.oninput = () => {
+        polAmountDisplay.textContent = polAmountRange.value + ' POL';
+    };
+
+    launchTokenBtn.onclick = async () => {
+        if (!isConnected) return alert("Connect wallet first");
+        const name = tokenName.value.trim();
+        const symbol = tokenSymbol.value.trim();
+        if (!name || !symbol) return alert("Fill in token name and symbol");
+
+        const polAmount = ethers.parseUnits(polAmountRange.value, 18);
+
+        try {
+            launchTokenBtn.disabled = true;
+            launchTokenBtn.textContent = "Approving POL...";
+
+            const allowance = await polContract.allowance(userAddress, TOKEN_FACTORY_ADDRESS);
+            if (allowance < polAmount) {
+                const approveTx = await polContract.approve(TOKEN_FACTORY_ADDRESS, polAmount);
+                await approveTx.wait();
+            }
+
+            launchTokenBtn.textContent = "Launching Token...";
+            launchTokenStatus.textContent = "Deploying token...";
+
+            const tx = await tokenFactoryContract.launchToken(name, symbol, polAmount);
+            const receipt = await tx.wait();
+
+            // ethers v6 log parsing
+            const iface = tokenFactoryContract.interface;
+            const event = receipt.logs
+                .map(log => {
+                    try { return iface.parseLog({ topics: log.topics, data: log.data }); } catch {}
+                })
+                .find(ev => ev && ev.name === "TokenLaunched");
+            if (event) {
+                launchTokenStatus.textContent = `✅ Token launched! Address: ${event.args.token}. Pool: ${event.args.pool}`;
+            } else {
+                launchTokenStatus.textContent = "✅ Transaction successful. Check the contract.";
+            }
+            tokenName.value = '';
+            tokenSymbol.value = '';
+            await refreshAll();
+        } catch (e) {
+            console.error(e);
+            launchTokenStatus.textContent = "❌ Error: " + (e.reason || e.message);
+        } finally {
+            launchTokenBtn.disabled = false;
+            launchTokenBtn.textContent = "Launch Token";
+        }
+    };
+
+    // ================================================================
+    // PRIZE POT
+    // ================================================================
+    async function refreshPrizePot() {
+        if (!isConnected) return;
+        try {
+            const year = await prizePotContract.getCurrentYear();
+            prizeYear.textContent = year > 7 ? '7 (Completed)' : year;
+            const pot = await prizePotContract.ANNUAL_POT();
+            prizeAnnualPot.textContent = formatNumber(parseFloat(ethers.formatUnits(pot, 18))) + ' HONEY';
+        } catch (e) {
+            console.warn("PrizePot not available", e);
+        }
+    }
+
+    // ================================================================
+    // ADMIN
+    // ================================================================
+    async function refreshAdmin() {
+        if (!isConnected) return;
+        try {
+            if (!isOwner) {
+                poolList.innerHTML = `<div style="color:var(--text-secondary);">🔒 Admin access restricted to contract owner.</div>`;
+                return;
+            }
+            const pools = await factoryContract.getAllPools();
+            if (pools.length === 0) {
+                poolList.innerHTML = `<div style="color:var(--text-secondary);">No pools deployed yet.</div>`;
+            } else {
+                let html = '';
+                pools.forEach((addr, i) => {
+                    html += `
+                        <div class="pool-item">
+                            <span>#${i+1}</span>
+                            <span class="addr">${addr}</span>
+                            <span style="font-size:11px; color:var(--text-secondary);">${i === 0 ? 'Active' : 'Inactive'}</span>
+                        </div>
+                    `;
+                });
+                poolList.innerHTML = html;
+            }
+        } catch (e) {
+            console.error("Admin refresh error:", e);
+        }
+    }
+
+    adminLaunchBtn.onclick = async () => {
+        if (!isConnected || !isOwner) return alert("Only owner can launch IDOs");
+        const saleToken = adminSaleToken.value.trim();
+        const treasury = adminTreasury.value.trim();
+        const startTime = adminStartTime.value.trim();
+        const endTime = adminEndTime.value.trim();
+        const supply = adminSupply.value.trim();
+        const cap = adminCap.value.trim();
+
+        if (!saleToken || !treasury || !startTime || !endTime || !supply || !cap) {
+            return alert("Please fill all fields");
+        }
+
+        try {
+            adminLaunchBtn.disabled = true;
+            adminLaunchBtn.textContent = "Launching...";
+            const tx = await factoryContract.launchIDO(
+                saleToken,
+                treasury,
+                BigInt(startTime),
+                BigInt(endTime),
+                BigInt(supply),
+                BigInt(cap)
+            );
+            await tx.wait();
+            alert("✅ IDO launched successfully!");
+            adminSaleToken.value = '';
+            adminTreasury.value = '';
+            adminStartTime.value = '';
+            adminEndTime.value = '';
+            adminSupply.value = '';
+            adminCap.value = '';
+            await renderPoolCards();
+            await refreshAdmin();
+        } catch (e) {
+            console.error(e);
+            alert("Launch failed: " + (e.reason || e.message));
+        } finally {
+            adminLaunchBtn.disabled = false;
+            adminLaunchBtn.textContent = "Launch IDO";
+        }
+    };
+
+    adminPauseBtn.onclick = async () => {
+        if (!isConnected || !isOwner) return alert("Only owner can pause");
+        const addr = adminPoolAddress.value.trim();
+        if (!addr) return alert("Enter pool address");
+        try {
+            const pool = new ethers.Contract(addr, IDO_ABI, signer);
+            const tx = await pool.pause(true);
+            await tx.wait();
+            alert("⏸️ Pool paused");
+            await renderPoolCards();
+            await refreshAdmin();
+        } catch (e) {
+            alert("Failed: " + (e.reason || e.message));
+        }
+    };
+
+    adminResumeBtn.onclick = async () => {
+        if (!isConnected || !isOwner) return alert("Only owner can resume");
+        const addr = adminPoolAddress.value.trim();
+        if (!addr) return alert("Enter pool address");
+        try {
+            const pool = new ethers.Contract(addr, IDO_ABI, signer);
+            const tx = await pool.pause(false);
+            await tx.wait();
+            alert("▶️ Pool resumed");
+            await renderPoolCards();
+            await refreshAdmin();
+        } catch (e) {
+            alert("Failed: " + (e.reason || e.message));
+        }
+    };
+
+    adminRemoveBtn.onclick = async () => {
+        if (!isConnected || !isOwner) return alert("Only owner can remove");
+        const addr = adminPoolAddress.value.trim();
+        if (!addr) return alert("Enter pool address");
+        // Re‑fetch the list to get current index
+        const pools = await factoryContract.getAllPools();
+        const index = pools.indexOf(addr);
+        if (index === -1) return alert("Pool not found in factory");
+        try {
+            const tx = await factoryContract.removePool(index);
+            await tx.wait();
+            alert("🗑️ Pool removed");
+            await renderPoolCards();
+            await refreshAdmin();
+        } catch (e) {
+            alert("Failed: " + (e.reason || e.message));
+        }
+    };
+
+    // ================================================================
+    // INIT
+    // ================================================================
+    window.addEventListener('load', async () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const tabParam = urlParams.get('tab');
+        if (tabParam) {
+            const tabMap = {
+                'dex': 'tabDEX',
+                'ido': 'tabIDO',
+                'nft': 'tabNFT',
+                'admin': 'tabAdmin'
+            };
+            const targetTabId = tabMap[tabParam];
+            if (targetTabId) {
+                const targetBtn = document.querySelector(`.tab-btn[data-tab="${targetTabId}"]`);
+                if (targetBtn) {
+                    setTimeout(() => targetBtn.click(), 100);
+                }
+            }
+        }
+        if (window.ethereum && window.ethereum.selectedAddress) {
+            try { await connectBtn.click(); } catch (e) { /* user might reject */ }
+        }
+    });
+
+    console.log("🍯 Full Ecosystem UI loaded. (fixed reserves & live countdowns)");
+</script>
 </body>
 </html>
