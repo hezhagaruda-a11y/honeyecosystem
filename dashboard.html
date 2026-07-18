@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🍯 Honey Ecosystem • Dashboard</title>
+    <title>🍯 Honey Protocol • Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/ethers@6.7.0/dist/ethers.umd.min.js"></script>
     <style>
-        /* ----- GLOBAL RESET & SOFTENED THEME (unchanged) ----- */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --bg-primary: #161b22;
@@ -56,505 +55,103 @@
             box-shadow: var(--shadow-glow);
             transition: all 0.3s ease;
         }
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 18px;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-        .card-header h1 {
-            font-size: 22px;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .header-actions {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-        #themeToggle {
-            background: var(--glass-bg);
-            border: 1px solid var(--border-card);
-            border-radius: 40px;
-            padding: 6px 14px;
-            font-size: 18px;
-            cursor: pointer;
-            color: var(--text-primary);
-        }
-        #connect {
-            background: var(--accent-purple);
-            border: none;
-            border-radius: 40px;
-            padding: 8px 20px;
-            font-weight: 600;
-            font-size: 14px;
-            color: white;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        #connect:hover {
-            transform: scale(1.02);
-            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
-        }
-        .wallet-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 16px;
-            padding: 10px 14px;
-            background: var(--glass-bg);
-            border-radius: 14px;
-            border: 1px solid var(--border-card);
-            font-size: 14px;
-        }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 12px; }
+        .card-header h1 { font-size: 22px; font-weight: 700; background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .header-actions { display: flex; gap: 10px; align-items: center; }
+        #themeToggle { background: var(--glass-bg); border: 1px solid var(--border-card); border-radius: 40px; padding: 6px 14px; font-size: 18px; cursor: pointer; color: var(--text-primary); }
+        #connect { background: var(--accent-purple); border: none; border-radius: 40px; padding: 8px 20px; font-weight: 600; font-size: 14px; color: white; cursor: pointer; transition: all 0.2s; }
+        #connect:hover { transform: scale(1.02); box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4); }
+        .wallet-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; padding: 10px 14px; background: var(--glass-bg); border-radius: 14px; border: 1px solid var(--border-card); font-size: 14px; }
         .wallet-bar .addr { color: var(--text-secondary); }
         .wallet-bar .balance { font-weight: 600; }
-        .tier-badge {
-            display: inline-block;
-            padding: 4px 16px;
-            border-radius: 40px;
-            font-size: 13px;
-            font-weight: 700;
-            background: #2d3748;
-            color: #a0aec0;
-        }
+        .tier-badge { display: inline-block; padding: 4px 16px; border-radius: 40px; font-size: 13px; font-weight: 700; background: #2d3748; color: #a0aec0; }
         .tier-badge.bronze { background: #b7791f; color: #fefcbf; }
         .tier-badge.silver { background: #718096; color: #e2e8f0; }
         .tier-badge.gold { background: #d69e2e; color: #2d3748; }
-        .tabs {
-            display: flex;
-            gap: 4px;
-            background: var(--glass-bg);
-            border-radius: 14px;
-            padding: 4px;
-            margin-bottom: 20px;
-            border: 1px solid var(--border-card);
-            flex-wrap: wrap;
-        }
-        .tab-btn {
-            flex: 1;
-            padding: 8px 12px;
-            border: none;
-            border-radius: 10px;
-            font-weight: 600;
-            font-size: 13px;
-            cursor: pointer;
-            background: transparent;
-            color: var(--text-secondary);
-            transition: all 0.3s ease;
-            min-width: 70px;
-            text-align: center;
-        }
-        .tab-btn.active {
-            background: var(--accent-purple);
-            color: white;
-            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
-        }
-        .tab-btn:hover:not(.active) {
-            background: var(--bg-card);
-            color: var(--text-primary);
-        }
-        .tab-content {
-            display: none;
-            animation: fadeIn 0.3s ease;
-        }
+        .tabs { display: flex; gap: 4px; background: var(--glass-bg); border-radius: 14px; padding: 4px; margin-bottom: 20px; border: 1px solid var(--border-card); flex-wrap: wrap; }
+        .tab-btn { flex: 1; padding: 8px 12px; border: none; border-radius: 10px; font-weight: 600; font-size: 13px; cursor: pointer; background: transparent; color: var(--text-secondary); transition: all 0.3s ease; min-width: 70px; text-align: center; }
+        .tab-btn.active { background: var(--accent-purple); color: white; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3); }
+        .tab-btn:hover:not(.active) { background: var(--bg-card); color: var(--text-primary); }
+        .tab-content { display: none; animation: fadeIn 0.3s ease; }
         .tab-content.active { display: block; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(6px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .section-title {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .section-desc {
-            font-size: 14px;
-            color: var(--text-secondary);
-            margin-bottom: 16px;
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        .section-title { font-size: 16px; font-weight: 600; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .section-desc { font-size: 14px; color: var(--text-secondary); margin-bottom: 16px; }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
-        .stat-card {
-            background: var(--glass-bg);
-            padding: 12px 14px;
-            border-radius: 14px;
-            border-left: 3px solid var(--accent-purple);
-        }
-        .stat-label {
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-            color: var(--text-secondary);
-        }
+        .stat-card { background: var(--glass-bg); padding: 12px 14px; border-radius: 14px; border-left: 3px solid var(--accent-purple); }
+        .stat-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-secondary); }
         .stat-value { font-size: 18px; font-weight: 600; }
-        .nft-card {
-            background: var(--glass-bg);
-            border: 1px solid var(--border-card);
-            border-radius: 16px;
-            padding: 16px 14px;
-            text-align: center;
-            transition: all 0.2s;
-        }
+        .nft-card { background: var(--glass-bg); border: 1px solid var(--border-card); border-radius: 16px; padding: 16px 14px; text-align: center; transition: all 0.2s; }
         .nft-card:hover { border-color: var(--accent-purple); }
         .nft-card .tier-icon { font-size: 28px; display: block; margin-bottom: 4px; }
         .nft-card .tier-name { font-weight: 700; font-size: 16px; }
-        .nft-card .tier-price {
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin: 6px 0 12px 0;
-            word-break: break-all;
-        }
-        .pool-card {
-            cursor: pointer;
-            text-align: left;
-            padding: 14px 16px;
-            border: 2px solid var(--border-card);
-            border-radius: 16px;
-            transition: all 0.25s ease;
-            background: var(--bg-card);
-        }
-        .pool-card:hover {
-            border-color: var(--accent-purple);
-            background: var(--card-hover);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(124, 58, 237, 0.15);
-        }
-        .pool-card.active {
-            border-color: var(--accent-purple);
-            background: var(--card-hover);
-            box-shadow: 0 0 0 1px var(--accent-purple), 0 8px 25px rgba(124, 58, 237, 0.2);
-        }
-        .pool-card .pool-name {
-            font-weight: 700;
-            font-size: 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .pool-card .pool-price {
-            font-size: 14px;
-            color: var(--text-secondary);
-            margin-top: 4px;
-        }
-        .pool-card .pool-change {
-            font-size: 13px;
-            font-weight: 600;
-        }
+        .nft-card .tier-price { font-size: 13px; color: var(--text-secondary); margin: 6px 0 12px 0; word-break: break-all; }
+        .pool-card { cursor: pointer; text-align: left; padding: 14px 16px; border: 2px solid var(--border-card); border-radius: 16px; transition: all 0.25s ease; background: var(--bg-card); }
+        .pool-card:hover { border-color: var(--accent-purple); background: var(--card-hover); transform: translateY(-2px); box-shadow: 0 8px 25px rgba(124, 58, 237, 0.15); }
+        .pool-card.active { border-color: var(--accent-purple); background: var(--card-hover); box-shadow: 0 0 0 1px var(--accent-purple), 0 8px 25px rgba(124, 58, 237, 0.2); }
+        .pool-card .pool-name { font-weight: 700; font-size: 16px; display: flex; justify-content: space-between; align-items: center; }
+        .pool-card .pool-price { font-size: 14px; color: var(--text-secondary); margin-top: 4px; }
+        .pool-card .pool-change { font-size: 13px; font-weight: 600; }
         .pool-change.positive { color: var(--accent-green); }
         .pool-change.negative { color: var(--accent-red); }
-        .dex-stats {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-        .dex-stat {
-            background: var(--glass-bg);
-            padding: 10px 12px;
-            border-radius: 12px;
-            text-align: center;
-        }
-        .dex-stat .value {
-            font-size: 20px;
-            font-weight: 700;
-        }
-        .dex-stat .label {
-            font-size: 11px;
-            text-transform: uppercase;
-            color: var(--text-secondary);
-            letter-spacing: 0.04em;
-        }
-        .ido-card {
-            cursor: pointer;
-            text-align: left;
-            padding: 16px;
-            border: 2px solid var(--border-card);
-            transition: all 0.25s ease;
-        }
-        .ido-card:hover {
-            border-color: var(--accent-purple);
-            background: var(--card-hover);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(124, 58, 237, 0.15);
-        }
-        .ido-card.active {
-            border-color: var(--accent-purple);
-            background: var(--card-hover);
-            box-shadow: 0 0 0 1px var(--accent-purple), 0 8px 25px rgba(124, 58, 237, 0.2);
-        }
-        .ido-card .card-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 6px;
-        }
+        .dex-stats { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+        .dex-stat { background: var(--glass-bg); padding: 10px 12px; border-radius: 12px; text-align: center; }
+        .dex-stat .value { font-size: 20px; font-weight: 700; }
+        .dex-stat .label { font-size: 11px; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.04em; }
+        .ido-card { cursor: pointer; text-align: left; padding: 16px; border: 2px solid var(--border-card); transition: all 0.25s ease; }
+        .ido-card:hover { border-color: var(--accent-purple); background: var(--card-hover); transform: translateY(-2px); box-shadow: 0 8px 25px rgba(124, 58, 237, 0.15); }
+        .ido-card.active { border-color: var(--accent-purple); background: var(--card-hover); box-shadow: 0 0 0 1px var(--accent-purple), 0 8px 25px rgba(124, 58, 237, 0.2); }
+        .ido-card .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
         .ido-card .pool-name { font-weight: 700; font-size: 16px; }
-        .ido-card .pool-status {
-            font-size: 11px;
-            font-weight: 600;
-            padding: 2px 10px;
-            border-radius: 40px;
-            text-transform: uppercase;
-            letter-spacing: 0.03em;
-        }
+        .ido-card .pool-status { font-size: 11px; font-weight: 600; padding: 2px 10px; border-radius: 40px; text-transform: uppercase; letter-spacing: 0.03em; }
         .pool-status.live { background: var(--accent-green); color: white; }
         .pool-status.upcoming { background: var(--accent-yellow); color: #1a1a1a; }
         .pool-status.ended { background: var(--accent-red); color: white; }
         .pool-status.paused { background: #6b7280; color: white; }
-        .ido-card .card-details {
-            font-size: 13px;
-            color: var(--text-secondary);
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-            margin-top: 4px;
-        }
+        .ido-card .card-details { font-size: 13px; color: var(--text-secondary); display: flex; flex-direction: column; gap: 2px; margin-top: 4px; }
         .ido-card .card-details .row { display: flex; justify-content: space-between; }
-        .ido-card .card-progress {
-            width: 100%;
-            height: 4px;
-            background: var(--glass-bg);
-            border-radius: 40px;
-            margin-top: 8px;
-            overflow: hidden;
-        }
-        .ido-card .card-progress .fill {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, var(--accent-purple), var(--accent-blue));
-            border-radius: 40px;
-            transition: width 0.5s ease;
-        }
-        .ido-card .card-countdown {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--accent-blue);
-            margin-top: 6px;
-            font-variant-numeric: tabular-nums;
-        }
-        .btn {
-            background: var(--accent-purple);
-            border: none;
-            border-radius: 12px;
-            padding: 10px 20px;
-            font-weight: 600;
-            font-size: 14px;
-            color: white;
-            cursor: pointer;
-            transition: all 0.2s;
-            white-space: nowrap;
-        }
-        .btn:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(124, 58, 237, 0.3);
-        }
-        .btn:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-        .btn-outline {
-            background: transparent;
-            border: 1px solid var(--border-card);
-        }
-        .btn-outline:hover {
-            background: var(--glass-bg);
-            transform: none;
-            box-shadow: none;
-        }
+        .ido-card .card-progress { width: 100%; height: 4px; background: var(--glass-bg); border-radius: 40px; margin-top: 8px; overflow: hidden; }
+        .ido-card .card-progress .fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent-purple), var(--accent-blue)); border-radius: 40px; transition: width 0.5s ease; }
+        .ido-card .card-countdown { font-size: 13px; font-weight: 600; color: var(--accent-blue); margin-top: 6px; font-variant-numeric: tabular-nums; }
+        .btn { background: var(--accent-purple); border: none; border-radius: 12px; padding: 10px 20px; font-weight: 600; font-size: 14px; color: white; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+        .btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(124, 58, 237, 0.3); }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+        .btn-outline { background: transparent; border: 1px solid var(--border-card); }
+        .btn-outline:hover { background: var(--glass-bg); transform: none; box-shadow: none; }
         .btn-success { background: var(--accent-green); }
         .btn-danger { background: var(--accent-red); }
         .btn-sm { padding: 6px 14px; font-size: 12px; }
-        .input-flex {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            flex-wrap: wrap;
-            margin: 10px 0;
-        }
-        .input-flex input,
-        .input-flex select {
-            flex: 1;
-            background: var(--glass-bg);
-            border: 1px solid var(--border-card);
-            border-radius: 12px;
-            padding: 10px 14px;
-            color: var(--text-primary);
-            font-size: 15px;
-            outline: none;
-            transition: border 0.2s;
-            min-width: 100px;
-        }
-        .input-flex input:focus,
-        .input-flex select:focus {
-            border-color: var(--accent-purple);
-        }
+        .input-flex { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 10px 0; }
+        .input-flex input, .input-flex select { flex: 1; background: var(--glass-bg); border: 1px solid var(--border-card); border-radius: 12px; padding: 10px 14px; color: var(--text-primary); font-size: 15px; outline: none; transition: border 0.2s; min-width: 100px; }
+        .input-flex input:focus, .input-flex select:focus { border-color: var(--accent-purple); }
         .input-flex input::placeholder { color: #4a5568; }
-        .slippage-control {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin: 6px 0;
-        }
-        .slippage-control input[type="range"] {
-            flex: 1;
-            background: var(--glass-bg);
-            height: 4px;
-            border-radius: 40px;
-            appearance: none;
-            outline: none;
-        }
-        .slippage-control input[type="range"]::-webkit-slider-thumb {
-            appearance: none;
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            background: var(--accent-purple);
-            cursor: pointer;
-        }
-        .slippage-control .slippage-value {
-            font-weight: 600;
-            color: var(--text-primary);
-            min-width: 50px;
-            text-align: center;
-        }
-        .quote-box {
-            background: var(--glass-bg);
-            padding: 10px 16px;
-            border-radius: 14px;
-            margin: 10px 0;
-            border: 1px dashed var(--border-card);
-            text-align: center;
-            color: var(--text-secondary);
-        }
+        .slippage-control { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-secondary); margin: 6px 0; }
+        .slippage-control input[type="range"] { flex: 1; background: var(--glass-bg); height: 4px; border-radius: 40px; appearance: none; outline: none; }
+        .slippage-control input[type="range"]::-webkit-slider-thumb { appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--accent-purple); cursor: pointer; }
+        .slippage-control .slippage-value { font-weight: 600; color: var(--text-primary); min-width: 50px; text-align: center; }
+        .quote-box { background: var(--glass-bg); padding: 10px 16px; border-radius: 14px; margin: 10px 0; border: 1px dashed var(--border-card); text-align: center; color: var(--text-secondary); }
         .quote-box strong { color: var(--text-primary); font-size: 18px; }
         .quote-box .min-label { font-size: 12px; color: var(--text-secondary); }
-        .price-display {
-            font-size: 13px;
-            color: var(--text-secondary);
-            text-align: center;
-            margin: 6px 0;
-            background: var(--glass-bg);
-            padding: 6px 12px;
-            border-radius: 40px;
-        }
-        .progress-container {
-            width: 100%;
-            background: var(--glass-bg);
-            border-radius: 40px;
-            height: 6px;
-            margin: 8px 0 12px 0;
-            overflow: hidden;
-        }
-        .progress-bar {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, var(--accent-purple), var(--accent-blue));
-            border-radius: 40px;
-            transition: width 0.5s ease;
-        }
-        .admin-section {
-            background: var(--glass-bg);
-            border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 16px;
-            border: 1px solid var(--border-card);
-        }
+        .price-display { font-size: 13px; color: var(--text-secondary); text-align: center; margin: 6px 0; background: var(--glass-bg); padding: 6px 12px; border-radius: 40px; }
+        .progress-container { width: 100%; background: var(--glass-bg); border-radius: 40px; height: 6px; margin: 8px 0 12px 0; overflow: hidden; }
+        .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent-purple), var(--accent-blue)); border-radius: 40px; transition: width 0.5s ease; }
+        .admin-section { background: var(--glass-bg); border-radius: 16px; padding: 16px; margin-bottom: 16px; border: 1px solid var(--border-card); }
         .admin-section h4 { margin-bottom: 8px; font-size: 15px; }
-        .admin-section .sub {
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-bottom: 10px;
-        }
-        .footer {
-            margin-top: 20px;
-            font-size: 12px;
-            color: var(--text-secondary);
-            text-align: center;
-            border-top: 1px solid var(--border-card);
-            padding-top: 14px;
-        }
-        #countdownContainer {
-            text-align: center;
-            padding: 4px 0;
-            font-weight: 600;
-            color: var(--accent-blue);
-        }
+        .admin-section .sub { font-size: 13px; color: var(--text-secondary); margin-bottom: 10px; }
+        .footer { margin-top: 20px; font-size: 12px; color: var(--text-secondary); text-align: center; border-top: 1px solid var(--border-card); padding-top: 14px; }
+        #countdownContainer { text-align: center; padding: 4px 0; font-weight: 600; color: var(--accent-blue); }
         #bigCountdown { font-size: 20px; }
-        .pool-list {
-            max-height: 200px;
-            overflow-y: auto;
-            font-size: 13px;
-        }
-        .pool-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 6px 10px;
-            background: var(--bg-card);
-            border-radius: 8px;
-            margin-bottom: 4px;
-            border: 1px solid var(--border-card);
-        }
-        .pool-item .addr {
-            font-family: monospace;
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
-        .ido-detail-view {
-            margin-top: 24px;
-            padding-top: 20px;
-            border-top: 1px solid var(--border-card);
-            display: none;
-        }
+        .pool-list { max-height: 200px; overflow-y: auto; font-size: 13px; }
+        .pool-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; background: var(--bg-card); border-radius: 8px; margin-bottom: 4px; border: 1px solid var(--border-card); }
+        .pool-item .addr { font-family: monospace; font-size: 12px; color: var(--text-secondary); }
+        .ido-detail-view { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border-card); display: none; }
         .ido-detail-view.visible { display: block; }
-        .ido-placeholder {
-            margin-top: 24px;
-            padding: 30px 20px;
-            text-align: center;
-            color: var(--text-secondary);
-            border: 1px dashed var(--border-card);
-            border-radius: 16px;
-            background: var(--glass-bg);
-        }
-        .refresh-icon {
-            background: transparent;
-            border: none;
-            color: var(--text-secondary);
-            cursor: pointer;
-            font-size: 16px;
-            padding: 4px 10px;
-            border-radius: 40px;
-            transition: background 0.2s;
-        }
-        .refresh-icon:hover {
-            background: var(--glass-bg);
-            color: var(--text-primary);
-        }
-        .recent-trades {
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-top: 12px;
-        }
-        .trade-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 4px 8px;
-            border-bottom: 1px solid var(--border-card);
-        }
+        .ido-placeholder { margin-top: 24px; padding: 30px 20px; text-align: center; color: var(--text-secondary); border: 1px dashed var(--border-card); border-radius: 16px; background: var(--glass-bg); }
+        .refresh-icon { background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 16px; padding: 4px 10px; border-radius: 40px; transition: background 0.2s; }
+        .refresh-icon:hover { background: var(--glass-bg); color: var(--text-primary); }
+        .recent-trades { font-size: 13px; color: var(--text-secondary); margin-top: 12px; }
+        .trade-item { display: flex; justify-content: space-between; padding: 4px 8px; border-bottom: 1px solid var(--border-card); }
         .trade-item .type { font-weight: 600; }
         .trade-item .type.buy { color: var(--accent-green); }
         .trade-item .type.sell { color: var(--accent-red); }
@@ -568,11 +165,10 @@
     </style>
 </head>
 <body>
-
 <div class="card">
     <!-- HEADER -->
     <div class="card-header">
-        <h1>🍯 Honey Ecosystem</h1>
+        <h1>🍯 Honey Protocol</h1>
         <div class="header-actions">
             <button id="themeToggle">🌙</button>
             <button id="connect">Connect Wallet</button>
@@ -657,32 +253,32 @@
     <!-- ======================== TAB 2: MINT NFT ======================== -->
     <div id="tabNFT" class="tab-content">
         <div class="section-title">🎟️ Mint Investor NFT</div>
-        <div class="section-desc">Mint your NFT using HONEY. The price is dynamic based on the Spark Pool reserves. Higher tier = higher discount on IDOs.</div>
+        <div class="section-desc">Mint your NFT using POL. Price increases per mint across all tiers. Supply capped at 10,000.</div>
         <div class="grid-3">
             <div class="nft-card">
                 <span class="tier-icon">🥉</span>
                 <div class="tier-name">Bronze</div>
-                <div class="tier-price" id="bronzePrice">Loading...</div>
+                <div class="tier-price" id="bronzePrice">-- POL</div>
                 <button class="btn btn-sm" id="mintBronzeBtn" style="width:100%;">Mint Bronze</button>
                 <div style="font-size:11px; color:var(--text-secondary); margin-top:4px;">8% IDO Discount</div>
             </div>
             <div class="nft-card">
                 <span class="tier-icon">🥈</span>
                 <div class="tier-name">Silver</div>
-                <div class="tier-price" id="silverPrice">Loading...</div>
+                <div class="tier-price" id="silverPrice">-- POL</div>
                 <button class="btn btn-sm" id="mintSilverBtn" style="width:100%;">Mint Silver</button>
                 <div style="font-size:11px; color:var(--text-secondary); margin-top:4px;">15% IDO Discount</div>
             </div>
             <div class="nft-card">
                 <span class="tier-icon">🥇</span>
                 <div class="tier-name">Gold</div>
-                <div class="tier-price" id="goldPrice">Loading...</div>
+                <div class="tier-price" id="goldPrice">-- POL</div>
                 <button class="btn btn-sm" id="mintGoldBtn" style="width:100%;">Mint Gold</button>
                 <div style="font-size:11px; color:var(--text-secondary); margin-top:4px;">22% IDO Discount</div>
             </div>
         </div>
         <div style="font-size:13px; color:var(--text-secondary); text-align:center; margin-top:6px;">
-            💡 You need HONEY in your wallet. Approval is auto-requested.
+            💡 You need POL in your wallet. Approval is auto-requested.
         </div>
     </div>
 
@@ -833,7 +429,7 @@
             </div>
             <div class="input-flex">
                 <input type="number" id="adminSupply" placeholder="Supply (18 decimals)" style="flex:1;">
-                <input type="number" id="adminCap" placeholder="Max Per Wallet (18 decimals)" style="flex:1;">
+                <input type="text" id="adminSparkPool" placeholder="Spark Pool Address (0x...)" style="flex:1;">
             </div>
             <button id="adminLaunchBtn" class="btn btn-success" style="width:100%; margin-top:8px;">Launch IDO</button>
         </div>
@@ -855,13 +451,13 @@
     </div>
 
     <div class="footer">
-        ⚡ Sepolia Testnet • Full Ecosystem • Dynamic AMM • Multi-Pool IDOs
+        ⚡ Sepolia Testnet • Full Protocol • Dynamic AMM • Multi-Pool IDOs
     </div>
 </div>
 
 <script>
     // ================================================================
-    // DEPLOYED ADDRESSES (SEPOLIA) – PERMISSIONLESS DEX
+    // DEPLOYED ADDRESSES (SEPOLIA)
     // ================================================================
     const HONEY_ADDRESS = "0xf7C1851Dfc003b4be2C410f0dBC20a00aD42f224";
     const POL_ADDRESS = "0xFa75477ca347b72bC949a2e0F64AD5896E67D322";
@@ -877,31 +473,30 @@
         "function balanceOf(address) view returns (uint256)",
         "function approve(address,uint256) returns (bool)",
         "function allowance(address,address) view returns (uint256)",
-        "function symbol() view returns (string)",
-        "function decimals() view returns (uint8)"
+        "function symbol() view returns (string)"
     ];
 
     const SPARK_POOL_ABI = [
         "function getReserves() view returns (uint256, uint256)",
         "function swap(uint256,uint256,address) returns (uint256)",
-        "function seedLiquidity(uint256,uint256)",
         "function token0() view returns (address)",
         "function token1() view returns (address)"
     ];
 
     const NFT_ABI = [
         "function getUserTier(address) view returns (uint256)",
-        "function getRequiredHoneyForTier(uint256) view returns (uint256)",
+        "function getCurrentMintPrice(uint256) view returns (uint256)",
         "function mintBronze() external",
         "function mintSilver() external",
         "function mintGold() external"
     ];
 
     const IDO_ABI = [
-        "function buy(uint256) external payable",
+        "function buyWithPOL(uint256) payable",
+        "function buyWithHONEY(uint256,uint256)",
         "function purchased(address) view returns (uint256)",
-        "function maxPerWallet() view returns (uint256)",
-        "function getDiscountedPriceForTier(uint256) returns (uint256)",
+        "function MAX_PER_WALLET() view returns (uint256)",
+        "function getDiscountedPriceForTier(uint256) view returns (uint256)",
         "function totalSold() view returns (uint256)",
         "function totalSupplyForSale() view returns (uint256)",
         "function startTime() view returns (uint256)",
@@ -913,7 +508,7 @@
     ];
 
     const FACTORY_ABI = [
-        "function launchIDO(address,address,uint256,uint256,uint256,uint256) returns (address)",
+        "function launchIDO(address,address,uint256,uint256,uint256,address) returns (address)",
         "function getAllPools() view returns (address[])",
         "function removePool(uint256) external",
         "function owner() view returns (address)",
@@ -938,7 +533,7 @@
 
     // DEX
     let dexPoolAddresses = [];
-    let dexPoolData = {};               // addr -> { price (BigInt), change, ... }
+    let dexPoolData = {};
     let selectedDexPoolAddress = null;
     let dexPoolContract = null;
     let recentTrades = [];
@@ -954,17 +549,16 @@
     let startTime = 0;
     let endTime = 0;
     let poolDataMap = {};
-    let countdownInterval = null;       // for card countdowns
-    let detailCountdownInterval = null; // for big countdown
+    let countdownInterval = null;
+    let detailCountdownInterval = null;
 
-    // DOM refs (centralized)
+    // DOM refs
     const connectBtn = document.getElementById('connect');
     const walletDisplay = document.getElementById('walletDisplay');
     const balanceDisplay = document.getElementById('balanceDisplay');
     const tierDisplay = document.getElementById('tierDisplay');
     const themeToggle = document.getElementById('themeToggle');
 
-    // DEX refs
     const dexPoolCards = document.getElementById('dexPoolCards');
     const refreshPoolsBtn = document.getElementById('refreshPoolsBtn');
     const dexTotalVolume = document.getElementById('dexTotalVolume');
@@ -984,7 +578,6 @@
     const slippageDisplay = document.getElementById('slippageDisplay');
     const recentTradesList = document.getElementById('recentTradesList');
 
-    // NFT refs
     const bronzePrice = document.getElementById('bronzePrice');
     const silverPrice = document.getElementById('silverPrice');
     const goldPrice = document.getElementById('goldPrice');
@@ -992,7 +585,6 @@
     const mintSilverBtn = document.getElementById('mintSilverBtn');
     const mintGoldBtn = document.getElementById('mintGoldBtn');
 
-    // IDO refs
     const idoPoolCards = document.getElementById('idoPoolCards');
     const idoRefreshBtn = document.getElementById('idoRefreshBtn');
     const idoPlaceholder = document.getElementById('idoPlaceholder');
@@ -1019,26 +611,23 @@
     const idoSlippageDisplay = document.getElementById('idoSlippageDisplay');
     const idoMinReceive = document.getElementById('idoMinReceive');
 
-    // Admin refs
     const poolList = document.getElementById('poolList');
     const adminSaleToken = document.getElementById('adminSaleToken');
     const adminTreasury = document.getElementById('adminTreasury');
     const adminStartTime = document.getElementById('adminStartTime');
     const adminEndTime = document.getElementById('adminEndTime');
     const adminSupply = document.getElementById('adminSupply');
-    const adminCap = document.getElementById('adminCap');
+    const adminSparkPool = document.getElementById('adminSparkPool');
     const adminLaunchBtn = document.getElementById('adminLaunchBtn');
     const adminPoolAddress = document.getElementById('adminPoolAddress');
     const adminPauseBtn = document.getElementById('adminPauseBtn');
     const adminResumeBtn = document.getElementById('adminResumeBtn');
     const adminRemoveBtn = document.getElementById('adminRemoveBtn');
 
-    // Prize Pot refs
     const prizeYear = document.getElementById('prizeYear');
     const prizeAnnualPot = document.getElementById('prizeAnnualPot');
     const claimPrizeBtn = document.getElementById('claimPrizeBtn');
 
-    // Launch Token refs
     const tokenName = document.getElementById('tokenName');
     const tokenSymbol = document.getElementById('tokenSymbol');
     const polAmountRange = document.getElementById('polAmountRange');
@@ -1051,17 +640,13 @@
     // ================================================================
     function formatNumber(num, decimals = 2) {
         if (num === undefined || num === null || isNaN(num)) return '0.00';
-        if (typeof num === 'bigint') {
-            num = Number(num) / 1e18;
-        }
+        if (typeof num === 'bigint') num = Number(num) / 1e18;
         return Number(num).toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
     }
 
     function formatPrice(price) {
         if (price === undefined || price === null || isNaN(price)) return '--';
-        if (typeof price === 'bigint') {
-            price = Number(price) / 1e18;
-        }
+        if (typeof price === 'bigint') price = Number(price) / 1e18;
         let s = price.toFixed(8);
         s = s.replace(/\.?0+$/, '');
         return s;
@@ -1235,33 +820,24 @@
             const token0Addr = await pool.token0();
             const token1Addr = await pool.token1();
 
-            // Determine which token is POL and which is the other token
-            let tokenAddr, polAddr, reserveToken, reservePOL;
+            let tokenAddr, reserveToken, reservePOL;
             if (token0Addr.toLowerCase() === POL_ADDRESS.toLowerCase()) {
-                // token0 = POL, token1 = token
-                polAddr = token0Addr;
                 tokenAddr = token1Addr;
                 reservePOL = reserve0;
                 reserveToken = reserve1;
             } else {
-                // token0 = token, token1 = POL
                 tokenAddr = token0Addr;
-                polAddr = token1Addr;
-                reserveToken = reserve0;
                 reservePOL = reserve1;
+                reserveToken = reserve0;
             }
 
             const tokenContract = new ethers.Contract(tokenAddr, ERC20_ABI, provider);
             let symbol = 'TOKEN';
-            try {
-                symbol = await tokenContract.symbol();
-            } catch (e) { /* ignore */ }
+            try { symbol = await tokenContract.symbol(); } catch (e) {}
 
-            // Price = reservePOL / reserveToken, scaled to 18 decimals
             const PRECISION = 10n ** 18n;
             const price = (reservePOL * PRECISION) / reserveToken;
 
-            // Track price change from first seen value (stored in localStorage)
             const key = `pool_initial_${poolAddress}`;
             let change = 0;
             const stored = localStorage.getItem(key);
@@ -1277,15 +853,7 @@
                 localStorage.setItem(key, price.toString());
             }
 
-            return {
-                address: poolAddress,
-                tokenAddress: tokenAddr,
-                tokenSymbol: symbol,
-                reserveToken,
-                reservePOL,
-                price,
-                change
-            };
+            return { address: poolAddress, tokenAddress: tokenAddr, tokenSymbol: symbol, reserveToken, reservePOL, price, change };
         } catch (e) {
             console.error("Error fetching pool data for", poolAddress, e);
             return null;
@@ -1388,33 +956,17 @@
             const amountIn = ethers.parseUnits(val, 18);
             const [reserve0, reserve1] = await dexPoolContract.getReserves();
             const isPOL = swapFromToken.value === "POL";
-
-            // Correct reserve mapping: if isPOL → POL is token0 (if pool is POL/token), else token is token0
-            // We need to know which token is POL. Let's read it from the selected pool data.
             const data = dexPoolData[selectedDexPoolAddress];
             if (!data) return;
 
-            // Determine reserveIn / reserveOut based on the pool's actual tokens
             let reserveIn, reserveOut;
             const token0Addr = await dexPoolContract.token0();
             if (token0Addr.toLowerCase() === POL_ADDRESS.toLowerCase()) {
-                // token0 = POL, token1 = token
-                if (isPOL) {
-                    reserveIn = reserve0;   // POL reserve
-                    reserveOut = reserve1;  // token reserve
-                } else {
-                    reserveIn = reserve1;   // token reserve
-                    reserveOut = reserve0;  // POL reserve
-                }
+                if (isPOL) { reserveIn = reserve0; reserveOut = reserve1; }
+                else { reserveIn = reserve1; reserveOut = reserve0; }
             } else {
-                // token0 = token, token1 = POL
-                if (isPOL) {
-                    reserveIn = reserve1;   // POL reserve
-                    reserveOut = reserve0;  // token reserve
-                } else {
-                    reserveIn = reserve0;   // token reserve
-                    reserveOut = reserve1;  // POL reserve
-                }
+                if (isPOL) { reserveIn = reserve1; reserveOut = reserve0; }
+                else { reserveIn = reserve0; reserveOut = reserve1; }
             }
 
             const fee = 30n;
@@ -1444,9 +996,7 @@
         updateSwapQuote();
     };
 
-    refreshPoolsBtn.onclick = async () => {
-        await refreshDEX();
-    };
+    refreshPoolsBtn.onclick = async () => { await refreshDEX(); };
 
     swapBtn.onclick = async () => {
         if (!isConnected) return alert("Connect wallet first");
@@ -1462,7 +1012,6 @@
         const tokenIn = isPOL ? POL_ADDRESS : data.tokenAddress;
         const tokenContract = isPOL ? polContract : new ethers.Contract(tokenIn, ERC20_ABI, signer);
 
-        // Get reserves and compute output (same as quote)
         const [reserve0, reserve1] = await dexPoolContract.getReserves();
         const token0Addr = await dexPoolContract.token0();
         let reserveIn, reserveOut;
@@ -1540,39 +1089,37 @@
     }
 
     // ================================================================
-    // NFT
+    // NFT – POL-only, dynamic price
     // ================================================================
     async function refreshNFT() {
         try {
-            const bronze = await nftContract.getRequiredHoneyForTier(1);
-            const silver = await nftContract.getRequiredHoneyForTier(2);
-            const gold = await nftContract.getRequiredHoneyForTier(3);
-            bronzePrice.textContent = `${formatNumber(parseFloat(ethers.formatUnits(bronze, 18)))} HONEY`;
-            silverPrice.textContent = `${formatNumber(parseFloat(ethers.formatUnits(silver, 18)))} HONEY`;
-            goldPrice.textContent = `${formatNumber(parseFloat(ethers.formatUnits(gold, 18)))} HONEY`;
+            const bronze = await nftContract.getCurrentMintPrice(1);
+            const silver = await nftContract.getCurrentMintPrice(2);
+            const gold = await nftContract.getCurrentMintPrice(3);
+            bronzePrice.textContent = formatNumber(parseFloat(ethers.formatUnits(bronze, 18))) + ' POL';
+            silverPrice.textContent = formatNumber(parseFloat(ethers.formatUnits(silver, 18))) + ' POL';
+            goldPrice.textContent = formatNumber(parseFloat(ethers.formatUnits(gold, 18))) + ' POL';
             updateMintButtons();
-        } catch (e) {
-            console.error("NFT price error:", e);
-        }
+        } catch (e) { console.error("NFT price error:", e); }
     }
 
     function updateMintButtons() {
-        const bal = parseFloat(ethers.formatUnits(honeyBalance, 18));
-        const bronzeCost = parseFloat(bronzePrice.textContent.replace(' HONEY', '').replace(/,/g, ''));
-        const silverCost = parseFloat(silverPrice.textContent.replace(' HONEY', '').replace(/,/g, ''));
-        const goldCost = parseFloat(goldPrice.textContent.replace(' HONEY', '').replace(/,/g, ''));
-        mintBronzeBtn.disabled = isNaN(bronzeCost) || bronzeCost > bal;
-        mintSilverBtn.disabled = isNaN(silverCost) || silverCost > bal;
-        mintGoldBtn.disabled = isNaN(goldCost) || goldCost > bal;
+        const bal = parseFloat(ethers.formatUnits(polBalance, 18));
+        const bCost = parseFloat(bronzePrice.textContent.replace(' POL', '').replace(/,/g, ''));
+        const sCost = parseFloat(silverPrice.textContent.replace(' POL', '').replace(/,/g, ''));
+        const gCost = parseFloat(goldPrice.textContent.replace(' POL', '').replace(/,/g, ''));
+        mintBronzeBtn.disabled = isNaN(bCost) || bCost > bal;
+        mintSilverBtn.disabled = isNaN(sCost) || sCost > bal;
+        mintGoldBtn.disabled = isNaN(gCost) || gCost > bal;
     }
 
     async function mintNFT(tier) {
         if (!isConnected) return alert("Connect wallet first");
         try {
-            const costWei = await nftContract.getRequiredHoneyForTier(tier);
-            const allowance = await honeyContract.allowance(userAddress, NFT_ADDRESS);
+            const costWei = await nftContract.getCurrentMintPrice(tier);
+            const allowance = await polContract.allowance(userAddress, NFT_ADDRESS);
             if (allowance < costWei) {
-                const approveTx = await honeyContract.approve(NFT_ADDRESS, costWei);
+                const approveTx = await polContract.approve(NFT_ADDRESS, costWei);
                 await approveTx.wait();
             }
             let tx;
@@ -1582,10 +1129,7 @@
             await tx.wait();
             alert(`🎉 Minted Tier ${tier} NFT!`);
             await refreshAll();
-        } catch (e) {
-            console.error(e);
-            alert("Mint failed: " + (e.reason || e.message));
-        }
+        } catch (e) { console.error(e); alert("Mint failed: " + (e.reason || e.message)); }
     }
 
     mintBronzeBtn.onclick = () => mintNFT(1);
@@ -1593,13 +1137,10 @@
     mintGoldBtn.onclick = () => mintNFT(3);
 
     // ================================================================
-    // IDO – WITH LIVE COUNTDOWN & SLIPPAGE LISTENER
+    // IDO – buyWithPOL, MAX_PER_WALLET, live spot price
     // ================================================================
     function clearDetailInterval() {
-        if (detailCountdownInterval) {
-            clearInterval(detailCountdownInterval);
-            detailCountdownInterval = null;
-        }
+        if (detailCountdownInterval) { clearInterval(detailCountdownInterval); detailCountdownInterval = null; }
     }
 
     async function renderPoolCards() {
@@ -1609,8 +1150,7 @@
             allPoolAddresses = pools;
 
             if (pools.length === 0) {
-                idoPoolCards.innerHTML =
-                    `<div style="color:var(--text-secondary); grid-column: span 3; text-align:center; padding: 20px;">No IDO pools deployed yet.</div>`;
+                idoPoolCards.innerHTML = `<div style="color:var(--text-secondary); grid-column: span 3; text-align:center; padding: 20px;">No IDO pools deployed yet.</div>`;
                 idoDetailView.classList.remove('visible');
                 idoPlaceholder.style.display = 'block';
                 selectedPoolAddress = null;
@@ -1630,7 +1170,6 @@
                 const statusLabel = details.status.charAt(0).toUpperCase() + details.status.slice(1);
                 const activeClass = (selectedPoolAddress === addr) ? 'active' : '';
                 const countdownId = `countdown-${addr}`;
-
                 html += `
                     <div class="ido-card ${activeClass}" data-addr="${addr}" onclick="selectPool('${addr}')">
                         <div class="card-top">
@@ -1649,29 +1188,22 @@
                     </div>
                 `;
             }
-
             idoPoolCards.innerHTML = html;
 
-            if (!countdownInterval) {
-                countdownInterval = setInterval(updateAllCountdowns, 1000);
-            }
+            if (!countdownInterval) countdownInterval = setInterval(updateAllCountdowns, 1000);
 
-            // Auto‑select first pool if none selected
             if (!selectedPoolAddress && pools.length > 0) {
                 await selectPool(pools[0]);
             } else if (selectedPoolAddress && pools.includes(selectedPoolAddress)) {
                 await selectPool(selectedPoolAddress);
             } else if (selectedPoolAddress && !pools.includes(selectedPoolAddress)) {
-                selectedPoolAddress = null;
-                idoContract = null;
-                idoDetailView.classList.remove('visible');
-                idoPlaceholder.style.display = 'block';
+                selectedPoolAddress = null; idoContract = null;
+                idoDetailView.classList.remove('visible'); idoPlaceholder.style.display = 'block';
                 clearDetailInterval();
             }
         } catch (e) {
             console.error("Error rendering pool cards:", e);
-            idoPoolCards.innerHTML =
-                `<div style="color:var(--text-secondary); grid-column: span 3; text-align:center; padding: 20px;">Error loading pools. <button onclick="renderPoolCards()" class="btn btn-sm" style="margin-left:10px;">Retry</button></div>`;
+            idoPoolCards.innerHTML = `<div style="color:var(--text-secondary); grid-column: span 3; text-align:center; padding: 20px;">Error loading pools. <button onclick="renderPoolCards()" class="btn btn-sm" style="margin-left:10px;">Retry</button></div>`;
         }
     }
 
@@ -1698,13 +1230,10 @@
             const details = poolDataMap[addr];
             if (!details) return;
             const countdownEl = document.getElementById(`countdown-${addr}`);
-            if (countdownEl) {
-                countdownEl.textContent = getCountdownText(details);
-            }
+            if (countdownEl) countdownEl.textContent = getCountdownText(details);
         });
     }
 
-    // Update the big countdown in the detail view
     function updateBigCountdown() {
         if (!selectedPoolAddress || !poolDataMap[selectedPoolAddress]) return;
         const details = poolDataMap[selectedPoolAddress];
@@ -1739,52 +1268,30 @@
             const soldNum = parseFloat(ethers.formatUnits(totalSold, 18));
             const totalNum = parseFloat(ethers.formatUnits(totalSupply, 18));
             const percent = totalNum > 0 ? (soldNum / totalNum) * 100 : 0;
-
             const now = Math.floor(Date.now() / 1000);
             let status = 'upcoming';
             if (paused) status = 'paused';
             else if (now >= start && now <= end) status = 'live';
             else if (now > end) status = 'ended';
 
-            return {
-                address: addr,
-                symbol,
-                treasury,
-                startTime: start,
-                endTime: end,
-                totalSold: soldNum,
-                totalSupply: totalNum,
-                percentSold: percent,
-                status,
-                paused,
-                saleTokenAddr
-            };
-        } catch (e) {
-            console.error(`Error fetching details for ${addr}:`, e);
-            return null;
-        }
+            return { address: addr, symbol, treasury, startTime: start, endTime: end, totalSold: soldNum, totalSupply: totalNum, percentSold: percent, status, paused, saleTokenAddr };
+        } catch (e) { console.error(`Error fetching details for ${addr}:`, e); return null; }
     }
 
     window.selectPool = async function(addr) {
         if (!addr) return;
         selectedPoolAddress = addr;
         idoContract = new ethers.Contract(addr, IDO_ABI, signer);
-
-        document.querySelectorAll('.ido-card').forEach(el => {
-            el.classList.toggle('active', el.dataset.addr === addr);
-        });
-
+        document.querySelectorAll('.ido-card').forEach(el => el.classList.toggle('active', el.dataset.addr === addr));
         idoDetailView.classList.add('visible');
         idoPlaceholder.style.display = 'none';
         clearDetailInterval();
         await refreshIDODetails();
-        // Start updating big countdown every second
         detailCountdownInterval = setInterval(updateBigCountdown, 1000);
     };
 
     async function refreshIDODetails() {
         if (!isConnected || !idoContract || !selectedPoolAddress) return;
-
         try {
             const tier = Number(await nftContract.getUserTier(userAddress));
             userTier = tier;
@@ -1799,7 +1306,6 @@
                 if (details) poolDataMap[selectedPoolAddress] = details;
                 else throw new Error("Could not fetch pool details");
             }
-
             saleTokenSymbol = details.symbol;
             quoteSymbol.textContent = saleTokenSymbol;
 
@@ -1810,7 +1316,7 @@
             startTime = details.startTime;
             endTime = details.endTime;
             countdownContainer.style.display = "block";
-            updateBigCountdown(); // immediate update
+            updateBigCountdown();
 
             const totalSold = await idoContract.totalSold();
             const totalSupply = await idoContract.totalSupplyForSale();
@@ -1821,15 +1327,13 @@
 
             if (tier > 0) {
                 try {
-                    discountedPolPrice = await idoContract.getDiscountedPriceForTier.staticCall(tier);
+                    discountedPolPrice = await idoContract.getDiscountedPriceForTier(tier);
                     const polPriceFormatted = parseFloat(ethers.formatUnits(discountedPolPrice, 18));
                     idoPriceDisplay.textContent = `💲 Discounted Price: ${formatPrice(polPriceFormatted)} POL per ${saleTokenSymbol}`;
                     if (totalSold > 0) {
                         const polRaisedEstimate = (totalSold * discountedPolPrice) / BigInt(10**18);
                         polRaisedEl.textContent = `${formatNumber(parseFloat(ethers.formatUnits(polRaisedEstimate, 18)))} POL`;
-                    } else {
-                        polRaisedEl.textContent = `0.00 POL`;
-                    }
+                    } else polRaisedEl.textContent = `0.00 POL`;
                 } catch (priceError) {
                     console.warn("Price fetch error:", priceError);
                     idoPriceDisplay.textContent = `⚠️ Price unavailable – oracle may be offline.`;
@@ -1847,13 +1351,13 @@
             idoProgress.style.width = `${Math.min(percent, 100)}%`;
 
             try {
-                const cap = await idoContract.maxPerWallet();
+                const cap = await idoContract.MAX_PER_WALLET();
                 capDisplay.textContent = `Cap: ${formatNumber(parseFloat(ethers.formatUnits(cap, 18)))} ${saleTokenSymbol}`;
                 window._cap = cap;
             } catch (capError) {
-                console.warn("Error fetching maxPerWallet:", capError);
-                capDisplay.textContent = `Cap: --`;
-                window._cap = 0n;
+                console.warn("Error fetching MAX_PER_WALLET:", capError);
+                capDisplay.textContent = `Cap: 2,900,000`;
+                window._cap = 2900000n * 10n**18n;
             }
 
             const userPurchased = await idoContract.purchased(userAddress);
@@ -1866,7 +1370,6 @@
             buyBtn.disabled = !isActive || !isConnected;
 
             await updateIDOQuote();
-
         } catch (e) {
             console.error("Error in refreshIDODetails:", e);
             idoPriceDisplay.textContent = `⚠️ Error loading IDO data. Please refresh the page.`;
@@ -1876,9 +1379,7 @@
     async function refreshIDOTab() {
         if (!isConnected) return;
         await renderPoolCards();
-        if (selectedPoolAddress && idoContract) {
-            await refreshIDODetails();
-        }
+        if (selectedPoolAddress && idoContract) await refreshIDODetails();
     }
 
     async function updateIDOQuote() {
@@ -1899,7 +1400,6 @@
             const tokensNum = Number(tokenAmount) / 1e18;
             const slippage = getIdoSlippagePercent();
             const minTokensNum = tokensNum * (1 - slippage);
-
             quoteAmount.textContent = formatNumber(tokensNum);
             idoMinReceive.textContent = formatNumber(minTokensNum);
         } catch (e) {
@@ -1910,8 +1410,6 @@
     }
 
     polInput.oninput = updateIDOQuote;
-
-    // IDO slippage listeners
     idoSlippageRange.oninput = () => {
         idoSlippageDisplay.textContent = idoSlippageRange.value + '%';
         updateIDOQuote();
@@ -1919,16 +1417,14 @@
 
     idoRefreshBtn.onclick = async () => {
         await renderPoolCards();
-        if (selectedPoolAddress && idoContract) {
-            await refreshIDODetails();
-        }
+        if (selectedPoolAddress && idoContract) await refreshIDODetails();
     };
 
     maxBtn.onclick = async () => {
         if (!isConnected || userTier === 0 || !idoContract) return alert("Connect wallet & hold NFT");
         if (!discountedPolPrice || discountedPolPrice === 0n) return alert("Price not loaded");
         try {
-            const cap = await idoContract.maxPerWallet();
+            const cap = await idoContract.MAX_PER_WALLET().catch(() => 2900000n * 10n**18n);
             const purchased = await idoContract.purchased(userAddress);
             const remainingTokens = cap - purchased;
             const polNeeded = (remainingTokens * discountedPolPrice) / 10n**18n;
@@ -1936,10 +1432,7 @@
             const usable = polNeeded < polBal ? polNeeded : polBal;
             polInput.value = parseFloat(ethers.formatUnits(usable, 18)).toFixed(4);
             await updateIDOQuote();
-        } catch (e) {
-            console.error(e);
-            alert("Error calculating max: " + (e.message || e.reason));
-        }
+        } catch (e) { console.error(e); alert("Error calculating max: " + (e.message || e.reason)); }
     };
 
     buyBtn.onclick = async () => {
@@ -1949,23 +1442,12 @@
         if (discountedPolPrice === 0n) return alert("Price not available – oracle may be offline.");
 
         const now = Math.floor(Date.now() / 1000);
-        if (now < startTime) {
-            alert("The sale has not started yet. Please wait.");
-            return;
-        }
-        if (now > endTime) {
-            alert("The sale has ended.");
-            return;
-        }
+        if (now < startTime) { alert("The sale has not started yet."); return; }
+        if (now > endTime) { alert("The sale has ended."); return; }
         try {
             const paused = await idoContract.paused();
-            if (paused) {
-                alert("The pool is paused. Please try again later.");
-                return;
-            }
-        } catch (e) {
-            console.warn("Could not check paused state", e);
-        }
+            if (paused) { alert("The pool is paused."); return; }
+        } catch (e) {}
 
         const val = polInput.value.trim();
         if (!val || parseFloat(val) <= 0) return alert("Enter POL amount");
@@ -1979,7 +1461,7 @@
         try {
             buyBtn.disabled = true;
             buyBtn.textContent = "Buying...";
-            const tx = await idoContract.buy(minTokensOut, { value: polAmount });
+            const tx = await idoContract.buyWithPOL(minTokensOut, { value: polAmount });
             await tx.wait();
             alert("🎉 Purchase successful!");
             polInput.value = "";
@@ -1999,9 +1481,7 @@
     // ================================================================
     // LAUNCH TOKEN
     // ================================================================
-    polAmountRange.oninput = () => {
-        polAmountDisplay.textContent = polAmountRange.value + ' POL';
-    };
+    polAmountRange.oninput = () => { polAmountDisplay.textContent = polAmountRange.value + ' POL'; };
 
     launchTokenBtn.onclick = async () => {
         if (!isConnected) return alert("Connect wallet first");
@@ -2010,37 +1490,30 @@
         if (!name || !symbol) return alert("Fill in token name and symbol");
 
         const polAmount = ethers.parseUnits(polAmountRange.value, 18);
-
         try {
             launchTokenBtn.disabled = true;
             launchTokenBtn.textContent = "Approving POL...";
-
             const allowance = await polContract.allowance(userAddress, TOKEN_FACTORY_ADDRESS);
             if (allowance < polAmount) {
                 const approveTx = await polContract.approve(TOKEN_FACTORY_ADDRESS, polAmount);
                 await approveTx.wait();
             }
-
             launchTokenBtn.textContent = "Launching Token...";
             launchTokenStatus.textContent = "Deploying token...";
 
             const tx = await tokenFactoryContract.launchToken(name, symbol, polAmount);
             const receipt = await tx.wait();
 
-            // ethers v6 log parsing
             const iface = tokenFactoryContract.interface;
             const event = receipt.logs
-                .map(log => {
-                    try { return iface.parseLog({ topics: log.topics, data: log.data }); } catch {}
-                })
+                .map(log => { try { return iface.parseLog({ topics: log.topics, data: log.data }); } catch (e) {} })
                 .find(ev => ev && ev.name === "TokenLaunched");
             if (event) {
                 launchTokenStatus.textContent = `✅ Token launched! Address: ${event.args.token}. Pool: ${event.args.pool}`;
             } else {
                 launchTokenStatus.textContent = "✅ Transaction successful. Check the contract.";
             }
-            tokenName.value = '';
-            tokenSymbol.value = '';
+            tokenName.value = ''; tokenSymbol.value = '';
             await refreshAll();
         } catch (e) {
             console.error(e);
@@ -2061,9 +1534,7 @@
             prizeYear.textContent = year > 7 ? '7 (Completed)' : year;
             const pot = await prizePotContract.ANNUAL_POT();
             prizeAnnualPot.textContent = formatNumber(parseFloat(ethers.formatUnits(pot, 18))) + ' HONEY';
-        } catch (e) {
-            console.warn("PrizePot not available", e);
-        }
+        } catch (e) { console.warn("PrizePot not available", e); }
     }
 
     // ================================================================
@@ -2092,52 +1563,38 @@
                 });
                 poolList.innerHTML = html;
             }
-        } catch (e) {
-            console.error("Admin refresh error:", e);
-        }
+        } catch (e) { console.error("Admin refresh error:", e); }
     }
 
     adminLaunchBtn.onclick = async () => {
         if (!isConnected || !isOwner) return alert("Only owner can launch IDOs");
         const saleToken = adminSaleToken.value.trim();
         const treasury = adminTreasury.value.trim();
-        const startTime = adminStartTime.value.trim();
-        const endTime = adminEndTime.value.trim();
+        const startTimeVal = adminStartTime.value.trim();
+        const endTimeVal = adminEndTime.value.trim();
         const supply = adminSupply.value.trim();
-        const cap = adminCap.value.trim();
-
-        if (!saleToken || !treasury || !startTime || !endTime || !supply || !cap) {
+        const sparkPool = adminSparkPool.value.trim();
+        if (!saleToken || !treasury || !startTimeVal || !endTimeVal || !supply || !sparkPool) {
             return alert("Please fill all fields");
         }
-
         try {
             adminLaunchBtn.disabled = true;
             adminLaunchBtn.textContent = "Launching...";
             const tx = await factoryContract.launchIDO(
                 saleToken,
                 treasury,
-                BigInt(startTime),
-                BigInt(endTime),
+                BigInt(startTimeVal),
+                BigInt(endTimeVal),
                 BigInt(supply),
-                BigInt(cap)
+                sparkPool
             );
             await tx.wait();
             alert("✅ IDO launched successfully!");
-            adminSaleToken.value = '';
-            adminTreasury.value = '';
-            adminStartTime.value = '';
-            adminEndTime.value = '';
-            adminSupply.value = '';
-            adminCap.value = '';
-            await renderPoolCards();
-            await refreshAdmin();
-        } catch (e) {
-            console.error(e);
-            alert("Launch failed: " + (e.reason || e.message));
-        } finally {
-            adminLaunchBtn.disabled = false;
-            adminLaunchBtn.textContent = "Launch IDO";
-        }
+            adminSaleToken.value = ''; adminTreasury.value = ''; adminStartTime.value = '';
+            adminEndTime.value = ''; adminSupply.value = ''; adminSparkPool.value = '';
+            await renderPoolCards(); await refreshAdmin();
+        } catch (e) { console.error(e); alert("Launch failed: " + (e.reason || e.message)); }
+        finally { adminLaunchBtn.disabled = false; adminLaunchBtn.textContent = "Launch IDO"; }
     };
 
     adminPauseBtn.onclick = async () => {
@@ -2149,11 +1606,8 @@
             const tx = await pool.pause(true);
             await tx.wait();
             alert("⏸️ Pool paused");
-            await renderPoolCards();
-            await refreshAdmin();
-        } catch (e) {
-            alert("Failed: " + (e.reason || e.message));
-        }
+            await renderPoolCards(); await refreshAdmin();
+        } catch (e) { alert("Failed: " + (e.reason || e.message)); }
     };
 
     adminResumeBtn.onclick = async () => {
@@ -2165,18 +1619,14 @@
             const tx = await pool.pause(false);
             await tx.wait();
             alert("▶️ Pool resumed");
-            await renderPoolCards();
-            await refreshAdmin();
-        } catch (e) {
-            alert("Failed: " + (e.reason || e.message));
-        }
+            await renderPoolCards(); await refreshAdmin();
+        } catch (e) { alert("Failed: " + (e.reason || e.message)); }
     };
 
     adminRemoveBtn.onclick = async () => {
         if (!isConnected || !isOwner) return alert("Only owner can remove");
         const addr = adminPoolAddress.value.trim();
         if (!addr) return alert("Enter pool address");
-        // Re‑fetch the list to get current index
         const pools = await factoryContract.getAllPools();
         const index = pools.indexOf(addr);
         if (index === -1) return alert("Pool not found in factory");
@@ -2184,11 +1634,8 @@
             const tx = await factoryContract.removePool(index);
             await tx.wait();
             alert("🗑️ Pool removed");
-            await renderPoolCards();
-            await refreshAdmin();
-        } catch (e) {
-            alert("Failed: " + (e.reason || e.message));
-        }
+            await renderPoolCards(); await refreshAdmin();
+        } catch (e) { alert("Failed: " + (e.reason || e.message)); }
     };
 
     // ================================================================
@@ -2198,26 +1645,19 @@
         const urlParams = new URLSearchParams(window.location.search);
         const tabParam = urlParams.get('tab');
         if (tabParam) {
-            const tabMap = {
-                'dex': 'tabDEX',
-                'ido': 'tabIDO',
-                'nft': 'tabNFT',
-                'admin': 'tabAdmin'
-            };
+            const tabMap = { 'dex': 'tabDEX', 'ido': 'tabIDO', 'nft': 'tabNFT', 'admin': 'tabAdmin' };
             const targetTabId = tabMap[tabParam];
             if (targetTabId) {
                 const targetBtn = document.querySelector(`.tab-btn[data-tab="${targetTabId}"]`);
-                if (targetBtn) {
-                    setTimeout(() => targetBtn.click(), 100);
-                }
+                if (targetBtn) setTimeout(() => targetBtn.click(), 100);
             }
         }
         if (window.ethereum && window.ethereum.selectedAddress) {
-            try { await connectBtn.click(); } catch (e) { /* user might reject */ }
+            try { await connectBtn.click(); } catch (e) {}
         }
     });
 
-    console.log("🍯 Full Ecosystem UI loaded. (fixed reserves & live countdowns)");
+    console.log("🍯 Honey Protocol UI ready.");
 </script>
 </body>
 </html>
