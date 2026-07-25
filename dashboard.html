@@ -464,6 +464,7 @@
     const NFT_ADDRESS = "0x7644ee779eA0d3a0f3E0e5DC5A2B665253A38c29";
     const FACTORY_ADDRESS = "0xc0Cc4Ec206A04315587f04630b2397c5D62ab9d7";
     const TOKEN_FACTORY_ADDRESS = "0xce80aF245a0E6BD11a46D36C943D8715d066B24C";
+    const PRIZE_POT_ADDRESS = "0x0000000000000000000000000000000000000000";
 
     // ================================================================
     // ABIs
@@ -738,11 +739,14 @@
             nftContract = new ethers.Contract(NFT_ADDRESS, NFT_ABI, signer);
             factoryContract = new ethers.Contract(FACTORY_ADDRESS, FACTORY_ABI, signer);
             tokenFactoryContract = new ethers.Contract(TOKEN_FACTORY_ADDRESS, TOKEN_FACTORY_ABI, signer);
-            prizePotContract = new ethers.Contract(PRIZE_POT_ADDRESS, [
-                "function getCurrentYear() view returns (uint256)",
-                "function ANNUAL_POT() view returns (uint256)"
-            ], signer);
-
+            if (PRIZE_POT_ADDRESS !== "0x0000000000000000000000000000000000000000") {
+    prizePotContract = new ethers.Contract(PRIZE_POT_ADDRESS, [
+        "function getCurrentYear() view returns (uint256)",
+        "function ANNUAL_POT() view returns (uint256)"
+    ], signer);
+} else {
+    prizePotContract = null;
+}
             try {
                 const factoryOwner = await factoryContract.owner();
                 isOwner = factoryOwner.toLowerCase() === userAddress.toLowerCase();
@@ -1527,7 +1531,7 @@
     // PRIZE POT
     // ================================================================
     async function refreshPrizePot() {
-        if (!isConnected) return;
+        if (!isConnected || !prizePotContract) return;
         try {
             const year = await prizePotContract.getCurrentYear();
             prizeYear.textContent = year > 7 ? '7 (Completed)' : year;
