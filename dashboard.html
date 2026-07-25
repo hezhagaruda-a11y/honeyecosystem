@@ -457,10 +457,10 @@
 
 <script>
     // ================================================================
-    // DEPLOYED ADDRESSES (SEPOLIA)
+    // DEPLOYED ADDRESSES (POLYGON MAINNET)
     // ================================================================
     const HONEY_ADDRESS = "0x4750a71f14c3b0e166A1cf53112d8A4EF07fD1b0";
-    const POL_ADDRESS = "0x17eE5e35Dc0358EF6aaF045465c3027f97758Da6";
+    const POL_ADDRESS = "0x455e53CBB86018Ac2B8092FdCd39d8444aFFC3F6";
     const NFT_ADDRESS = "0x7644ee779eA0d3a0f3E0e5DC5A2B665253A38c29";
     const FACTORY_ADDRESS = "0xc0Cc4Ec206A04315587f04630b2397c5D62ab9d7";
     const TOKEN_FACTORY_ADDRESS = "0xce80aF245a0E6BD11a46D36C943D8715d066B24C";
@@ -717,7 +717,7 @@
                     "If you have MetaMask installed, try these fixes:\n" +
                     "1. Open this page via a local server (e.g., python3 -m http.server 8080).\n" +
                     "2. In Brave, go to brave://settings/wallet and set 'Default wallet' to 'MetaMask'.\n" +
-                    "3. Ensure MetaMask is unlocked and you are on the Sepolia network."
+                    "3. Ensure MetaMask is unlocked and you are on the Polygon Mainnet network."
                 );
             }
 
@@ -727,8 +727,8 @@
 
             const network = await provider.getNetwork();
             const chainId = Number(network.chainId);
-            if (chainId !== 11155111) {
-                alert(`⚠️ Please switch to Sepolia network (chain ID 11155111). Currently on chain ${chainId}.`);
+            if (chainId !== 137) {
+                alert(`⚠️ Please switch to Polygon Mainnet network (chain ID 137). Currently on chain ${chainId}.`);
                 return;
             }
 
