@@ -827,17 +827,6 @@
         }
     }
 
-            const tier = Number(await nftContract.getUserTier(userAddress));
-            userTier = tier;
-            const names = ["None", "🥉 Bronze", "🥈 Silver", "🥇 Gold"];
-            const cls = ["", "bronze", "silver", "gold"];
-            tierDisplay.textContent = `Tier: ${names[tier] || "None"}`;
-            tierDisplay.className = `tier-badge ${cls[tier] || ""}`;
-        } catch (e) {
-            console.error("Balance refresh error:", e);
-        }
-    }
-
     // ================================================================
     // DEX – FIXED RESERVE DIRECTION & PRICE PRECISION
     // ================================================================
