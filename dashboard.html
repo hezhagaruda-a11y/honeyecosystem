@@ -178,7 +178,7 @@
     <!-- WALLET BAR -->
     <div class="wallet-bar">
         <span class="addr" id="walletDisplay">🦊 Not connected</span>
-        <span class="balance" id="balanceDisplay">HONEY: 0.00 | POL: 0.00</span>
+        <span class="balance" id="balanceDisplay">HONEY: 0.00 | WMATIC: 0.00</span>
         <span id="tierDisplay" class="tier-badge">Tier: None</span>
     </div>
 
@@ -193,55 +193,46 @@
     </div>
 
     <!-- ======================== TAB 1: DEX ======================== -->
-        <div id="tabDEX" class="tab-content">
+    <div id="tabDEX" class="tab-content">
         <div class="section-title">🏊 Spark DEX</div>
-        <div class="section-desc">Browse all token pools and swap POL ↔ any token.</div>
-
+        <div class="section-desc">Browse all token pools and swap WMATIC ↔ any token.</div>
         <div class="dex-stats" id="dexStats">
             <div class="dex-stat"><div class="value" id="dexTotalVolume">--</div><div class="label">Total Volume</div></div>
             <div class="dex-stat"><div class="value" id="dexTotalTrades">--</div><div class="label">Trades</div></div>
             <div class="dex-stat"><div class="value" id="dexAvgChange">--</div><div class="label">Avg Price Change</div></div>
             <div class="dex-stat"><div class="value" id="dexPoolCount">--</div><div class="label">Pools</div></div>
         </div>
-
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-            <span style="font-weight:600; font-size:15px;">Token Pools • Live Prices (POL)</span>
+            <span style="font-weight:600; font-size:15px;">Token Pools • Live Prices (WMATIC)</span>
             <button id="refreshPoolsBtn" class="btn btn-sm btn-outline">⟳ Refresh</button>
         </div>
         <div id="dexPoolCards" class="grid-3" style="margin-bottom:16px;">
             <div style="color:var(--text-secondary); grid-column: span 3; text-align:center; padding: 20px;">Loading pools...</div>
         </div>
-
-        <!-- Recent Trades -->
         <div class="recent-trades">
             <div style="font-weight:600; margin-bottom:6px;">Recent Trades</div>
             <div id="recentTradesList">
                 <div class="trade-item" style="color:var(--text-secondary);">No trades yet.</div>
             </div>
         </div>
-
-        <!-- Swap Interface -->
         <div style="margin-top:12px;">
-            <div class="price-display" id="dexPriceDisplay">Selected: <span id="selectedPoolName">--</span> — 1 <span id="selectedTokenSymbol">TOKEN</span> = <span id="selectedPoolPrice">--</span> POL</div>
-
+            <div class="price-display" id="dexPriceDisplay">Selected: <span id="selectedPoolName">--</span> — 1 <span id="selectedTokenSymbol">TOKEN</span> = <span id="selectedPoolPrice">--</span> WMATIC</div>
             <div style="margin: 12px 0;">
                 <label style="font-size:14px; font-weight:500; color:var(--text-secondary);">Swap</label>
                 <div class="input-flex">
                     <select id="swapFromToken">
-                        <option value="POL">POL → Token</option>
-                        <option value="TOKEN">Token → POL</option>
+                        <option value="WMATIC">WMATIC → Token</option>
+                        <option value="TOKEN">Token → WMATIC</option>
                     </select>
                     <input type="number" id="swapAmount" placeholder="0.0" step="0.01" min="0">
                     <button id="swapBtn" class="btn">Swap</button>
                 </div>
             </div>
-
             <div class="slippage-control">
                 <span>⚠️ Slippage</span>
                 <input type="range" id="slippageRange" min="0.1" max="5" step="0.1" value="0.5">
                 <span class="slippage-value" id="slippageDisplay">0.5%</span>
             </div>
-
             <div class="quote-box" id="swapQuote">
                 You receive: <strong id="swapReceive">0.00</strong> <span id="swapReceiveSymbol">TOKEN</span>
                 <br><span class="min-label">Minimum (after slippage): <span id="swapMinReceive">0.00</span></span>
@@ -253,32 +244,32 @@
     <!-- ======================== TAB 2: MINT NFT ======================== -->
     <div id="tabNFT" class="tab-content">
         <div class="section-title">🎟️ Mint Investor NFT</div>
-        <div class="section-desc">Mint your NFT using POL. Price increases per mint across all tiers. Supply capped at 10,000.</div>
+        <div class="section-desc">Mint your NFT using WMATIC. Price increases per mint across all tiers. Supply capped at 10,000.</div>
         <div class="grid-3">
             <div class="nft-card">
                 <span class="tier-icon">🥉</span>
                 <div class="tier-name">Bronze</div>
-                <div class="tier-price" id="bronzePrice">-- POL</div>
+                <div class="tier-price" id="bronzePrice">-- WMATIC</div>
                 <button class="btn btn-sm" id="mintBronzeBtn" style="width:100%;">Mint Bronze</button>
                 <div style="font-size:11px; color:var(--text-secondary); margin-top:4px;">8% IDO Discount</div>
             </div>
             <div class="nft-card">
                 <span class="tier-icon">🥈</span>
                 <div class="tier-name">Silver</div>
-                <div class="tier-price" id="silverPrice">-- POL</div>
+                <div class="tier-price" id="silverPrice">-- WMATIC</div>
                 <button class="btn btn-sm" id="mintSilverBtn" style="width:100%;">Mint Silver</button>
                 <div style="font-size:11px; color:var(--text-secondary); margin-top:4px;">15% IDO Discount</div>
             </div>
             <div class="nft-card">
                 <span class="tier-icon">🥇</span>
                 <div class="tier-name">Gold</div>
-                <div class="tier-price" id="goldPrice">-- POL</div>
+                <div class="tier-price" id="goldPrice">-- WMATIC</div>
                 <button class="btn btn-sm" id="mintGoldBtn" style="width:100%;">Mint Gold</button>
                 <div style="font-size:11px; color:var(--text-secondary); margin-top:4px;">22% IDO Discount</div>
             </div>
         </div>
         <div style="font-size:13px; color:var(--text-secondary); text-align:center; margin-top:6px;">
-            💡 You need POL in your wallet. Approval is auto-requested.
+            💡 You need WMATIC in your wallet. Approval is auto-requested.
         </div>
     </div>
 
@@ -289,30 +280,25 @@
             <button id="idoRefreshBtn" class="refresh-icon" title="Refresh Pools">⟳</button>
         </div>
         <div class="section-desc">Select an IDO pool card below to view details and participate. Your NFT tier determines the discount.</div>
-
         <div id="idoPoolCards" class="grid-3" style="margin-bottom: 8px;">
             <div style="color:var(--text-secondary); grid-column: span 3; text-align:center; padding: 20px;">Loading pools...</div>
         </div>
-
         <div id="idoPlaceholder" class="ido-placeholder">
             👆 Select an IDO pool above to view details and participate.
         </div>
-
         <div id="idoDetailView" class="ido-detail-view">
             <div id="poolStatusSummary" style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:12px; font-size:13px; color:var(--text-secondary);">
                 <span class="badge" id="poolStatusBadge">Status: --</span>
                 <span class="badge" id="poolSaleTokenLabel">Token: --</span>
                 <span class="badge" id="poolTreasuryLabel">Treasury: --</span>
             </div>
-
             <div id="countdownContainer" style="display:none;">
                 <span id="bigCountdown">Loading...</span>
             </div>
-
             <div class="grid-2">
                 <div class="stat-card">
-                    <div class="stat-label">💰 POL Raised</div>
-                    <div id="polRaised" class="stat-value">0.00 POL</div>
+                    <div class="stat-label">💰 WMATIC Raised</div>
+                    <div id="polRaised" class="stat-value">0.00 WMATIC</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-label">📦 Sold</div>
@@ -327,7 +313,6 @@
                     <div id="userContribution" class="stat-value">0.00</div>
                 </div>
             </div>
-
             <div class="progress-container">
                 <div id="idoProgress" class="progress-bar" style="width:0%;"></div>
             </div>
@@ -335,21 +320,17 @@
                 <span id="percentDisplay">0% SOLD</span>
                 <span id="capDisplay">Cap: 0</span>
             </div>
-
             <div class="price-display" id="idoPriceDisplay">⏳ Select a pool to see discounted price.</div>
-
             <div class="slippage-control">
                 <span>⚠️ Slippage</span>
                 <input type="range" id="idoSlippageRange" min="0.1" max="5" step="0.1" value="0.5">
                 <span class="slippage-value" id="idoSlippageDisplay">0.5%</span>
             </div>
-
             <div class="input-flex">
-                <input type="number" id="polInput" placeholder="0.0 POL" step="0.01" min="0" disabled>
+                <input type="number" id="polInput" placeholder="0.0 WMATIC" step="0.01" min="0" disabled>
                 <button id="maxBtn" class="btn btn-outline" style="padding:10px 16px;" disabled>MAX</button>
                 <button id="buyBtn" class="btn" disabled>Buy Tokens</button>
             </div>
-
             <div class="quote-box" id="quoteBox">
                 You receive: <strong id="quoteAmount">0.00</strong> <span id="quoteSymbol">SALE</span>
                 <br><span class="min-label">Minimum (after slippage): <span id="idoMinReceive">0.00</span></span>
@@ -361,22 +342,18 @@
     <div id="tabLaunchToken" class="tab-content active">
         <div class="section-title">🚀 Launch a New Token</div>
         <div class="section-desc">Permissionlessly deploy a new ERC‑20 token with an instant Spark Pool.</div>
-
         <div class="input-flex">
             <input type="text" id="tokenName" placeholder="Token Name (e.g., My Token)" style="flex:1;">
             <input type="text" id="tokenSymbol" placeholder="Symbol (e.g., MYT)" style="flex:1;">
         </div>
-
         <div class="slippage-control">
-            <span>POL to Pair</span>
+            <span>WMATIC to Pair</span>
             <input type="range" id="polAmountRange" min="300" max="5000" step="25" value="300">
-            <span class="slippage-value" id="polAmountDisplay">300 POL</span>
+            <span class="slippage-value" id="polAmountDisplay">300 WMATIC</span>
         </div>
-
         <div style="font-size:13px; color:var(--text-secondary); margin: 6px 0;">
             ⚙️ Fixed supply: 1,000,000,000 tokens • 0.75% (7.5M) to Spark Pool
         </div>
-
         <button id="launchTokenBtn" class="btn" style="width:100%; margin-top:12px;">Launch Token</button>
         <div id="launchTokenStatus" style="font-size:13px; color:var(--text-secondary); margin-top:8px;"></div>
     </div>
@@ -385,7 +362,6 @@
     <div id="tabPrize" class="tab-content">
         <div class="section-title">🏆 HONEY Prize Pot</div>
         <div class="section-desc">800M HONEY distributed over 7 years to the top 16 holders. Claim your allocation.</div>
-
         <div class="grid-2">
             <div class="stat-card">
                 <div class="stat-label">Current Year</div>
@@ -396,7 +372,6 @@
                 <div id="prizeAnnualPot" class="stat-value">--</div>
             </div>
         </div>
-
         <div style="margin-top: 16px;">
             <button id="claimPrizeBtn" class="btn" disabled>Claim (Proof required)</button>
             <div style="font-size:13px; color:var(--text-secondary); margin-top:8px;">
@@ -409,7 +384,6 @@
     <div id="tabAdmin" class="tab-content">
         <div class="section-title">⚙️ Admin Panel</div>
         <div class="section-desc">Manage IDO launches. Only the contract owner can access these functions.</div>
-
         <div class="admin-section">
             <h4>📋 All Pools</h4>
             <div class="sub">Currently deployed IDO pools.</div>
@@ -417,7 +391,6 @@
                 <div style="color:var(--text-secondary); font-size:13px;">Loading pools...</div>
             </div>
         </div>
-
         <div class="admin-section">
             <h4>🚀 Launch New IDO</h4>
             <div class="sub">Deploy a new IDO pool. All fields required.</div>
@@ -433,7 +406,6 @@
             </div>
             <button id="adminLaunchBtn" class="btn btn-success" style="width:100%; margin-top:8px;">Launch IDO</button>
         </div>
-
         <div class="admin-section">
             <h4>🛑 Manage Pool</h4>
             <div class="sub">Pause, resume, or remove a pool by address.</div>
@@ -444,13 +416,12 @@
                 <button id="adminRemoveBtn" class="btn btn-danger btn-sm">Remove</button>
             </div>
         </div>
-
         <div style="font-size:12px; color:var(--text-secondary); text-align:center; margin-top:8px;">
             ⚠️ Only the deployer wallet (owner) can perform admin actions.
         </div>
     </div>
 
-        <div class="footer">
+    <div class="footer">
     ⚡ Polygon Mainnet • <a href="https://polygonscan.com/address/0x44FEb08365Aaf178b057E71eA34C82a4Ea6e3B4c" target="_blank">HONEY</a> • <a href="https://polygonscan.com/address/0x83979d4D8280a739c058fb1ECB42bC5320406b02" target="_blank">NFT</a> • <a href="https://polygonscan.com/address/0x1057B009418655543E3d81015e5E1516B6F74282" target="_blank">IDOFactory</a> • <a href="https://polygonscan.com/address/0x6f1494440C3B43d173E5C98a4dEe2AbfEad9E131" target="_blank">TokenFactory</a>
     </div>
 </div>
@@ -740,13 +711,13 @@
             factoryContract = new ethers.Contract(FACTORY_ADDRESS, FACTORY_ABI, signer);
             tokenFactoryContract = new ethers.Contract(TOKEN_FACTORY_ADDRESS, TOKEN_FACTORY_ABI, signer);
             if (PRIZE_POT_ADDRESS !== "0x0000000000000000000000000000000000000000") {
-    prizePotContract = new ethers.Contract(PRIZE_POT_ADDRESS, [
-        "function getCurrentYear() view returns (uint256)",
-        "function ANNUAL_POT() view returns (uint256)"
-    ], signer);
-} else {
-    prizePotContract = null;
-}
+                prizePotContract = new ethers.Contract(PRIZE_POT_ADDRESS, [
+                    "function getCurrentYear() view returns (uint256)",
+                    "function ANNUAL_POT() view returns (uint256)"
+                ], signer);
+            } else {
+                prizePotContract = null;
+            }
             try {
                 const factoryOwner = await factoryContract.owner();
                 isOwner = factoryOwner.toLowerCase() === userAddress.toLowerCase();
@@ -805,16 +776,16 @@
                 console.warn("HONEY balance fetch failed", e);
                 honeyBalance = 0n;
             }
-            // Fetch POL balance safely
+            // Fetch WMATIC balance safely
             try {
                 polBalance = await polContract.balanceOf(userAddress);
             } catch (e) {
-                console.warn("POL balance fetch failed", e);
+                console.warn("WMATIC balance fetch failed", e);
                 polBalance = 0n;
             }
 
             balanceDisplay.textContent =
-                `HONEY: ${formatNumber(parseFloat(ethers.formatUnits(honeyBalance, 18)))} | POL: ${formatNumber(parseFloat(ethers.formatUnits(polBalance, 18)))}`;
+                `HONEY: ${formatNumber(parseFloat(ethers.formatUnits(honeyBalance, 18)))} | WMATIC: ${formatNumber(parseFloat(ethers.formatUnits(polBalance, 18)))}`;
 
             const tier = Number(await nftContract.getUserTier(userAddress));
             userTier = tier;
@@ -837,14 +808,14 @@
             const token0Addr = await pool.token0();
             const token1Addr = await pool.token1();
 
-            let tokenAddr, reserveToken, reservePOL;
+            let tokenAddr, reserveToken, reserveWMATIC;
             if (token0Addr.toLowerCase() === POL_ADDRESS.toLowerCase()) {
                 tokenAddr = token1Addr;
-                reservePOL = reserve0;
+                reserveWMATIC = reserve0;
                 reserveToken = reserve1;
             } else {
                 tokenAddr = token0Addr;
-                reservePOL = reserve1;
+                reserveWMATIC = reserve1;
                 reserveToken = reserve0;
             }
 
@@ -853,7 +824,7 @@
             try { symbol = await tokenContract.symbol(); } catch (e) {}
 
             const PRECISION = 10n ** 18n;
-            const price = (reservePOL * PRECISION) / reserveToken;
+            const price = (reserveWMATIC * PRECISION) / reserveToken;
 
             const key = `pool_initial_${poolAddress}`;
             let change = 0;
@@ -870,7 +841,7 @@
                 localStorage.setItem(key, price.toString());
             }
 
-            return { address: poolAddress, tokenAddress: tokenAddr, tokenSymbol: symbol, reserveToken, reservePOL, price, change };
+            return { address: poolAddress, tokenAddress: tokenAddr, tokenSymbol: symbol, reserveToken, reserveWMATIC, price, change };
         } catch (e) {
             console.error("Error fetching pool data for", poolAddress, e);
             return null;
@@ -907,7 +878,7 @@
                                 <span>${d.tokenSymbol}</span>
                                 <span class="pool-change ${changeClass}">${changeStr}</span>
                             </div>
-                            <div class="pool-price">${priceStr} POL</div>
+                            <div class="pool-price">${priceStr} WMATIC</div>
                         </div>
                     `;
                 }
@@ -916,7 +887,7 @@
 
             const count = poolDataArray.length;
             const avgChange = count > 0 ? poolDataArray.reduce((acc, d) => acc + (d.change || 0), 0) / count : 0;
-            dexTotalVolume.textContent = formatNumber(totalVolumePOL) + ' POL';
+            dexTotalVolume.textContent = formatNumber(totalVolumePOL) + ' WMATIC';
             dexTotalTrades.textContent = recentTrades.length;
             dexAvgChange.textContent = avgChange.toFixed(1) + '%';
             dexPoolCount.textContent = count;
@@ -952,8 +923,8 @@
         selectedPoolPrice.textContent = formatPrice(priceNum);
 
         swapFromToken.innerHTML = `
-            <option value="POL">POL → ${data.tokenSymbol}</option>
-            <option value="TOKEN">${data.tokenSymbol} → POL</option>
+            <option value="WMATIC">WMATIC → ${data.tokenSymbol}</option>
+            <option value="TOKEN">${data.tokenSymbol} → WMATIC</option>
         `;
         swapReceiveSymbol.textContent = data.tokenSymbol;
 
@@ -972,17 +943,17 @@
         try {
             const amountIn = ethers.parseUnits(val, 18);
             const [reserve0, reserve1] = await dexPoolContract.getReserves();
-            const isPOL = swapFromToken.value === "POL";
+            const isWMATIC = swapFromToken.value === "WMATIC";
             const data = dexPoolData[selectedDexPoolAddress];
             if (!data) return;
 
             let reserveIn, reserveOut;
             const token0Addr = await dexPoolContract.token0();
             if (token0Addr.toLowerCase() === POL_ADDRESS.toLowerCase()) {
-                if (isPOL) { reserveIn = reserve0; reserveOut = reserve1; }
+                if (isWMATIC) { reserveIn = reserve0; reserveOut = reserve1; }
                 else { reserveIn = reserve1; reserveOut = reserve0; }
             } else {
-                if (isPOL) { reserveIn = reserve1; reserveOut = reserve0; }
+                if (isWMATIC) { reserveIn = reserve1; reserveOut = reserve0; }
                 else { reserveIn = reserve0; reserveOut = reserve1; }
             }
 
@@ -997,7 +968,7 @@
             const minOutNum = outNum * (1 - slippage);
 
             swapReceive.textContent = formatNumber(outNum);
-            swapReceiveSymbol.textContent = isPOL ? data.tokenSymbol : "POL";
+            swapReceiveSymbol.textContent = isWMATIC ? data.tokenSymbol : "WMATIC";
             swapMinReceive.textContent = formatNumber(minOutNum);
         } catch (e) {
             swapReceive.textContent = "Error";
@@ -1025,18 +996,18 @@
         if (!data) return alert("Pool data not loaded");
 
         const amountIn = ethers.parseUnits(val, 18);
-        const isPOL = swapFromToken.value === "POL";
-        const tokenIn = isPOL ? POL_ADDRESS : data.tokenAddress;
-        const tokenContract = isPOL ? polContract : new ethers.Contract(tokenIn, ERC20_ABI, signer);
+        const isWMATIC = swapFromToken.value === "WMATIC";
+        const tokenIn = isWMATIC ? POL_ADDRESS : data.tokenAddress;
+        const tokenContract = isWMATIC ? polContract : new ethers.Contract(tokenIn, ERC20_ABI, signer);
 
         const [reserve0, reserve1] = await dexPoolContract.getReserves();
         const token0Addr = await dexPoolContract.token0();
         let reserveIn, reserveOut;
         if (token0Addr.toLowerCase() === POL_ADDRESS.toLowerCase()) {
-            if (isPOL) { reserveIn = reserve0; reserveOut = reserve1; }
+            if (isWMATIC) { reserveIn = reserve0; reserveOut = reserve1; }
             else { reserveIn = reserve1; reserveOut = reserve0; }
         } else {
-            if (isPOL) { reserveIn = reserve1; reserveOut = reserve0; }
+            if (isWMATIC) { reserveIn = reserve1; reserveOut = reserve0; }
             else { reserveIn = reserve0; reserveOut = reserve1; }
         }
 
@@ -1059,7 +1030,7 @@
             const receipt = await tx.wait();
 
             const trade = {
-                type: isPOL ? 'BUY' : 'SELL',
+                type: isWMATIC ? 'BUY' : 'SELL',
                 symbol: data.tokenSymbol,
                 amount: parseFloat(val),
                 price: parseFloat(ethers.formatUnits(amountOut / amountIn, 18)),
@@ -1097,7 +1068,7 @@
                 <div class="trade-item">
                     <span class="type ${typeClass}">${trade.type}</span>
                     <span>${trade.symbol}</span>
-                    <span>${trade.amount.toFixed(1)} POL</span>
+                    <span>${trade.amount.toFixed(1)} WMATIC</span>
                     <span>${trade.price.toFixed(5)}</span>
                 </div>
             `;
@@ -1113,18 +1084,18 @@
             const bronze = await nftContract.getCurrentMintPrice(1);
             const silver = await nftContract.getCurrentMintPrice(2);
             const gold = await nftContract.getCurrentMintPrice(3);
-            bronzePrice.textContent = formatNumber(parseFloat(ethers.formatUnits(bronze, 18))) + ' POL';
-            silverPrice.textContent = formatNumber(parseFloat(ethers.formatUnits(silver, 18))) + ' POL';
-            goldPrice.textContent = formatNumber(parseFloat(ethers.formatUnits(gold, 18))) + ' POL';
+            bronzePrice.textContent = formatNumber(parseFloat(ethers.formatUnits(bronze, 18))) + ' WMATIC';
+            silverPrice.textContent = formatNumber(parseFloat(ethers.formatUnits(silver, 18))) + ' WMATIC';
+            goldPrice.textContent = formatNumber(parseFloat(ethers.formatUnits(gold, 18))) + ' WMATIC';
             updateMintButtons();
         } catch (e) { console.error("NFT price error:", e); }
     }
 
     function updateMintButtons() {
         const bal = parseFloat(ethers.formatUnits(polBalance, 18));
-        const bCost = parseFloat(bronzePrice.textContent.replace(' POL', '').replace(/,/g, ''));
-        const sCost = parseFloat(silverPrice.textContent.replace(' POL', '').replace(/,/g, ''));
-        const gCost = parseFloat(goldPrice.textContent.replace(' POL', '').replace(/,/g, ''));
+        const bCost = parseFloat(bronzePrice.textContent.replace(' WMATIC', '').replace(/,/g, ''));
+        const sCost = parseFloat(silverPrice.textContent.replace(' WMATIC', '').replace(/,/g, ''));
+        const gCost = parseFloat(goldPrice.textContent.replace(' WMATIC', '').replace(/,/g, ''));
         mintBronzeBtn.disabled = isNaN(bCost) || bCost > bal;
         mintSilverBtn.disabled = isNaN(sCost) || sCost > bal;
         mintGoldBtn.disabled = isNaN(gCost) || gCost > bal;
@@ -1346,20 +1317,20 @@
                 try {
                     discountedPolPrice = await idoContract.getDiscountedPriceForTier(tier);
                     const polPriceFormatted = parseFloat(ethers.formatUnits(discountedPolPrice, 18));
-                    idoPriceDisplay.textContent = `💲 Discounted Price: ${formatPrice(polPriceFormatted)} POL per ${saleTokenSymbol}`;
+                    idoPriceDisplay.textContent = `💲 Discounted Price: ${formatPrice(polPriceFormatted)} WMATIC per ${saleTokenSymbol}`;
                     if (totalSold > 0) {
                         const polRaisedEstimate = (totalSold * discountedPolPrice) / BigInt(10**18);
-                        polRaisedEl.textContent = `${formatNumber(parseFloat(ethers.formatUnits(polRaisedEstimate, 18)))} POL`;
-                    } else polRaisedEl.textContent = `0.00 POL`;
+                        polRaisedEl.textContent = `${formatNumber(parseFloat(ethers.formatUnits(polRaisedEstimate, 18)))} WMATIC`;
+                    } else polRaisedEl.textContent = `0.00 WMATIC`;
                 } catch (priceError) {
                     console.warn("Price fetch error:", priceError);
                     idoPriceDisplay.textContent = `⚠️ Price unavailable – oracle may be offline.`;
-                    polRaisedEl.textContent = `-- POL`;
+                    polRaisedEl.textContent = `-- WMATIC`;
                     discountedPolPrice = 0n;
                 }
             } else {
                 idoPriceDisplay.textContent = `💲 Hold an Investor NFT to see the discounted price.`;
-                polRaisedEl.textContent = `0.00 POL`;
+                polRaisedEl.textContent = `0.00 WMATIC`;
             }
 
             soldDisplay.textContent = `${formatNumber(soldNum)} ${saleTokenSymbol}`;
@@ -1467,7 +1438,7 @@
         } catch (e) {}
 
         const val = polInput.value.trim();
-        if (!val || parseFloat(val) <= 0) return alert("Enter POL amount");
+        if (!val || parseFloat(val) <= 0) return alert("Enter WMATIC amount");
 
         const polAmount = ethers.parseUnits(val, 18);
         const tokenAmount = (polAmount * 10n**18n) / discountedPolPrice;
@@ -1498,7 +1469,7 @@
     // ================================================================
     // LAUNCH TOKEN
     // ================================================================
-    polAmountRange.oninput = () => { polAmountDisplay.textContent = polAmountRange.value + ' POL'; };
+    polAmountRange.oninput = () => { polAmountDisplay.textContent = polAmountRange.value + ' WMATIC'; };
 
     launchTokenBtn.onclick = async () => {
         if (!isConnected) return alert("Connect wallet first");
@@ -1509,7 +1480,7 @@
         const polAmount = ethers.parseUnits(polAmountRange.value, 18);
         try {
             launchTokenBtn.disabled = true;
-            launchTokenBtn.textContent = "Approving POL...";
+            launchTokenBtn.textContent = "Approving WMATIC...";
             const allowance = await polContract.allowance(userAddress, TOKEN_FACTORY_ADDRESS);
             if (allowance < polAmount) {
                 const approveTx = await polContract.approve(TOKEN_FACTORY_ADDRESS, polAmount);
