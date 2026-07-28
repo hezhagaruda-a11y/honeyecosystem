@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-wi0x4750a71f14c3b0e166A1cf53112d8A4EF07fD1b0dth, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🍯 Honey Protocol • Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/ethers@6.7.0/dist/ethers.umd.min.js"></script>
     <style>
@@ -184,16 +184,16 @@
 
     <!-- TABS -->
     <div class="tabs">
-        <button class="tab-btn active" data-tab="tabDEX">🏊 DEX</button>
-        <button class="tab-btn" data-tab="tabNFT">🎟️ Mint NFT</button>
-        <button class="tab-btn" data-tab="tabIDO">🚀 IDO Launches</button>
-        <button class="tab-btn" data-tab="tabLaunchToken">🚀 Launch Token</button>
-        <button class="tab-btn" data-tab="tabPrize">🏆 Prize Pot</button>
-        <button class="tab-btn" data-tab="tabAdmin">⚙️ Admin</button>
+        <button class="tab-btn active" data-tab="tabLaunchToken">Launch Token</button>
+        <button class="tab-btn" data-tab="tabDEX">Spark DEX</button>
+        <button class="tab-btn" data-tab="tabNFT">Investor NFT</button>
+        <button class="tab-btn" data-tab="tabIDO">IDO Launches</button>
+        <button class="tab-btn" data-tab="tabPrize" style="display:none;">Prize Pot</button>
+        <button class="tab-btn" data-tab="tabAdmin" id="adminTabBtn" style="display:none;">⚙️ Admin</button>
     </div>
 
     <!-- ======================== TAB 1: DEX ======================== -->
-    <div id="tabDEX" class="tab-content active">
+        <div id="tabDEX" class="tab-content">
         <div class="section-title">🏊 Spark DEX</div>
         <div class="section-desc">Browse all token pools and swap POL ↔ any token.</div>
 
@@ -358,7 +358,7 @@
     </div>
 
     <!-- ======================== TAB 4: LAUNCH TOKEN ======================== -->
-    <div id="tabLaunchToken" class="tab-content">
+    <div id="tabLaunchToken" class="tab-content active">
         <div class="section-title">🚀 Launch a New Token</div>
         <div class="section-desc">Permissionlessly deploy a new ERC‑20 token with an instant Spark Pool.</div>
 
@@ -451,8 +451,8 @@
     </div>
 
     <div class="footer">
-        ⚡ Polygon Mainnet • Permissionless Protocol • Dynamic AMM • Multi-Pool IDOs
-    </div>
+    ⚡ Polygon Mainnet • <a href="https://polygonscan.com/address/0x291BF810765ac7BAF6Ef91f94B53364f55E796C6" target="_blank">HONEY</a> • <a href="https://polygonscan.com/address/0xB5e5e19518B6ed4B525ba2C17FbE9C6Ec53D39CF" target="_blank">NFT</a> • <a href="https://polygonscan.com/address/0x266cF18eD892Da2B394fa916166cEb1d34C86F00" target="_blank">IDOFactory</a> • <a href="https://polygonscan.com/address/0x969FF22EbAEa8FE873d437F9Db0FE1edC5c2D7DF" target="_blank">TokenFactory</a>
+</div>
 </div>
 
 <script>
@@ -754,7 +754,8 @@
                 console.warn("Could not check factory owner:", e);
                 isOwner = false;
             }
-
+            // Show Admin tab if owner
+            document.getElementById('adminTabBtn').style.display = isOwner ? '' : 'none';
             walletDisplay.textContent = `🦊 ${userAddress.slice(0,6)}...${userAddress.slice(-4)}`;
             connectBtn.textContent = "✅ Connected";
 
@@ -797,10 +798,34 @@
     // ================================================================
     async function refreshBalancesAndTier() {
         try {
-            honeyBalance = await honeyContract.balanceOf(userAddress);
-            polBalance = await polContract.balanceOf(userAddress);
+            // Fetch HONEY balance safely
+            try {
+                honeyBalance = await honeyContract.balanceOf(userAddress);
+            } catch (e) {
+                console.warn("HONEY balance fetch failed", e);
+                honeyBalance = 0n;
+            }
+            // Fetch POL balance safely
+            try {
+                polBalance = await polContract.balanceOf(userAddress);
+            } catch (e) {
+                console.warn("POL balance fetch failed", e);
+                polBalance = 0n;
+            }
+
             balanceDisplay.textContent =
                 `HONEY: ${formatNumber(parseFloat(ethers.formatUnits(honeyBalance, 18)))} | POL: ${formatNumber(parseFloat(ethers.formatUnits(polBalance, 18)))}`;
+
+            const tier = Number(await nftContract.getUserTier(userAddress));
+            userTier = tier;
+            const names = ["None", "🥉 Bronze", "🥈 Silver", "🥇 Gold"];
+            const cls = ["", "bronze", "silver", "gold"];
+            tierDisplay.textContent = `Tier: ${names[tier] || "None"}`;
+            tierDisplay.className = `tier-badge ${cls[tier] || ""}`;
+        } catch (e) {
+            console.error("Balance refresh error:", e);
+        }
+    }
 
             const tier = Number(await nftContract.getUserTier(userAddress));
             userTier = tier;
