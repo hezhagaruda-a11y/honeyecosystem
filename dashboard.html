@@ -193,15 +193,17 @@
     </div>
 
     <!-- ======================== TAB 1: DEX ======================== -->
-    <div id="tabDEX" class="tab-content">
+        <div id="tabDEX" class="tab-content">
         <div class="section-title">🏊 Spark DEX</div>
         <div class="section-desc">Browse all token pools and swap POL ↔ any token.</div>
+
         <div class="dex-stats" id="dexStats">
             <div class="dex-stat"><div class="value" id="dexTotalVolume">--</div><div class="label">Total Volume</div></div>
             <div class="dex-stat"><div class="value" id="dexTotalTrades">--</div><div class="label">Trades</div></div>
             <div class="dex-stat"><div class="value" id="dexAvgChange">--</div><div class="label">Avg Price Change</div></div>
             <div class="dex-stat"><div class="value" id="dexPoolCount">--</div><div class="label">Pools</div></div>
         </div>
+
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
             <span style="font-weight:600; font-size:15px;">Token Pools • Live Prices (POL)</span>
             <button id="refreshPoolsBtn" class="btn btn-sm btn-outline">⟳ Refresh</button>
@@ -209,14 +211,19 @@
         <div id="dexPoolCards" class="grid-3" style="margin-bottom:16px;">
             <div style="color:var(--text-secondary); grid-column: span 3; text-align:center; padding: 20px;">Loading pools...</div>
         </div>
+
+        <!-- Recent Trades -->
         <div class="recent-trades">
             <div style="font-weight:600; margin-bottom:6px;">Recent Trades</div>
             <div id="recentTradesList">
                 <div class="trade-item" style="color:var(--text-secondary);">No trades yet.</div>
             </div>
         </div>
+
+        <!-- Swap Interface -->
         <div style="margin-top:12px;">
             <div class="price-display" id="dexPriceDisplay">Selected: <span id="selectedPoolName">--</span> — 1 <span id="selectedTokenSymbol">TOKEN</span> = <span id="selectedPoolPrice">--</span> POL</div>
+
             <div style="margin: 12px 0;">
                 <label style="font-size:14px; font-weight:500; color:var(--text-secondary);">Swap</label>
                 <div class="input-flex">
@@ -228,11 +235,13 @@
                     <button id="swapBtn" class="btn">Swap</button>
                 </div>
             </div>
+
             <div class="slippage-control">
                 <span>⚠️ Slippage</span>
                 <input type="range" id="slippageRange" min="0.1" max="5" step="0.1" value="0.5">
                 <span class="slippage-value" id="slippageDisplay">0.5%</span>
             </div>
+
             <div class="quote-box" id="swapQuote">
                 You receive: <strong id="swapReceive">0.00</strong> <span id="swapReceiveSymbol">TOKEN</span>
                 <br><span class="min-label">Minimum (after slippage): <span id="swapMinReceive">0.00</span></span>
@@ -280,21 +289,26 @@
             <button id="idoRefreshBtn" class="refresh-icon" title="Refresh Pools">⟳</button>
         </div>
         <div class="section-desc">Select an IDO pool card below to view details and participate. Your NFT tier determines the discount.</div>
+
         <div id="idoPoolCards" class="grid-3" style="margin-bottom: 8px;">
             <div style="color:var(--text-secondary); grid-column: span 3; text-align:center; padding: 20px;">Loading pools...</div>
         </div>
+
         <div id="idoPlaceholder" class="ido-placeholder">
             👆 Select an IDO pool above to view details and participate.
         </div>
+
         <div id="idoDetailView" class="ido-detail-view">
             <div id="poolStatusSummary" style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:12px; font-size:13px; color:var(--text-secondary);">
                 <span class="badge" id="poolStatusBadge">Status: --</span>
                 <span class="badge" id="poolSaleTokenLabel">Token: --</span>
                 <span class="badge" id="poolTreasuryLabel">Treasury: --</span>
             </div>
+
             <div id="countdownContainer" style="display:none;">
                 <span id="bigCountdown">Loading...</span>
             </div>
+
             <div class="grid-2">
                 <div class="stat-card">
                     <div class="stat-label">💰 POL Raised</div>
@@ -313,6 +327,7 @@
                     <div id="userContribution" class="stat-value">0.00</div>
                 </div>
             </div>
+
             <div class="progress-container">
                 <div id="idoProgress" class="progress-bar" style="width:0%;"></div>
             </div>
@@ -320,17 +335,21 @@
                 <span id="percentDisplay">0% SOLD</span>
                 <span id="capDisplay">Cap: 0</span>
             </div>
+
             <div class="price-display" id="idoPriceDisplay">⏳ Select a pool to see discounted price.</div>
+
             <div class="slippage-control">
                 <span>⚠️ Slippage</span>
                 <input type="range" id="idoSlippageRange" min="0.1" max="5" step="0.1" value="0.5">
                 <span class="slippage-value" id="idoSlippageDisplay">0.5%</span>
             </div>
+
             <div class="input-flex">
                 <input type="number" id="polInput" placeholder="0.0 POL" step="0.01" min="0" disabled>
                 <button id="maxBtn" class="btn btn-outline" style="padding:10px 16px;" disabled>MAX</button>
                 <button id="buyBtn" class="btn" disabled>Buy Tokens</button>
             </div>
+
             <div class="quote-box" id="quoteBox">
                 You receive: <strong id="quoteAmount">0.00</strong> <span id="quoteSymbol">SALE</span>
                 <br><span class="min-label">Minimum (after slippage): <span id="idoMinReceive">0.00</span></span>
@@ -342,18 +361,22 @@
     <div id="tabLaunchToken" class="tab-content active">
         <div class="section-title">🚀 Launch a New Token</div>
         <div class="section-desc">Permissionlessly deploy a new ERC‑20 token with an instant Spark Pool.</div>
+
         <div class="input-flex">
             <input type="text" id="tokenName" placeholder="Token Name (e.g., My Token)" style="flex:1;">
             <input type="text" id="tokenSymbol" placeholder="Symbol (e.g., MYT)" style="flex:1;">
         </div>
+
         <div class="slippage-control">
             <span>POL to Pair</span>
             <input type="range" id="polAmountRange" min="300" max="5000" step="25" value="300">
             <span class="slippage-value" id="polAmountDisplay">300 POL</span>
         </div>
+
         <div style="font-size:13px; color:var(--text-secondary); margin: 6px 0;">
             ⚙️ Fixed supply: 1,000,000,000 tokens • 0.75% (7.5M) to Spark Pool
         </div>
+
         <button id="launchTokenBtn" class="btn" style="width:100%; margin-top:12px;">Launch Token</button>
         <div id="launchTokenStatus" style="font-size:13px; color:var(--text-secondary); margin-top:8px;"></div>
     </div>
@@ -362,6 +385,7 @@
     <div id="tabPrize" class="tab-content">
         <div class="section-title">🏆 HONEY Prize Pot</div>
         <div class="section-desc">800M HONEY distributed over 7 years to the top 16 holders. Claim your allocation.</div>
+
         <div class="grid-2">
             <div class="stat-card">
                 <div class="stat-label">Current Year</div>
@@ -372,6 +396,7 @@
                 <div id="prizeAnnualPot" class="stat-value">--</div>
             </div>
         </div>
+
         <div style="margin-top: 16px;">
             <button id="claimPrizeBtn" class="btn" disabled>Claim (Proof required)</button>
             <div style="font-size:13px; color:var(--text-secondary); margin-top:8px;">
@@ -384,6 +409,7 @@
     <div id="tabAdmin" class="tab-content">
         <div class="section-title">⚙️ Admin Panel</div>
         <div class="section-desc">Manage IDO launches. Only the contract owner can access these functions.</div>
+
         <div class="admin-section">
             <h4>📋 All Pools</h4>
             <div class="sub">Currently deployed IDO pools.</div>
@@ -391,6 +417,7 @@
                 <div style="color:var(--text-secondary); font-size:13px;">Loading pools...</div>
             </div>
         </div>
+
         <div class="admin-section">
             <h4>🚀 Launch New IDO</h4>
             <div class="sub">Deploy a new IDO pool. All fields required.</div>
@@ -406,6 +433,7 @@
             </div>
             <button id="adminLaunchBtn" class="btn btn-success" style="width:100%; margin-top:8px;">Launch IDO</button>
         </div>
+
         <div class="admin-section">
             <h4>🛑 Manage Pool</h4>
             <div class="sub">Pause, resume, or remove a pool by address.</div>
@@ -416,13 +444,14 @@
                 <button id="adminRemoveBtn" class="btn btn-danger btn-sm">Remove</button>
             </div>
         </div>
+
         <div style="font-size:12px; color:var(--text-secondary); text-align:center; margin-top:8px;">
             ⚠️ Only the deployer wallet (owner) can perform admin actions.
         </div>
     </div>
 
-    <div class="footer">
-    ⚡ Polygon Mainnet • <a href="https://polygonscan.com/address/0x291BF810765ac7BAF6Ef91f94B53364f55E796C6" target="_blank">HONEY</a> • <a href="https://polygonscan.com/address/0xB5e5e19518B6ed4B525ba2C17FbE9C6Ec53D39CF" target="_blank">NFT</a> • <a href="https://polygonscan.com/address/0x266cF18eD892Da2B394fa916166cEb1d34C86F00" target="_blank">IDOFactory</a> • <a href="https://polygonscan.com/address/0x969FF22EbAEa8FE873d437F9Db0FE1edC5c2D7DF" target="_blank">TokenFactory</a>
+        <div class="footer">
+    ⚡ Polygon Mainnet • <a href="https://polygonscan.com/address/0x44FEb08365Aaf178b057E71eA34C82a4Ea6e3B4c" target="_blank">HONEY</a> • <a href="https://polygonscan.com/address/0x83979d4D8280a739c058fb1ECB42bC5320406b02" target="_blank">NFT</a> • <a href="https://polygonscan.com/address/0x1057B009418655543E3d81015e5E1516B6F74282" target="_blank">IDOFactory</a> • <a href="https://polygonscan.com/address/0x6f1494440C3B43d173E5C98a4dEe2AbfEad9E131" target="_blank">TokenFactory</a>
     </div>
 </div>
 
@@ -430,11 +459,11 @@
     // ================================================================
     // DEPLOYED ADDRESSES (POLYGON MAINNET)
     // ================================================================
-    const HONEY_ADDRESS = "0x291BF810765ac7BAF6Ef91f94B53364f55E796C6";
+    const HONEY_ADDRESS = "0x44FEb08365Aaf178b057E71eA34C82a4Ea6e3B4c";
     const POL_ADDRESS = "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270";
-    const NFT_ADDRESS = "0xB5e5e19518B6ed4B525ba2C17FbE9C6Ec53D39CF";
-    const FACTORY_ADDRESS = "0x266cF18eD892Da2B394fa916166cEb1d34C86F00";
-    const TOKEN_FACTORY_ADDRESS = "0x969FF22EbAEa8FE873d437F9Db0FE1edC5c2D7DF";
+    const NFT_ADDRESS = "0x83979d4D8280a739c058fb1ECB42bC5320406b02";
+    const FACTORY_ADDRESS = "0x1057B009418655543E3d81015e5E1516B6F74282";
+    const TOKEN_FACTORY_ADDRESS = "0x6f1494440C3B43d173E5C98a4dEe2AbfEad9E131";
     const PRIZE_POT_ADDRESS = "0x0000000000000000000000000000000000000000";
 
     // ================================================================
@@ -711,13 +740,13 @@
             factoryContract = new ethers.Contract(FACTORY_ADDRESS, FACTORY_ABI, signer);
             tokenFactoryContract = new ethers.Contract(TOKEN_FACTORY_ADDRESS, TOKEN_FACTORY_ABI, signer);
             if (PRIZE_POT_ADDRESS !== "0x0000000000000000000000000000000000000000") {
-                prizePotContract = new ethers.Contract(PRIZE_POT_ADDRESS, [
-                    "function getCurrentYear() view returns (uint256)",
-                    "function ANNUAL_POT() view returns (uint256)"
-                ], signer);
-            } else {
-                prizePotContract = null;
-            }
+    prizePotContract = new ethers.Contract(PRIZE_POT_ADDRESS, [
+        "function getCurrentYear() view returns (uint256)",
+        "function ANNUAL_POT() view returns (uint256)"
+    ], signer);
+} else {
+    prizePotContract = null;
+}
             try {
                 const factoryOwner = await factoryContract.owner();
                 isOwner = factoryOwner.toLowerCase() === userAddress.toLowerCase();
